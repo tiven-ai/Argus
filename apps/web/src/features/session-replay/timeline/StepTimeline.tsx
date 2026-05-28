@@ -28,7 +28,6 @@ export function StepTimeline({ steps, activeStepId, onSelect }: Props) {
       lastScrolledRef.current = activeStepId
     }
     // virtualizer intentionally omitted from deps — it's a new object every render
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [activeStepId, steps])
 
   return (
