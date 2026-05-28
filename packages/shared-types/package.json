@@ -17,6 +17,9 @@
     "test": "vitest run --passWithNoTests",
     "typecheck": "tsc --noEmit"
   },
+  "dependencies": {
+    "zod": "^3.23.0"
+  },
   "devDependencies": {
     "@argus/eslint-config": "workspace:*",
     "@argus/tsconfig": "workspace:*",

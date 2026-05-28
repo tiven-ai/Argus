@@ -11,16 +11,27 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "lint": "eslint src test",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "db:migrate": "tsx src/db/migrate.ts",
+    "db:codegen": "kysely-codegen --out-file src/db/schema.ts --dialect postgres",
+    "db:seed": "tsx src/cli/seed.ts"
   },
   "dependencies": {
-    "fastify": "^5.0.0"
+    "@argus/shared-types": "workspace:*",
+    "fastify": "^5.0.0",
+    "kysely": "^0.27.0",
+    "pg": "^8.13.0",
+    "zod": "^3.23.0"
   },
   "devDependencies": {
     "@argus/eslint-config": "workspace:*",
     "@argus/tsconfig": "workspace:*",
+    "@testcontainers/postgresql": "^10.0.0",
     "@types/node": "^22.0.0",
+    "@types/pg": "^8.11.0",
     "eslint": "^9.0.0",
+    "kysely-codegen": "^0.18.0",
+    "testcontainers": "^10.0.0",
     "tsx": "^4.0.0",
     "typescript": "^5.6.0",
     "vitest": "^2.0.0"
