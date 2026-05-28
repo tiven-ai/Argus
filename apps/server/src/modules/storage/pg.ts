@@ -8,13 +8,16 @@ import type {
   StoredStep,
   StoredStepEvent,
   WriteTraceInput,
+  WriteTraceResult,
 } from './types.js'
 
 export class PgStorage implements StorageBackend {
   constructor(private readonly db: Kysely<DB>) {}
 
-  async writeTrace(input: WriteTraceInput): Promise<void> {
-    await this.db.transaction().execute(async (trx) => {
+  async writeTrace(input: WriteTraceInput): Promise<WriteTraceResult> {
+    const insertedSpanIds: string[] = []
+
+    const sessionId = await this.db.transaction().execute(async (trx) => {
       const projectId = await this.upsertProject(trx, input.orgId, input.projectName)
       const serviceId = await this.upsertService(trx, projectId, input.serviceName)
       const sessionId = await this.upsertSession(
@@ -28,7 +31,6 @@ export class PgStorage implements StorageBackend {
       for (const step of input.steps) {
         const stepId = await this.upsertStep(trx, sessionId, step)
         if (step.events.length > 0) {
-          // Replace events for this step to keep idempotent.
           await trx.deleteFrom('step_events').where('step_id', '=', stepId).execute()
           await trx
             .insertInto('step_events')
@@ -42,9 +44,9 @@ export class PgStorage implements StorageBackend {
             )
             .execute()
         }
+        insertedSpanIds.push(step.spanId)
       }
 
-      // Recompute step_count based on current rows
       const { count } = await trx
         .selectFrom('steps')
         .select((eb) => eb.fn.countAll().as('count'))
@@ -55,7 +57,16 @@ export class PgStorage implements StorageBackend {
         .set({ step_count: Number(count) })
         .where('id', '=', sessionId)
         .execute()
+
+      return sessionId
     })
+
+    // After commit, read back the written steps in input order, with their events.
+    const detail = await this.getSession({ orgId: input.orgId, sessionId })
+    const writtenSteps: StoredStep[] =
+      detail?.steps.filter((s) => insertedSpanIds.includes(s.spanId)) ?? []
+
+    return { sessionId, writtenSteps }
   }
 
   async listSessions(opts: { orgId: string; limit?: number }): Promise<StoredSessionSummary[]> {

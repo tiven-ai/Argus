@@ -83,6 +83,56 @@ describe('PgStorage', () => {
       expect(sessions[0]?.endedAt).toEqual(new Date('2026-05-28T12:00:02Z'))
     })
 
+    it('returns sessionId and the written steps with DB ids', async () => {
+      const traceId = '5'.repeat(32)
+      const result = await storage.writeTrace({
+        orgId: DEFAULT_ORG_ID,
+        projectName: 'p1',
+        serviceName: 's1',
+        traceId,
+        sessionStartedAt: new Date('2026-05-28T12:00:00Z'),
+        sessionEndedAt: null,
+        steps: [
+          makeStep({ spanId: 'a'.repeat(16) }),
+          makeStep({ spanId: 'b'.repeat(16), parentSpanId: 'a'.repeat(16) }),
+        ],
+      })
+      expect(result.sessionId).toMatch(/^[0-9a-f-]{36}$/)
+      expect(result.writtenSteps).toHaveLength(2)
+      const spanIds = result.writtenSteps.map((s) => s.spanId).sort()
+      expect(spanIds).toEqual(['a'.repeat(16), 'b'.repeat(16)])
+      // Each returned step has a DB id assigned.
+      for (const s of result.writtenSteps) {
+        expect(s.id).toMatch(/^[0-9a-f-]{36}$/)
+      }
+    })
+
+    it('returned writtenSteps include events', async () => {
+      const result = await storage.writeTrace({
+        orgId: DEFAULT_ORG_ID,
+        projectName: 'p1',
+        serviceName: 's1',
+        traceId: '6'.repeat(32),
+        sessionStartedAt: new Date('2026-05-28T12:00:00Z'),
+        sessionEndedAt: null,
+        steps: [
+          makeStep({
+            spanId: 'c'.repeat(16),
+            events: [
+              {
+                name: 'argus.input',
+                ts: new Date('2026-05-28T12:00:00.5Z'),
+                attributes: { text: 'hi' },
+              },
+            ],
+          }),
+        ],
+      })
+      expect(result.writtenSteps).toHaveLength(1)
+      expect(result.writtenSteps[0]?.events).toHaveLength(1)
+      expect(result.writtenSteps[0]?.events[0]?.attributes).toEqual({ text: 'hi' })
+    })
+
     it('persists step events', async () => {
       await storage.writeTrace({
         orgId: DEFAULT_ORG,

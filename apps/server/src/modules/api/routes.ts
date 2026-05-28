@@ -1,6 +1,7 @@
 import type { FastifyInstance, FastifyPluginAsync } from 'fastify'
 import type { StorageBackend } from '../storage/types.js'
 import { DEFAULT_ORG_ID } from '../../constants.js'
+import { storedStepToApi } from './mappers.js'
 
 export interface ApiRoutesDeps {
   storage: StorageBackend
@@ -41,26 +42,7 @@ export const apiRoutes: FastifyPluginAsync<ApiRoutesDeps> = async (app: FastifyI
         endedAt: detail.endedAt ? detail.endedAt.toISOString() : null,
         stepCount: detail.stepCount,
       },
-      steps: detail.steps.map((s) => ({
-        id: s.id,
-        spanId: s.spanId,
-        parentSpanId: s.parentSpanId,
-        name: s.name,
-        kind: s.kind,
-        componentType: s.componentType,
-        componentName: s.componentName,
-        startedAt: s.startedAt.toISOString(),
-        endedAt: s.endedAt.toISOString(),
-        attributes: s.attributes,
-        statusCode: s.statusCode,
-        statusMessage: s.statusMessage,
-        events: s.events.map((e) => ({
-          id: e.id,
-          name: e.name,
-          ts: e.ts.toISOString(),
-          attributes: e.attributes,
-        })),
-      })),
+      steps: detail.steps.map(storedStepToApi),
     }
   })
 }

@@ -66,13 +66,19 @@ export interface StoredSessionDetail extends StoredSessionSummary {
   steps: StoredStep[]
 }
 
+export interface WriteTraceResult {
+  sessionId: string
+  /** Steps that were inserted or updated by this call, in input order. */
+  writtenSteps: StoredStep[]
+}
+
 export interface StorageBackend {
   /**
    * Upserts project + service + session, then inserts steps (and their events).
-   * If a step with the same (session_id, span_id) already exists, it is replaced.
-   * The whole operation runs in a single transaction.
+   * Returns the session id and the steps that were written (with their DB ids
+   * and updated step_event rows), so callers can publish them downstream.
    */
-  writeTrace(input: WriteTraceInput): Promise<void>
+  writeTrace(input: WriteTraceInput): Promise<WriteTraceResult>
 
   /** Returns sessions for an org, most recently started first. */
   listSessions(opts: { orgId: string; limit?: number }): Promise<StoredSessionSummary[]>
