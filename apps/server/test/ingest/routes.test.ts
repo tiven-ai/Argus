@@ -2,6 +2,7 @@ import { afterAll, beforeEach, describe, expect, it } from 'vitest'
 import Fastify from 'fastify'
 import { ingestRoutes } from '../../src/modules/ingest/index.js'
 import { PgStorage } from '../../src/modules/storage/pg.js'
+import { InProcMessageBus } from '../../src/modules/pubsub/index.js'
 import { createTestDb, truncateAll } from '../helpers/db.js'
 
 const HEX_TRACE = '0123456789abcdef0123456789abcdef'
@@ -49,7 +50,8 @@ describe('POST /v1/traces', () => {
 
   async function makeApp() {
     const app = Fastify()
-    await app.register(ingestRoutes, { storage })
+    const bus = new InProcMessageBus()
+    await app.register(ingestRoutes, { storage, bus })
     return app
   }
 

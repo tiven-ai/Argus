@@ -1,10 +1,13 @@
 import type { FastifyInstance, FastifyPluginAsync } from 'fastify'
 import type { StorageBackend } from '../storage/types.js'
+import type { MessageBus } from '../pubsub/types.js'
+import { storedStepToApi } from '../api/mappers.js'
 import { OtlpParseError, parseOtlpRequest } from './parser.js'
 import { otlpExportRequestSchema } from './otlp-json.js'
 
 export interface IngestRoutesDeps {
   storage: StorageBackend
+  bus: MessageBus
 }
 
 export const ingestRoutes: FastifyPluginAsync<IngestRoutesDeps> = async (
@@ -29,11 +32,16 @@ export const ingestRoutes: FastifyPluginAsync<IngestRoutesDeps> = async (
       throw err
     }
 
+    let acceptedCount = 0
     for (const trace of traces) {
-      await deps.storage.writeTrace(trace)
+      const result = await deps.storage.writeTrace(trace)
+      for (const stored of result.writtenSteps) {
+        deps.bus.publish(`session:${result.sessionId}`, storedStepToApi(stored))
+      }
+      acceptedCount += result.writtenSteps.length
     }
 
     reply.code(200)
-    return { accepted: traces.reduce((n, t) => n + t.steps.length, 0) }
+    return { accepted: acceptedCount }
   })
 }
