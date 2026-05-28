@@ -1,0 +1,78 @@
+{
+  "resourceSpans": [
+    {
+      "resource": {
+        "attributes": [
+          { "key": "argus.project", "value": { "stringValue": "demo" } },
+          { "key": "argus.service", "value": { "stringValue": "weather-bot" } },
+          { "key": "service.name", "value": { "stringValue": "weather-bot" } }
+        ]
+      },
+      "scopeSpans": [
+        {
+          "scope": { "name": "argus-example" },
+          "spans": [
+            {
+              "traceId": "abcdef0123456789abcdef0123456789",
+              "spanId": "1111111111111111",
+              "name": "agent.session",
+              "startTimeUnixNano": "1779955200000000000",
+              "endTimeUnixNano": "1779955205000000000",
+              "status": { "code": 1 }
+            },
+            {
+              "traceId": "abcdef0123456789abcdef0123456789",
+              "spanId": "2222222222222222",
+              "parentSpanId": "1111111111111111",
+              "name": "user_message",
+              "startTimeUnixNano": "1779955200100000000",
+              "endTimeUnixNano": "1779955200100000000",
+              "attributes": [
+                { "key": "argus.step.kind", "value": { "stringValue": "user_message" } }
+              ],
+              "events": [
+                {
+                  "timeUnixNano": "1779955200100000000",
+                  "name": "argus.input",
+                  "attributes": [
+                    { "key": "text", "value": { "stringValue": "今天合肥天气怎么样？" } }
+                  ]
+                }
+              ],
+              "status": { "code": 1 }
+            },
+            {
+              "traceId": "abcdef0123456789abcdef0123456789",
+              "spanId": "3333333333333333",
+              "parentSpanId": "1111111111111111",
+              "name": "llm.chat",
+              "startTimeUnixNano": "1779955200200000000",
+              "endTimeUnixNano": "1779955201600000000",
+              "attributes": [
+                { "key": "argus.step.kind", "value": { "stringValue": "llm_call" } },
+                { "key": "argus.component.type", "value": { "stringValue": "llm" } },
+                { "key": "argus.component.name", "value": { "stringValue": "claude-3-7-sonnet" } },
+                { "key": "gen_ai.request.model", "value": { "stringValue": "claude-3-7-sonnet" } },
+                { "key": "gen_ai.usage.input_tokens", "value": { "intValue": "120" } },
+                { "key": "gen_ai.usage.output_tokens", "value": { "intValue": "45" } }
+              ],
+              "events": [
+                {
+                  "timeUnixNano": "1779955201600000000",
+                  "name": "argus.output",
+                  "attributes": [
+                    {
+                      "key": "text",
+                      "value": { "stringValue": "I'll check the weather for Hefei." }
+                    }
+                  ]
+                }
+              ],
+              "status": { "code": 1 }
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
