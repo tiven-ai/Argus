@@ -1,10 +1,11 @@
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 import tailwindcss from '@tailwindcss/vite'
+import { tanstackRouter } from '@tanstack/router-plugin/vite'
 import path from 'node:path'
 
 export default defineConfig({
-  plugins: [react(), tailwindcss()],
+  plugins: [tanstackRouter({ target: 'react', autoCodeSplitting: true }), react(), tailwindcss()],
   resolve: {
     alias: {
       '@': path.resolve(__dirname, './src'),
@@ -14,6 +15,7 @@ export default defineConfig({
     port: 5173,
     proxy: {
       '/api': 'http://localhost:4000',
+      '/v1': 'http://localhost:4000',
       '/healthz': 'http://localhost:4000',
     },
   },
