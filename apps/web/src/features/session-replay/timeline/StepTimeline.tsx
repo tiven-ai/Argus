@@ -18,11 +18,18 @@ export function StepTimeline({ steps, activeStepId, onSelect }: Props) {
     overscan: 6,
   })
 
+  const lastScrolledRef = useRef<string | undefined>(undefined)
+
   useEffect(() => {
-    if (!activeStepId) return
+    if (!activeStepId || activeStepId === lastScrolledRef.current) return
     const i = steps.findIndex((s) => s.id === activeStepId)
-    if (i >= 0) virtualizer.scrollToIndex(i, { align: 'center' })
-  }, [activeStepId, steps, virtualizer])
+    if (i >= 0) {
+      virtualizer.scrollToIndex(i, { align: 'center' })
+      lastScrolledRef.current = activeStepId
+    }
+    // virtualizer intentionally omitted from deps — it's a new object every render
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [activeStepId, steps])
 
   return (
     <div ref={parentRef} className="h-full overflow-auto">
