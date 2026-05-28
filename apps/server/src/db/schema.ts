@@ -1,0 +1,66 @@
+import type { ColumnType, Generated } from 'kysely'
+
+type Timestamp = ColumnType<Date, Date | string, Date | string>
+type Json = ColumnType<unknown, string, string>
+
+export interface Orgs {
+  id: string
+  name: string
+  created_at: Generated<Timestamp>
+}
+
+export interface Projects {
+  id: Generated<string>
+  org_id: string
+  name: string
+  created_at: Generated<Timestamp>
+}
+
+export interface Services {
+  id: Generated<string>
+  project_id: string
+  name: string
+  created_at: Generated<Timestamp>
+}
+
+export interface Sessions {
+  id: Generated<string>
+  service_id: string
+  trace_id: string
+  started_at: Timestamp
+  ended_at: Timestamp | null
+  step_count: Generated<number>
+}
+
+export interface Steps {
+  id: Generated<string>
+  session_id: string
+  span_id: string
+  parent_span_id: string | null
+  name: string
+  kind: string | null
+  component_type: string | null
+  component_name: string | null
+  started_at: Timestamp
+  ended_at: Timestamp
+  attributes: Json
+  status_code: Generated<string>
+  status_message: string | null
+}
+
+export interface StepEvents {
+  id: Generated<string>
+  step_id: string
+  name: string
+  ts: Timestamp
+  attributes: Json
+}
+
+export interface DB {
+  orgs: Orgs
+  projects: Projects
+  services: Services
+  sessions: Sessions
+  steps: Steps
+  step_events: StepEvents
+}
