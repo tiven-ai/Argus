@@ -72,4 +72,8 @@ describe('findRenderer', () => {
   it('picks LlmCallRenderer when componentType is llm (lower priority than kind)', () => {
     expect(findRenderer(makeStep({ componentType: 'llm' })).id).toBe('llm-call')
   })
+
+  it('picks ToolCallRenderer for tool_call kind', () => {
+    expect(findRenderer(makeStep({ kind: 'tool_call' })).id).toBe('tool-call')
+  })
 })
