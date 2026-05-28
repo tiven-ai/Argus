@@ -47,7 +47,7 @@ describe('findRenderer', () => {
   it('per-step priority lets one renderer win for some steps and another for others', () => {
     registerRenderer({ id: 'user-only', match: (s) => (s.kind === 'user_message' ? 100 : 0) })
     expect(findRenderer(makeStep({ kind: 'user_message' })).id).toBe('user-only')
-    expect(findRenderer(makeStep({ kind: 'assistant_message' })).id).toBe('generic-json')
+    expect(findRenderer(makeStep({ kind: 'assistant_message' })).id).toBe('assistant-message')
   })
 
   it('GenericJsonRenderer always returns content for input/output (even when none)', () => {
@@ -59,5 +59,9 @@ describe('findRenderer', () => {
 
   it('picks UserMessageRenderer for user_message kind', () => {
     expect(findRenderer(makeStep({ kind: 'user_message' })).id).toBe('user-message')
+  })
+
+  it('picks AssistantMessageRenderer for assistant_message kind', () => {
+    expect(findRenderer(makeStep({ kind: 'assistant_message' })).id).toBe('assistant-message')
   })
 })
