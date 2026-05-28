@@ -45,7 +45,7 @@ describe('findRenderer', () => {
   })
 
   it('per-step priority lets one renderer win for some steps and another for others', () => {
-    registerRenderer({ id: 'user-only', match: (s) => (s.kind === 'user_message' ? 10 : 0) })
+    registerRenderer({ id: 'user-only', match: (s) => (s.kind === 'user_message' ? 100 : 0) })
     expect(findRenderer(makeStep({ kind: 'user_message' })).id).toBe('user-only')
     expect(findRenderer(makeStep({ kind: 'assistant_message' })).id).toBe('generic-json')
   })
@@ -55,5 +55,9 @@ describe('findRenderer', () => {
     // Verify the renderer has both functions — no assertion that they return JSX without a DOM.
     expect(typeof GenericJsonRenderer.renderInput).toBe('function')
     expect(typeof GenericJsonRenderer.renderOutput).toBe('function')
+  })
+
+  it('picks UserMessageRenderer for user_message kind', () => {
+    expect(findRenderer(makeStep({ kind: 'user_message' })).id).toBe('user-message')
   })
 })

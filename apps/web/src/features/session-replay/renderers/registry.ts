@@ -1,12 +1,13 @@
 import type { Step } from '@argus/shared-types'
 import type { StepRenderer } from './types'
 import { GenericJsonRenderer } from './generic-json'
+import { UserMessageRenderer } from './user-message'
 
 /**
  * Registered renderers, ordered by registration but resolved by priority.
  * Specialized renderers append themselves here in tasks M2-4..M2-7.
  */
-export const renderers: StepRenderer[] = [GenericJsonRenderer]
+export const renderers: StepRenderer[] = [GenericJsonRenderer, UserMessageRenderer]
 
 export function registerRenderer(r: StepRenderer): void {
   renderers.push(r)
