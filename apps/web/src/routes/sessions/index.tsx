@@ -12,11 +12,11 @@ function SessionsList() {
     queryFn: fetchSessions,
   })
 
-  if (isLoading) return <p className="text-neutral-500">Loading…</p>
-  if (error) return <p className="text-red-600">Error: {String(error)}</p>
+  if (isLoading) return <p className="p-6 text-neutral-500">Loading…</p>
+  if (error) return <p className="p-6 text-red-600">Error: {String(error)}</p>
   if (!data || data.sessions.length === 0) {
     return (
-      <div className="text-neutral-500">
+      <div className="p-6 text-neutral-500">
         <p>No sessions yet.</p>
         <p className="text-sm mt-2">
           Try <code className="bg-neutral-100 px-1 rounded">pnpm db:seed</code> or send an OTLP
@@ -27,7 +27,7 @@ function SessionsList() {
   }
 
   return (
-    <div className="space-y-2">
+    <div className="p-6 space-y-2 overflow-auto h-full">
       <h2 className="text-lg font-semibold mb-4">Sessions</h2>
       <table className="w-full text-sm">
         <thead className="text-left text-neutral-500">

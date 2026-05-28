@@ -6,8 +6,8 @@ export const Route = createRootRoute({
 
 function RootLayout() {
   return (
-    <div className="min-h-screen flex flex-col">
-      <header className="border-b px-6 py-3 flex items-center gap-4">
+    <div className="h-screen flex flex-col">
+      <header className="border-b px-6 py-3 flex items-center gap-4 shrink-0">
         <Link to="/" className="text-lg font-bold tracking-tight">
           Argus
         </Link>
@@ -17,7 +17,7 @@ function RootLayout() {
           </Link>
         </nav>
       </header>
-      <main className="flex-1 p-6">
+      <main className="flex-1 overflow-hidden">
         <Outlet />
       </main>
     </div>
