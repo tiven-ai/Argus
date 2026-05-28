@@ -40,3 +40,4 @@ The high-level design lives in `docs/superpowers/specs/2026-05-28-argus-design.m
 - **Don't add to `attributes` what belongs in a Span Event** — see `docs/conventions/semantic-conventions.md`.
 - **Don't add a Postgres query that doesn't filter by `org_id`** — multi-tenant boundary. Use the `withTenant` DAO helper once it exists.
 - **Don't add UI strings without translating** to en/zh-CN/ja once i18n lands in M6.
+- **Use Span Events for structured payloads, not large attributes.** `argus.input` / `argus.output` / `argus.error` events carry the data. Attributes are for IDs, names, classifications, and small scalars.

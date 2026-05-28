@@ -12,11 +12,23 @@ Requirements: Node 20+, pnpm 10+, Docker (for Postgres).
 git clone <this-repo>
 cd argus
 pnpm install
-pnpm db:up           # start Postgres on :5432
-pnpm dev             # start server (:4000) and web (:5173)
+pnpm db:up               # start Postgres on :5432
+pnpm db:migrate          # apply schema
+pnpm db:seed             # insert demo session (optional)
+pnpm dev                 # server :4000 + web :5173
 ```
 
-Open http://localhost:5173 — you should see the **Argus** headline with `Server status: ok`.
+Open http://localhost:5173 — you'll be redirected to `/sessions`. If you ran `db:seed`, one session is listed; click into it for the raw JSON view.
+
+Send your own trace:
+
+```bash
+curl -X POST http://localhost:4000/v1/traces \
+  -H 'Content-Type: application/json' \
+  --data-binary @scripts/example-trace.json
+```
+
+The browser will pick it up after refresh.
 
 ## Repository layout
 
