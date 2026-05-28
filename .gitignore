@@ -143,18 +143,9 @@ vite.config.ts.timestamp-*
 .vite/
 
 # pnpm / turbo / build
-node_modules/
 .pnpm-store/
 .turbo/
-.vite/
-dist/
 build/
-coverage/
-
-# env files
-.env
-.env.local
 
 # editor / OS
 .DS_Store
-*.log
