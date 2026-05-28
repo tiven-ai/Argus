@@ -151,4 +151,4 @@ build/
 .DS_Store
 
 # tanstack router generated
-apps/web/src/routeTree.gen.ts
+# routeTree.gen.ts is committed so CI typecheck works from clean checkout
