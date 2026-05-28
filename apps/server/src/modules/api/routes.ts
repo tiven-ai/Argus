@@ -1,6 +1,6 @@
 import type { FastifyInstance, FastifyPluginAsync } from 'fastify'
 import type { StorageBackend } from '../storage/types.js'
-import { DEFAULT_ORG_ID } from '../ingest/parser.js'
+import { DEFAULT_ORG_ID } from '../../constants.js'
 
 export interface ApiRoutesDeps {
   storage: StorageBackend

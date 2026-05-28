@@ -1,7 +1,8 @@
 import type { NewStep, WriteTraceInput } from '../storage/types.js'
 import { attributesToObject, type OtlpExportRequest } from './otlp-json.js'
+import { DEFAULT_ORG_ID } from '../../constants.js'
 
-export const DEFAULT_ORG_ID = '00000000-0000-0000-0000-000000000000'
+export { DEFAULT_ORG_ID } from '../../constants.js'
 
 export class OtlpParseError extends Error {
   constructor(message: string) {
