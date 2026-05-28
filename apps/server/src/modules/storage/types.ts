@@ -1,0 +1,82 @@
+export interface NewStepEvent {
+  name: string
+  ts: Date
+  attributes: Record<string, unknown>
+}
+
+export interface NewStep {
+  spanId: string
+  parentSpanId: string | null
+  name: string
+  kind: string | null
+  componentType: string | null
+  componentName: string | null
+  startedAt: Date
+  endedAt: Date
+  attributes: Record<string, unknown>
+  statusCode: 'UNSET' | 'OK' | 'ERROR'
+  statusMessage: string | null
+  events: NewStepEvent[]
+}
+
+export interface WriteTraceInput {
+  orgId: string
+  projectName: string
+  serviceName: string
+  traceId: string
+  sessionStartedAt: Date
+  sessionEndedAt: Date | null
+  steps: NewStep[]
+}
+
+export interface StoredStepEvent {
+  id: string
+  name: string
+  ts: Date
+  attributes: Record<string, unknown>
+}
+
+export interface StoredStep {
+  id: string
+  spanId: string
+  parentSpanId: string | null
+  name: string
+  kind: string | null
+  componentType: string | null
+  componentName: string | null
+  startedAt: Date
+  endedAt: Date
+  attributes: Record<string, unknown>
+  statusCode: string
+  statusMessage: string | null
+  events: StoredStepEvent[]
+}
+
+export interface StoredSessionSummary {
+  id: string
+  traceId: string
+  projectName: string
+  serviceName: string
+  startedAt: Date
+  endedAt: Date | null
+  stepCount: number
+}
+
+export interface StoredSessionDetail extends StoredSessionSummary {
+  steps: StoredStep[]
+}
+
+export interface StorageBackend {
+  /**
+   * Upserts project + service + session, then inserts steps (and their events).
+   * If a step with the same (session_id, span_id) already exists, it is replaced.
+   * The whole operation runs in a single transaction.
+   */
+  writeTrace(input: WriteTraceInput): Promise<void>
+
+  /** Returns sessions for an org, most recently started first. */
+  listSessions(opts: { orgId: string; limit?: number }): Promise<StoredSessionSummary[]>
+
+  /** Returns one session with all its steps + step events, or null. */
+  getSession(sessionId: string): Promise<StoredSessionDetail | null>
+}
