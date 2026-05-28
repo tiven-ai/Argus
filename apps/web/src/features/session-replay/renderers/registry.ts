@@ -24,7 +24,7 @@ export function registerRenderer(r: StepRenderer): void {
 
 export function findRenderer(step: Step): StepRenderer {
   let best: StepRenderer = GenericJsonRenderer
-  let bestPriority = best.match(step)
+  let bestPriority = 0
   for (const r of renderers) {
     const p = r.match(step)
     if (p > bestPriority) {
