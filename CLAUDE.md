@@ -17,6 +17,7 @@ The high-level design lives in `docs/superpowers/specs/2026-05-28-argus-design.m
 | What does the data look like?   | `docs/conventions/semantic-conventions.md`                            |
 | How do I run it?                | `README.md`                                                           |
 | Project conventions             | `docs/conventions/`                                                   |
+| UI design system / tokens       | `docs/design/DESIGN.md`                                               |
 
 ## Working rules
 
