@@ -51,7 +51,6 @@ describe('findRenderer', () => {
   })
 
   it('GenericJsonRenderer always returns content for input/output (even when none)', () => {
-    const step = makeStep()
     // Verify the renderer has both functions — no assertion that they return JSX without a DOM.
     expect(typeof GenericJsonRenderer.renderInput).toBe('function')
     expect(typeof GenericJsonRenderer.renderOutput).toBe('function')
