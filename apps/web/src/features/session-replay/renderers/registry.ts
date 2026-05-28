@@ -3,6 +3,7 @@ import type { StepRenderer } from './types'
 import { GenericJsonRenderer } from './generic-json'
 import { UserMessageRenderer } from './user-message'
 import { AssistantMessageRenderer } from './assistant-message'
+import { LlmCallRenderer } from './llm-call'
 
 /**
  * Registered renderers, ordered by registration but resolved by priority.
@@ -12,6 +13,7 @@ export const renderers: StepRenderer[] = [
   GenericJsonRenderer,
   UserMessageRenderer,
   AssistantMessageRenderer,
+  LlmCallRenderer,
 ]
 
 export function registerRenderer(r: StepRenderer): void {

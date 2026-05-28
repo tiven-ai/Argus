@@ -64,4 +64,12 @@ describe('findRenderer', () => {
   it('picks AssistantMessageRenderer for assistant_message kind', () => {
     expect(findRenderer(makeStep({ kind: 'assistant_message' })).id).toBe('assistant-message')
   })
+
+  it('picks LlmCallRenderer for llm_call kind', () => {
+    expect(findRenderer(makeStep({ kind: 'llm_call' })).id).toBe('llm-call')
+  })
+
+  it('picks LlmCallRenderer when componentType is llm (lower priority than kind)', () => {
+    expect(findRenderer(makeStep({ componentType: 'llm' })).id).toBe('llm-call')
+  })
 })
