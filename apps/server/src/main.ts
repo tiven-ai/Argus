@@ -1,16 +1,18 @@
+import { loadEnv } from './env.js'
 import { createServer } from './server.js'
 
-const port = Number(process.env.PORT ?? 4000)
-const host = process.env.HOST ?? '0.0.0.0'
-
-const app = createServer()
-
-app
-  .listen({ port, host })
-  .then(() => {
-    app.log.info(`Argus server listening on http://${host}:${port}`)
+async function main() {
+  const env = loadEnv()
+  const { app } = await createServer({
+    databaseUrl: env.DATABASE_URL,
+    logLevel: env.LOG_LEVEL,
   })
-  .catch((err) => {
-    app.log.error(err)
-    process.exit(1)
-  })
+
+  await app.listen({ port: env.PORT, host: env.HOST })
+  app.log.info(`Argus server listening on http://${env.HOST}:${env.PORT}`)
+}
+
+main().catch((err) => {
+  console.error(err)
+  process.exit(1)
+})
