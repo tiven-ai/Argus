@@ -8,6 +8,7 @@ interface Props {
   steps: Step[]
   activeStepId: string | undefined
   activeTab: TabKey
+  connected: boolean
   onSelectStep: (id: string) => void
   onSelectTab: (tab: TabKey) => void
 }
@@ -17,13 +18,14 @@ export function SessionReplay({
   steps,
   activeStepId,
   activeTab,
+  connected,
   onSelectStep,
   onSelectTab,
 }: Props) {
   const activeStep = steps.find((s) => s.id === activeStepId) ?? steps[0]
   return (
     <div className="h-full flex flex-col">
-      <SessionTopbar session={session} steps={steps} />
+      <SessionTopbar session={session} steps={steps} connected={connected} />
       <div className="flex-1 grid grid-cols-[380px_1fr] overflow-hidden">
         <aside className="border-r overflow-hidden">
           <StepTimeline steps={steps} activeStepId={activeStep?.id} onSelect={onSelectStep} />

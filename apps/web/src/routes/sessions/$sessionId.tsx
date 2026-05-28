@@ -2,6 +2,7 @@ import { createFileRoute } from '@tanstack/react-router'
 import { useQuery } from '@tanstack/react-query'
 import { z } from 'zod'
 import { fetchSession } from '../../lib/api'
+import { useSessionStream } from '../../lib/use-session-stream'
 import { SessionReplay } from '../../features/session-replay'
 import type { TabKey } from '../../features/session-replay/detail/StepDetail'
 
@@ -23,6 +24,7 @@ function SessionDetail() {
     queryKey: ['session', sessionId],
     queryFn: () => fetchSession(sessionId),
   })
+  const stream = useSessionStream(sessionId)
 
   if (isLoading) return <div className="p-6 text-neutral-500">Loading…</div>
   if (error) return <div className="p-6 text-red-600">Error: {String(error)}</div>
@@ -34,6 +36,7 @@ function SessionDetail() {
       steps={data.steps}
       activeStepId={search.step}
       activeTab={search.tab}
+      connected={stream.connected}
       onSelectStep={(step) => navigate({ search: (prev) => ({ ...prev, step }), replace: true })}
       onSelectTab={(tab: TabKey) =>
         navigate({ search: (prev) => ({ ...prev, tab }), replace: true })

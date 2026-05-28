@@ -12,6 +12,7 @@ import {
 interface Props {
   session: SessionSummary
   steps: Step[]
+  connected: boolean
 }
 
 function statusVariant(s: 'OK' | 'ERROR' | 'UNSET') {
@@ -20,7 +21,27 @@ function statusVariant(s: 'OK' | 'ERROR' | 'UNSET') {
   return 'secondary' as const
 }
 
-export function SessionTopbar({ session, steps }: Props) {
+function LiveDot({ active }: { active: boolean }) {
+  return (
+    <span
+      title={active ? 'Streaming live' : 'Not connected'}
+      className="inline-flex items-center gap-1 text-xs"
+    >
+      <span
+        className={
+          active
+            ? 'inline-block h-2 w-2 rounded-full bg-emerald-500 animate-pulse'
+            : 'inline-block h-2 w-2 rounded-full bg-neutral-300'
+        }
+      />
+      <span className={active ? 'text-emerald-700' : 'text-neutral-400'}>
+        {active ? 'LIVE' : 'offline'}
+      </span>
+    </span>
+  )
+}
+
+export function SessionTopbar({ session, steps, connected }: Props) {
   const duration = sessionDurationMs(steps)
   const status = sessionStatus(steps)
   const tokens = sessionTokens(steps)
@@ -39,6 +60,7 @@ export function SessionTopbar({ session, steps }: Props) {
             {session.projectName} / {session.serviceName}
           </h2>
           <Badge variant={statusVariant(status)}>{status}</Badge>
+          <LiveDot active={connected} />
         </div>
         <p className="text-xs font-mono text-neutral-400 truncate">{session.traceId}</p>
       </div>
