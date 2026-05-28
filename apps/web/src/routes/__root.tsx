@@ -12,8 +12,7 @@ function RootLayout() {
           Argus
         </Link>
         <nav className="text-sm text-neutral-500">
-          {/* reason: /sessions route lands in M1-11; use any to forward-reference */}
-          <Link to={'/sessions' as any} className="hover:text-neutral-900">
+          <Link to="/sessions" className="hover:text-neutral-900">
             Sessions
           </Link>
         </nav>
