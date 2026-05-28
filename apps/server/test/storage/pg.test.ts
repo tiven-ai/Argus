@@ -4,8 +4,9 @@ import type { DB } from '../../src/db/schema.js'
 import { createTestDb, truncateAll } from '../helpers/db.js'
 import { PgStorage } from '../../src/modules/storage/pg.js'
 import type { NewStep } from '../../src/modules/storage/types.js'
+import { DEFAULT_ORG_ID } from '../../src/constants.js'
 
-const DEFAULT_ORG = '00000000-0000-0000-0000-000000000000'
+const DEFAULT_ORG = DEFAULT_ORG_ID
 
 function makeStep(overrides: Partial<NewStep> = {}): NewStep {
   const now = new Date('2026-05-28T12:00:00Z')
@@ -104,7 +105,7 @@ describe('PgStorage', () => {
       })
 
       const sessions = await storage.listSessions({ orgId: DEFAULT_ORG })
-      const detail = await storage.getSession(sessions[0]!.id)
+      const detail = await storage.getSession({ orgId: DEFAULT_ORG, sessionId: sessions[0]!.id })
       expect(detail?.steps[0]?.events).toHaveLength(1)
       expect(detail?.steps[0]?.events[0]?.name).toBe('argus.input')
       expect(detail?.steps[0]?.events[0]?.attributes).toEqual({ text: 'hi' })
@@ -154,7 +155,10 @@ describe('PgStorage', () => {
 
   describe('getSession', () => {
     it('returns null for unknown id', async () => {
-      const result = await storage.getSession('00000000-0000-0000-0000-000000000000')
+      const result = await storage.getSession({
+        orgId: DEFAULT_ORG,
+        sessionId: '00000000-0000-0000-0000-000000000000',
+      })
       expect(result).toBeNull()
     })
 
@@ -172,9 +176,27 @@ describe('PgStorage', () => {
         ],
       })
       const [summary] = await storage.listSessions({ orgId: DEFAULT_ORG })
-      const detail = await storage.getSession(summary!.id)
+      const detail = await storage.getSession({ orgId: DEFAULT_ORG, sessionId: summary!.id })
       expect(detail?.steps).toHaveLength(2)
       expect(detail?.steps[1]?.parentSpanId).toBe('a'.repeat(16))
+    })
+
+    it('returns null when sessionId exists in a different org', async () => {
+      // Insert a session in default org
+      await storage.writeTrace({
+        orgId: DEFAULT_ORG_ID,
+        projectName: 'p1',
+        serviceName: 's1',
+        traceId: '4'.repeat(32),
+        sessionStartedAt: new Date('2026-05-28T12:00:00Z'),
+        sessionEndedAt: null,
+        steps: [makeStep()],
+      })
+      const [summary] = await storage.listSessions({ orgId: DEFAULT_ORG_ID })
+      // Query with a different (fake) orgId returns null even though the id exists
+      const otherOrg = '11111111-1111-1111-1111-111111111111'
+      const result = await storage.getSession({ orgId: otherOrg, sessionId: summary!.id })
+      expect(result).toBeNull()
     })
   })
 })

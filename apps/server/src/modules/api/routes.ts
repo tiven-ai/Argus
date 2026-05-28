@@ -26,7 +26,7 @@ export const apiRoutes: FastifyPluginAsync<ApiRoutesDeps> = async (app: FastifyI
 
   app.get('/api/sessions/:sessionId', async (request, reply) => {
     const { sessionId } = request.params as { sessionId: string }
-    const detail = await deps.storage.getSession(sessionId)
+    const detail = await deps.storage.getSession({ orgId: DEFAULT_ORG_ID, sessionId })
     if (!detail) {
       reply.code(404)
       return { error: 'not_found' }

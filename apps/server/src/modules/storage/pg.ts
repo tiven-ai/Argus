@@ -85,12 +85,16 @@ export class PgStorage implements StorageBackend {
     }))
   }
 
-  async getSession(sessionId: string): Promise<StoredSessionDetail | null> {
+  async getSession(opts: {
+    orgId: string
+    sessionId: string
+  }): Promise<StoredSessionDetail | null> {
     const summaryRow = await this.db
       .selectFrom('sessions as ses')
       .innerJoin('services as svc', 'svc.id', 'ses.service_id')
       .innerJoin('projects as prj', 'prj.id', 'svc.project_id')
-      .where('ses.id', '=', sessionId)
+      .where('ses.id', '=', opts.sessionId)
+      .where('prj.org_id', '=', opts.orgId)
       .select([
         'ses.id as id',
         'ses.trace_id as traceId',
@@ -106,7 +110,7 @@ export class PgStorage implements StorageBackend {
 
     const stepRows = await this.db
       .selectFrom('steps')
-      .where('session_id', '=', sessionId)
+      .where('session_id', '=', opts.sessionId)
       .selectAll()
       .orderBy('started_at', 'asc')
       .execute()

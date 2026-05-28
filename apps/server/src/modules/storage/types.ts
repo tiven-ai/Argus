@@ -78,5 +78,5 @@ export interface StorageBackend {
   listSessions(opts: { orgId: string; limit?: number }): Promise<StoredSessionSummary[]>
 
   /** Returns one session with all its steps + step events, or null. */
-  getSession(sessionId: string): Promise<StoredSessionDetail | null>
+  getSession(opts: { orgId: string; sessionId: string }): Promise<StoredSessionDetail | null>
 }
