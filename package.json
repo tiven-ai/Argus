@@ -17,6 +17,9 @@
     "db:down": "docker compose -f infra/docker/docker-compose.yml down",
     "prepare": "husky"
   },
+  "pnpm": {
+    "onlyBuiltDependencies": ["esbuild"]
+  },
   "devDependencies": {
     "@changesets/cli": "^2.27.0",
     "@commitlint/cli": "^19.0.0",
