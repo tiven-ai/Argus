@@ -13,7 +13,13 @@
       "signIn": "サインイン",
       "signOut": "サインアウト"
     },
-    "language": "言語"
+    "language": "言語",
+    "verifyNag": {
+      "message": "メールアドレスをご確認ください — 受信トレイをチェック。",
+      "resend": "再送信",
+      "resent": "送信しました。受信トレイをご確認ください。",
+      "dismiss": "閉じる"
+    }
   },
   "auth": {
     "login": {
@@ -24,6 +30,7 @@
       "submitting": "サインイン中…",
       "noAccount": "アカウントがありませんか？",
       "register": "登録",
+      "forgot": "パスワードをお忘れですか？",
       "failed": "サインインに失敗しました"
     },
     "register": {
@@ -35,6 +42,30 @@
       "haveAccount": "すでにアカウントをお持ちですか？",
       "signIn": "サインイン",
       "failed": "登録に失敗しました"
+    },
+    "verifyEmail": {
+      "verifying": "確認中…",
+      "success": "✓ メールアドレスを確認しました。",
+      "failed": "✗ このリンクは無効か期限切れです。",
+      "goLogin": "サインインへ",
+      "goSessions": "セッション一覧へ"
+    },
+    "forgotPassword": {
+      "title": "パスワードをリセット",
+      "email": "メールアドレス",
+      "submit": "リセットリンクを送信",
+      "submitting": "送信中…",
+      "confirmation": "このメールアドレスが登録されている場合、リセットリンクをお送りしました。",
+      "backToLogin": "サインインへ戻る"
+    },
+    "resetPassword": {
+      "title": "新しいパスワードを設定",
+      "newPassword": "新しいパスワード（8文字以上）",
+      "submit": "パスワードを更新",
+      "submitting": "更新中…",
+      "success": "パスワードを更新しました。新しいパスワードでサインインしてください。",
+      "failed": "このリンクは無効か期限切れです。再度リクエストしてください。",
+      "requestAnother": "リセットリンクを再リクエスト"
     }
   },
   "sessions": {

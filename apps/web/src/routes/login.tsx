@@ -66,6 +66,11 @@ function LoginPage() {
         >
           {submitting ? t('auth.login.submitting') : t('auth.login.submit')}
         </button>
+        <p className="u-caption text-center">
+          <Link to="/auth/forgot-password" className="text-brand hover:text-brand-hover">
+            {t('auth.login.forgot')}
+          </Link>
+        </p>
         <p className="u-caption text-text-3 text-center">
           {t('auth.login.noAccount')}{' '}
           <Link to="/register" className="text-brand hover:text-brand-hover">

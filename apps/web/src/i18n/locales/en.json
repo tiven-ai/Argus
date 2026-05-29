@@ -13,7 +13,13 @@
       "signIn": "Sign in",
       "signOut": "Sign out"
     },
-    "language": "Language"
+    "language": "Language",
+    "verifyNag": {
+      "message": "Please verify your email — check your inbox.",
+      "resend": "Resend",
+      "resent": "Sent. Check your inbox.",
+      "dismiss": "Dismiss"
+    }
   },
   "auth": {
     "login": {
@@ -24,6 +30,7 @@
       "submitting": "Signing in…",
       "noAccount": "No account?",
       "register": "Register",
+      "forgot": "Forgot password?",
       "failed": "Login failed"
     },
     "register": {
@@ -35,6 +42,30 @@
       "haveAccount": "Already have one?",
       "signIn": "Sign in",
       "failed": "Registration failed"
+    },
+    "verifyEmail": {
+      "verifying": "Verifying…",
+      "success": "✓ Email verified.",
+      "failed": "✗ This link is invalid or expired.",
+      "goLogin": "Go to login",
+      "goSessions": "Go to sessions"
+    },
+    "forgotPassword": {
+      "title": "Reset your password",
+      "email": "Email",
+      "submit": "Send reset link",
+      "submitting": "Sending…",
+      "confirmation": "If that email exists in our records, we've sent a reset link.",
+      "backToLogin": "Back to login"
+    },
+    "resetPassword": {
+      "title": "Choose a new password",
+      "newPassword": "New password (min 8 chars)",
+      "submit": "Update password",
+      "submitting": "Updating…",
+      "success": "Password updated. Sign in with your new password.",
+      "failed": "This link is invalid or expired. Request a new one.",
+      "requestAnother": "Request another reset link"
     }
   },
   "sessions": {

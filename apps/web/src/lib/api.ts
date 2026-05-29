@@ -26,6 +26,7 @@ export interface AuthUser {
   id: string
   email: string
   orgId: string
+  emailVerifiedAt: string | null
 }
 
 export async function fetchMe(): Promise<AuthUser | null> {
