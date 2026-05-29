@@ -1,4 +1,5 @@
-import type { FastifyInstance, FastifyPluginAsync } from 'fastify'
+import type { FastifyInstance } from 'fastify'
+import fp from 'fastify-plugin'
 import type { Kysely } from 'kysely'
 import { sql } from 'kysely'
 import type { DB } from '../../db/schema.js'
@@ -20,14 +21,14 @@ export interface DbTenantDeps {
   db: Kysely<DB>
 }
 
-export const dbTenantPlugin: FastifyPluginAsync<DbTenantDeps> = async (
-  app: FastifyInstance,
-  deps,
-) => {
-  app.decorate('withTenantTx', function <T>(orgId: string, fn: (trx: Tx) => Promise<T>) {
-    return deps.db.transaction().execute(async (trx) => {
-      await sql`SELECT set_config('argus.current_org_id', ${orgId}, true)`.execute(trx)
-      return fn(trx)
+export const dbTenantPlugin = fp<DbTenantDeps>(
+  async (app: FastifyInstance, deps) => {
+    app.decorate('withTenantTx', function <T>(orgId: string, fn: (trx: Tx) => Promise<T>) {
+      return deps.db.transaction().execute(async (trx) => {
+        await sql`SELECT set_config('argus.current_org_id', ${orgId}, true)`.execute(trx)
+        return fn(trx)
+      })
     })
-  })
-}
+  },
+  { name: 'db-tenant', fastify: '5.x' },
+)
