@@ -1,5 +1,6 @@
-import { createFileRoute, Link } from '@tanstack/react-router'
+import { createFileRoute, Link, useNavigate } from '@tanstack/react-router'
 import { useQuery } from '@tanstack/react-query'
+import { useEffect } from 'react'
 import { fetchSessions } from '../../lib/api'
 
 export const Route = createFileRoute('/sessions/')({
@@ -7,10 +8,18 @@ export const Route = createFileRoute('/sessions/')({
 })
 
 function SessionsList() {
+  const navigate = useNavigate()
   const { data, isLoading, error } = useQuery({
     queryKey: ['sessions'],
     queryFn: fetchSessions,
+    retry: false,
   })
+
+  useEffect(() => {
+    if (error instanceof Error && error.message === 'UNAUTHENTICATED') {
+      void navigate({ to: '/login' })
+    }
+  }, [error, navigate])
 
   if (isLoading) return <p className="p-6 text-neutral-500">Loading…</p>
   if (error) return <p className="p-6 text-red-600">Error: {String(error)}</p>

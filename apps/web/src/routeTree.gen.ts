@@ -73,7 +73,13 @@ export interface FileRoutesById {
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/login' | '/register' | '/sessions' | '/sessions/$sessionId' | '/sessions/'
+  fullPaths:
+    | '/'
+    | '/login'
+    | '/register'
+    | '/sessions'
+    | '/sessions/$sessionId'
+    | '/sessions/'
   fileRoutesByTo: FileRoutesByTo
   to: '/' | '/login' | '/register' | '/sessions/$sessionId' | '/sessions'
   id:
@@ -150,7 +156,9 @@ const SessionsRouteChildren: SessionsRouteChildren = {
   SessionsIndexRoute: SessionsIndexRoute,
 }
 
-const SessionsRouteWithChildren = SessionsRoute._addFileChildren(SessionsRouteChildren)
+const SessionsRouteWithChildren = SessionsRoute._addFileChildren(
+  SessionsRouteChildren,
+)
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
