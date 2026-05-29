@@ -29,41 +29,44 @@ function LoginPage() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center p-6">
-      <form onSubmit={onSubmit} className="w-full max-w-sm space-y-4 border rounded p-6">
-        <h1 className="text-xl font-semibold">Sign in to Argus</h1>
-        <label className="block">
-          <span className="text-sm text-neutral-600">Email</span>
+    <div className="min-h-screen flex items-center justify-center p-6 bg-page">
+      <form
+        onSubmit={onSubmit}
+        className="w-full max-w-sm space-y-4 border border-hairline rounded p-6"
+      >
+        <h1 className="u-h-xl text-text-1">Sign in to Argus</h1>
+        <label className="block space-y-1">
+          <span className="u-caption text-text-3">Email</span>
           <input
             type="email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             required
-            className="mt-1 w-full border rounded px-3 py-2 text-sm"
+            className="h-8 w-full rounded border border-hairline px-3 u-body text-text-1 bg-page focus-visible:outline-2 focus-visible:outline-brand focus-visible:outline-offset-1"
           />
         </label>
-        <label className="block">
-          <span className="text-sm text-neutral-600">Password</span>
+        <label className="block space-y-1">
+          <span className="u-caption text-text-3">Password</span>
           <input
             type="password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             required
             minLength={8}
-            className="mt-1 w-full border rounded px-3 py-2 text-sm"
+            className="h-8 w-full rounded border border-hairline px-3 u-body text-text-1 bg-page focus-visible:outline-2 focus-visible:outline-brand focus-visible:outline-offset-1"
           />
         </label>
-        {error && <p className="text-sm text-red-600">{error}</p>}
+        {error && <p className="u-caption text-danger">{error}</p>}
         <button
           type="submit"
           disabled={submitting}
-          className="w-full bg-neutral-900 text-white rounded py-2 text-sm disabled:opacity-50"
+          className="w-full h-8 rounded bg-brand text-white u-body hover:bg-brand-hover transition-colors disabled:opacity-50"
         >
           {submitting ? 'Signing in…' : 'Sign in'}
         </button>
-        <p className="text-xs text-neutral-500 text-center">
+        <p className="u-caption text-text-3 text-center">
           No account?{' '}
-          <Link to="/register" className="text-blue-700 hover:underline">
+          <Link to="/register" className="text-brand hover:text-brand-hover">
             Register
           </Link>
         </p>

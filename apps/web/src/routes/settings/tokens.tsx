@@ -14,6 +14,9 @@ export const Route = createFileRoute('/settings/tokens')({
   component: TokensPage,
 })
 
+const inputClass =
+  'h-8 w-full rounded border border-hairline px-3 u-body text-text-1 bg-page focus-visible:outline-2 focus-visible:outline-brand focus-visible:outline-offset-1'
+
 function TokensPage() {
   const queryClient = useQueryClient()
   const { data, isLoading, error } = useQuery({
@@ -42,18 +45,18 @@ function TokensPage() {
     },
   })
 
-  if (isLoading) return <p className="p-6 text-neutral-500">Loading…</p>
-  if (error) return <p className="p-6 text-red-600">Error: {String(error)}</p>
+  if (isLoading) return <p className="p-6 u-body text-text-3">Loading…</p>
+  if (error) return <p className="p-6 u-body text-danger">Error: {String(error)}</p>
 
   return (
     <div className="p-6 space-y-6 overflow-auto h-full">
       <header>
-        <h2 className="text-lg font-semibold">Ingest tokens</h2>
-        <p className="text-sm text-neutral-500">
+        <h2 className="u-h-lg text-text-1">Ingest tokens</h2>
+        <p className="u-body text-text-3 mt-1">
           Use a token in the{' '}
-          <code className="bg-neutral-100 px-1 rounded">Authorization: Bearer</code> header when
-          POSTing to <code className="bg-neutral-100 px-1 rounded">/v1/traces</code>. The token's
-          project determines where the traces land.
+          <code className="bg-tile px-1 rounded text-text-2">Authorization: Bearer</code> header
+          when POSTing to <code className="bg-tile px-1 rounded text-text-2">/v1/traces</code>. The
+          token&apos;s project determines where the traces land.
         </p>
       </header>
 
@@ -62,97 +65,105 @@ function TokensPage() {
           e.preventDefault()
           if (projectName && tokenName) create.mutate()
         }}
-        className="border rounded p-4 space-y-3 max-w-xl"
+        className="border border-hairline rounded p-3 space-y-3 max-w-xl"
       >
-        <h3 className="text-sm font-semibold">Create a new token</h3>
-        <label className="block text-sm">
-          Project name
+        <h3 className="u-h-md text-text-1">Create a new token</h3>
+        <label className="block space-y-1">
+          <span className="u-caption text-text-3">Project name</span>
           <input
             value={projectName}
             onChange={(e) => setProjectName(e.target.value)}
             placeholder="e.g. customer-bot"
             required
-            className="mt-1 w-full border rounded px-3 py-1.5"
+            className={inputClass}
           />
         </label>
-        <label className="block text-sm">
-          Token name
+        <label className="block space-y-1">
+          <span className="u-caption text-text-3">Token name</span>
           <input
             value={tokenName}
             onChange={(e) => setTokenName(e.target.value)}
             placeholder="e.g. production"
             required
-            className="mt-1 w-full border rounded px-3 py-1.5"
+            className={inputClass}
           />
         </label>
         <button
           type="submit"
           disabled={create.isPending}
-          className="bg-neutral-900 text-white rounded px-3 py-1.5 text-sm disabled:opacity-50"
+          className="h-8 px-4 rounded bg-brand text-white u-body hover:bg-brand-hover transition-colors disabled:opacity-50"
         >
           {create.isPending ? 'Creating…' : 'Create token'}
         </button>
-        {create.error && <p className="text-sm text-red-600">{String(create.error)}</p>}
+        {create.error && <p className="u-caption text-danger">{String(create.error)}</p>}
       </form>
 
       {revealed && (
-        <div className="border border-amber-300 bg-amber-50 rounded p-4 space-y-2 max-w-xl">
-          <p className="text-sm font-semibold">Save this token now — it will not be shown again.</p>
-          <pre className="text-xs bg-white border p-2 rounded break-all">{revealed.token}</pre>
+        <div className="border border-hairline rounded p-3 space-y-2 max-w-xl">
+          <p className="u-h-md text-warning">Save this token now — it will not be shown again.</p>
+          <pre className="u-caption bg-tile border border-hairline p-2 rounded break-all text-text-1">
+            {revealed.token}
+          </pre>
           <button
             type="button"
             onClick={() => setRevealed(null)}
-            className="text-sm text-neutral-700 underline"
+            className="u-caption text-text-3 hover:text-text-1 underline"
           >
-            I've saved it
+            I&apos;ve saved it
           </button>
         </div>
       )}
 
       <section>
-        <h3 className="text-sm font-semibold mb-2">Existing tokens</h3>
-        {data && data.length === 0 && <p className="text-sm text-neutral-500">(no tokens yet)</p>}
+        <h3 className="u-h-md text-text-1 mb-2">Existing tokens</h3>
+        {data && data.length === 0 && <p className="u-body text-text-3">(no tokens yet)</p>}
         {data && data.length > 0 && (
-          <table className="w-full text-sm border-t">
-            <thead className="text-left text-neutral-500">
-              <tr>
-                <th className="py-2">Project</th>
-                <th>Name</th>
-                <th>Prefix</th>
-                <th>Created</th>
-                <th>Status</th>
-                <th></th>
-              </tr>
-            </thead>
-            <tbody>
-              {data.map((t: TokenRecord) => (
-                <tr key={t.id} className="border-t">
-                  <td className="py-2">{t.projectName}</td>
-                  <td>{t.name}</td>
-                  <td className="font-mono text-xs">{t.prefix}…</td>
-                  <td className="text-neutral-500">{new Date(t.createdAt).toLocaleString()}</td>
-                  <td>
-                    {t.revokedAt ? (
-                      <Badge variant="secondary">revoked</Badge>
-                    ) : (
-                      <Badge variant="default">active</Badge>
-                    )}
-                  </td>
-                  <td className="text-right">
-                    {!t.revokedAt && (
-                      <button
-                        type="button"
-                        onClick={() => revoke.mutate(t.id)}
-                        className="text-xs text-red-700 hover:underline"
-                      >
-                        Revoke
-                      </button>
-                    )}
-                  </td>
+          <div className="border border-hairline rounded">
+            <table className="w-full u-body">
+              <thead>
+                <tr className="text-left u-caption text-text-3 border-b border-hairline">
+                  <th className="font-normal px-3 py-2">Project</th>
+                  <th className="font-normal px-3 py-2">Name</th>
+                  <th className="font-normal px-3 py-2">Prefix</th>
+                  <th className="font-normal px-3 py-2">Created</th>
+                  <th className="font-normal px-3 py-2">Status</th>
+                  <th className="px-3 py-2"></th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                {data.map((t: TokenRecord) => (
+                  <tr key={t.id} className="border-b border-hairline last:border-0">
+                    <td className="px-3 py-2 text-text-1">{t.projectName}</td>
+                    <td className="px-3 py-2 text-text-2">{t.name}</td>
+                    <td className="px-3 py-2 font-mono u-caption text-text-3 tabular">
+                      {t.prefix}…
+                    </td>
+                    <td className="px-3 py-2 text-text-3 tabular">
+                      {new Date(t.createdAt).toLocaleString()}
+                    </td>
+                    <td className="px-3 py-2">
+                      {t.revokedAt ? (
+                        <Badge variant="secondary">revoked</Badge>
+                      ) : (
+                        <Badge variant="default">active</Badge>
+                      )}
+                    </td>
+                    <td className="px-3 py-2 text-right">
+                      {!t.revokedAt && (
+                        <button
+                          type="button"
+                          onClick={() => revoke.mutate(t.id)}
+                          className="u-caption text-danger hover:underline"
+                        >
+                          Revoke
+                        </button>
+                      )}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         )}
       </section>
     </div>
