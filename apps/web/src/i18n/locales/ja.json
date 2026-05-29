@@ -1,1 +1,162 @@
-{}
+{
+  "common": {
+    "loading": "読み込み中…",
+    "error": "エラー: {{message}}",
+    "notFound": "見つかりません"
+  },
+  "shell": {
+    "nav": {
+      "sessions": "セッション",
+      "tokens": "トークン"
+    },
+    "auth": {
+      "signIn": "サインイン",
+      "signOut": "サインアウト"
+    },
+    "language": "言語"
+  },
+  "auth": {
+    "login": {
+      "title": "Argus にサインイン",
+      "email": "メールアドレス",
+      "password": "パスワード",
+      "submit": "サインイン",
+      "submitting": "サインイン中…",
+      "noAccount": "アカウントがありませんか？",
+      "register": "登録",
+      "failed": "サインインに失敗しました"
+    },
+    "register": {
+      "title": "Argus アカウントを作成",
+      "email": "メールアドレス",
+      "passwordHint": "パスワード（8文字以上）",
+      "submit": "アカウントを作成",
+      "submitting": "作成中…",
+      "haveAccount": "すでにアカウントをお持ちですか？",
+      "signIn": "サインイン",
+      "failed": "登録に失敗しました"
+    }
+  },
+  "sessions": {
+    "list": {
+      "title": "セッション",
+      "empty": {
+        "title": "セッションがありません。",
+        "hintPrefix": "",
+        "hintMiddle": " を試すか、",
+        "hintSuffix": " に OTLP ペイロードを送信してください。"
+      },
+      "columns": {
+        "project": "プロジェクト",
+        "service": "サービス",
+        "trace": "トレース",
+        "steps": "ステップ",
+        "started": "開始時刻"
+      }
+    },
+    "replay": {
+      "noRounds": "（このセッションにラウンドはありません — LLM 呼び出しが少なくとも 1 回必要です）"
+    }
+  },
+  "topbar": {
+    "back": "セッション一覧へ戻る",
+    "streamingLive": "ライブ配信中",
+    "notConnected": "未接続",
+    "live": "ライブ",
+    "offline": "オフライン",
+    "tokens": "tokens {{input}}/{{output}}",
+    "stepCount_one": "{{count}} ステップ",
+    "stepCount_other": "{{count}} ステップ"
+  },
+  "timeline": {
+    "empty": {
+      "title": "ラウンドがありません。",
+      "hintPrefix": "セッションに LLM 呼び出しが含まれるとラウンドが表示されます。",
+      "hintSuffix": " をお試しください。"
+    },
+    "trigger": {
+      "user": "ユーザー",
+      "toolResult": "ツール結果 · {{name}}",
+      "initial": "初期"
+    }
+  },
+  "round": {
+    "header": {
+      "title": "ラウンド {{index}} / {{total}}",
+      "tokens": "tokens {{input}}/{{output}}",
+      "toolExec_one": "ツール実行 {{count}} 件",
+      "toolExec_other": "ツール実行 {{count}} 件"
+    },
+    "sections": {
+      "context": "コンテキスト",
+      "trigger": "トリガー",
+      "llmResponse": "LLM レスポンス",
+      "toolExecution": "ツール実行",
+      "raw": "Raw"
+    },
+    "context": {
+      "systemPrompt": "システムプロンプト",
+      "toolsAvailable": "利用可能なツール",
+      "messageHistory": "メッセージ履歴",
+      "empty": "（このラウンドのコンテキストはありません）"
+    },
+    "trigger": {
+      "initial": "（初期ラウンド — 前のユーザーメッセージまたはツール結果がありません）",
+      "toolResultPrefix": "ツール結果 · "
+    },
+    "llmResponse": {
+      "text": "テキスト",
+      "toolCalls": "ツール呼び出し",
+      "stop": "stop: {{reason}}",
+      "empty": "（出力なし）"
+    },
+    "toolExecution": {
+      "empty": "（ツール実行なし）",
+      "input": "入力",
+      "output": "出力",
+      "noOutput": "（出力なし）"
+    }
+  },
+  "tool": {
+    "unnamed": "（名前なし）",
+    "parameters": "パラメータ",
+    "arguments": "引数",
+    "noArguments": "（引数なし）",
+    "required": "必須"
+  },
+  "tokens": {
+    "title": "インジェストトークン",
+    "introPrefix": "",
+    "introMiddle": " に POST する際、 ",
+    "introSuffix": " ヘッダーでトークンを送信してください。トークンが属するプロジェクトが、トレースの保存先になります。",
+    "create": {
+      "title": "新しいトークンを作成",
+      "projectName": "プロジェクト名",
+      "projectPlaceholder": "例: customer-bot",
+      "tokenName": "トークン名",
+      "tokenPlaceholder": "例: production",
+      "submit": "トークンを作成",
+      "submitting": "作成中…"
+    },
+    "reveal": {
+      "warning": "このトークンを今すぐ保存してください — 再表示されません。",
+      "dismiss": "保存しました"
+    },
+    "existing": {
+      "title": "既存のトークン",
+      "empty": "（トークンはありません）",
+      "columns": {
+        "project": "プロジェクト",
+        "name": "名前",
+        "prefix": "プレフィックス",
+        "created": "作成日時",
+        "status": "ステータス"
+      },
+      "status": {
+        "active": "有効",
+        "revoked": "失効"
+      },
+      "revoke": "失効させる"
+    }
+  }
+}

@@ -1,1 +1,162 @@
-{}
+{
+  "common": {
+    "loading": "加载中…",
+    "error": "错误：{{message}}",
+    "notFound": "未找到"
+  },
+  "shell": {
+    "nav": {
+      "sessions": "会话",
+      "tokens": "令牌"
+    },
+    "auth": {
+      "signIn": "登录",
+      "signOut": "退出登录"
+    },
+    "language": "语言"
+  },
+  "auth": {
+    "login": {
+      "title": "登录 Argus",
+      "email": "邮箱",
+      "password": "密码",
+      "submit": "登录",
+      "submitting": "登录中…",
+      "noAccount": "还没有账户？",
+      "register": "注册",
+      "failed": "登录失败"
+    },
+    "register": {
+      "title": "创建 Argus 账户",
+      "email": "邮箱",
+      "passwordHint": "密码（至少 8 个字符）",
+      "submit": "创建账户",
+      "submitting": "创建中…",
+      "haveAccount": "已有账户？",
+      "signIn": "登录",
+      "failed": "注册失败"
+    }
+  },
+  "sessions": {
+    "list": {
+      "title": "会话",
+      "empty": {
+        "title": "暂无会话。",
+        "hintPrefix": "试试 ",
+        "hintMiddle": " 或向 ",
+        "hintSuffix": " 发送 OTLP 数据。"
+      },
+      "columns": {
+        "project": "项目",
+        "service": "服务",
+        "trace": "Trace",
+        "steps": "步骤",
+        "started": "开始时间"
+      }
+    },
+    "replay": {
+      "noRounds": "（此会话尚无轮次 — 至少需要一次 LLM 调用）"
+    }
+  },
+  "topbar": {
+    "back": "返回会话列表",
+    "streamingLive": "实时直播中",
+    "notConnected": "未连接",
+    "live": "实时",
+    "offline": "离线",
+    "tokens": "tokens {{input}}/{{output}}",
+    "stepCount_one": "{{count}} 步",
+    "stepCount_other": "{{count}} 步"
+  },
+  "timeline": {
+    "empty": {
+      "title": "暂无轮次。",
+      "hintPrefix": "当会话包含至少一次 LLM 调用时会出现轮次。试试 ",
+      "hintSuffix": "。"
+    },
+    "trigger": {
+      "user": "用户",
+      "toolResult": "工具结果 · {{name}}",
+      "initial": "初始"
+    }
+  },
+  "round": {
+    "header": {
+      "title": "第 {{index}} / {{total}} 轮",
+      "tokens": "tokens {{input}}/{{output}}",
+      "toolExec_one": "{{count}} 次工具调用",
+      "toolExec_other": "{{count}} 次工具调用"
+    },
+    "sections": {
+      "context": "上下文",
+      "trigger": "触发源",
+      "llmResponse": "LLM 响应",
+      "toolExecution": "工具执行",
+      "raw": "原始 JSON"
+    },
+    "context": {
+      "systemPrompt": "系统提示词",
+      "toolsAvailable": "可用工具",
+      "messageHistory": "消息历史",
+      "empty": "（本轮没有捕获上下文）"
+    },
+    "trigger": {
+      "initial": "（初始轮次 — 没有前置用户消息或工具结果）",
+      "toolResultPrefix": "工具结果 · "
+    },
+    "llmResponse": {
+      "text": "文本",
+      "toolCalls": "工具调用",
+      "stop": "停止：{{reason}}",
+      "empty": "（无输出）"
+    },
+    "toolExecution": {
+      "empty": "（无工具执行）",
+      "input": "输入",
+      "output": "输出",
+      "noOutput": "（无输出）"
+    }
+  },
+  "tool": {
+    "unnamed": "（未命名）",
+    "parameters": "参数",
+    "arguments": "调用参数",
+    "noArguments": "（无参数）",
+    "required": "必需"
+  },
+  "tokens": {
+    "title": "Ingest 令牌",
+    "introPrefix": "向 ",
+    "introMiddle": " POST 请求时，在 ",
+    "introSuffix": " 头部携带令牌。令牌所属项目决定追踪数据的归属。",
+    "create": {
+      "title": "创建新令牌",
+      "projectName": "项目名称",
+      "projectPlaceholder": "例如 customer-bot",
+      "tokenName": "令牌名称",
+      "tokenPlaceholder": "例如 production",
+      "submit": "创建令牌",
+      "submitting": "创建中…"
+    },
+    "reveal": {
+      "warning": "请立即保存此令牌 — 它将不再显示。",
+      "dismiss": "我已保存"
+    },
+    "existing": {
+      "title": "已有令牌",
+      "empty": "（暂无令牌）",
+      "columns": {
+        "project": "项目",
+        "name": "名称",
+        "prefix": "前缀",
+        "created": "创建时间",
+        "status": "状态"
+      },
+      "status": {
+        "active": "有效",
+        "revoked": "已撤销"
+      },
+      "revoke": "撤销"
+    }
+  }
+}
