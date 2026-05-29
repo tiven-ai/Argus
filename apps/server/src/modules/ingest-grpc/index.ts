@@ -1,0 +1,6 @@
+export { extractBearerToken } from './metadata-auth.js'
+export { loadOtlpProto } from './proto-loader.js'
+export { makeTraceServiceHandlers } from './service.js'
+export type { TraceServiceDeps } from './service.js'
+export { startGrpcServer } from './server.js'
+export type { CreateGrpcServerOptions, StartedGrpcServer } from './server.js'
