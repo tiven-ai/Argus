@@ -49,27 +49,31 @@ export const tokenManagementRoutes: FastifyPluginAsync<TokenRoutesDeps> = async 
       reply.code(400)
       return { error: 'invalid_input', issues: parsed.error.issues }
     }
-    const created = await createTokenForProject(deps.db, {
-      orgId: request.auth.user.orgId,
-      projectName: parsed.data.projectName,
-      tokenName: parsed.data.tokenName,
-    })
     const { user } = request.auth
-    await app.withTenantTx(user.orgId, (trx) =>
-      auditRecord(trx, {
+    // Wrap DAO + audit in one withTenantTx so the GUC is set for the projects
+    // table (under RLS) the DAO touches, and so the audit row commits together
+    // with the token row.
+    const created = await app.withTenantTx(user.orgId, async (trx) => {
+      const rec = await createTokenForProject(trx, {
+        orgId: user.orgId,
+        projectName: parsed.data.projectName,
+        tokenName: parsed.data.tokenName,
+      })
+      await auditRecord(trx, {
         eventType: 'token_create',
         actorUserId: user.id,
         targetKind: 'ingest_token',
-        targetId: created.id,
+        targetId: rec.id,
         metadata: {
           project: parsed.data.projectName,
-          name: created.name,
-          prefix: created.prefix,
+          name: rec.name,
+          prefix: rec.prefix,
         },
         ip: request.ip,
         userAgent: request.headers['user-agent'],
-      }),
-    )
+      })
+      return rec
+    })
     return {
       token: created.token,
       record: {
@@ -88,25 +92,29 @@ export const tokenManagementRoutes: FastifyPluginAsync<TokenRoutesDeps> = async 
       reply.code(401)
       return { error: 'unauthenticated' }
     }
-    const ok = await revokeToken(deps.db, {
-      orgId: request.auth.user.orgId,
-      tokenId: request.params.id,
-    })
-    if (!ok) {
-      reply.code(404)
-      return { error: 'not_found' }
-    }
     const { user } = request.auth
-    await app.withTenantTx(user.orgId, (trx) =>
-      auditRecord(trx, {
+    // Same pattern as POST — DAO touches projects (under RLS) so GUC must be
+    // set, and the audit row commits with the revoke.
+    const ok = await app.withTenantTx(user.orgId, async (trx) => {
+      const did = await revokeToken(trx, {
+        orgId: user.orgId,
+        tokenId: request.params.id,
+      })
+      if (!did) return false
+      await auditRecord(trx, {
         eventType: 'token_revoke',
         actorUserId: user.id,
         targetKind: 'ingest_token',
         targetId: request.params.id,
         ip: request.ip,
         userAgent: request.headers['user-agent'],
-      }),
-    )
+      })
+      return true
+    })
+    if (!ok) {
+      reply.code(404)
+      return { error: 'not_found' }
+    }
     return { ok: true }
   })
 }

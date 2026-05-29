@@ -1,6 +1,7 @@
 import type { Kysely } from 'kysely'
 import { sql } from 'kysely'
 import type { DB } from '../../db/schema.js'
+import type { Tx } from '../db-tenant/index.js'
 import { generateToken, hashToken, prefixForDisplay } from './helpers.js'
 
 export interface CreatedTokenRecord {
@@ -31,10 +32,14 @@ export interface ResolvedTokenContext {
 }
 
 export async function createTokenForProject(
-  db: Kysely<DB>,
+  db: Kysely<DB> | Tx,
   opts: { orgId: string; projectName: string; tokenName: string },
 ): Promise<CreatedTokenRecord> {
-  return db.transaction().execute(async (trx) => {
+  // When the caller already wraps us in a Tx (e.g. withTenantTx so the GUC
+  // for RLS is set), run the upsert + insert directly inside it. When called
+  // with a top-level Kysely (e.g. super-user test helpers that bypass RLS),
+  // open a fresh transaction so the two writes stay atomic.
+  const run = async (trx: Tx): Promise<CreatedTokenRecord> => {
     // Upsert project (matches the pattern PgStorage uses for ingest).
     const existing = await trx
       .selectFrom('projects')
@@ -72,7 +77,12 @@ export async function createTokenForProject(
       createdAt: new Date(inserted.created_at as unknown as string),
       token,
     }
-  })
+  }
+
+  if (db.isTransaction) {
+    return run(db as Tx)
+  }
+  return db.transaction().execute(run)
 }
 
 export async function listTokensForOrg(
@@ -103,7 +113,7 @@ export async function listTokensForOrg(
 }
 
 export async function revokeToken(
-  db: Kysely<DB>,
+  db: Kysely<DB> | Tx,
   opts: { orgId: string; tokenId: string },
 ): Promise<boolean> {
   // Verify the token belongs to the org before revoking.
