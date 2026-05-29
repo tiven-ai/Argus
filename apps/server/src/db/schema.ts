@@ -64,6 +64,7 @@ export interface Users {
   email: string
   password_hash: string
   email_verified_at: Timestamp | null
+  password_version: Generated<number>
   created_at: Generated<Timestamp>
 }
 
