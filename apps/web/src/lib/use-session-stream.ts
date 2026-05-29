@@ -17,8 +17,6 @@ export function useSessionStream(sessionId: string | undefined): UseSessionStrea
     const queryKey = ['session', sessionId]
     const es = new EventSource(`/api/sessions/${sessionId}/stream`)
 
-    es.onopen = () => setConnected(true)
-
     es.onmessage = (event) => {
       let payload: StreamEvent
       try {
@@ -26,7 +24,10 @@ export function useSessionStream(sessionId: string | undefined): UseSessionStrea
       } catch {
         return
       }
-      if (payload.type === 'connected') return
+      if (payload.type === 'connected') {
+        setConnected(true)
+        return
+      }
       if (payload.type === 'step') {
         const step = payload.step
         queryClient.setQueryData<GetSessionResponse>(queryKey, (prev) => {
