@@ -26,6 +26,7 @@ export interface Services {
 export interface Sessions {
   id: Generated<string>
   service_id: string
+  org_id: string
   trace_id: string
   started_at: Timestamp
   ended_at: Timestamp | null
@@ -35,6 +36,7 @@ export interface Sessions {
 export interface Steps {
   id: Generated<string>
   session_id: string
+  org_id: string
   span_id: string
   parent_span_id: string | null
   name: string
@@ -51,6 +53,7 @@ export interface Steps {
 export interface StepEvents {
   id: Generated<string>
   step_id: string
+  org_id: string
   name: string
   ts: Timestamp
   attributes: Json
@@ -80,6 +83,19 @@ export interface IngestTokens {
   revoked_at: Timestamp | null
 }
 
+export interface AuditLog {
+  id: Generated<string>
+  timestamp: Generated<Timestamp>
+  org_id: string
+  actor_user_id: string | null
+  event_type: string
+  target_kind: string | null
+  target_id: string | null
+  metadata: Json | null
+  ip: string | null
+  user_agent: string | null
+}
+
 export interface DB {
   orgs: Orgs
   projects: Projects
@@ -90,4 +106,5 @@ export interface DB {
   users: Users
   org_members: OrgMembers
   ingest_tokens: IngestTokens
+  audit_log: AuditLog
 }

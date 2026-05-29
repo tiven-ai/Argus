@@ -11,11 +11,25 @@ export function createTestDb(): Kysely<DB> {
 export async function truncateAll(db: Kysely<DB>): Promise<void> {
   // Truncate all data tables except orgs (we keep the default org row).
   // Also preserve the default user + org_member seeded by migration 0002.
-  await sql`TRUNCATE TABLE step_events, steps, sessions, services, projects, ingest_tokens RESTART IDENTITY CASCADE`.execute(
+  await sql`TRUNCATE TABLE audit_log, step_events, steps, sessions, services, projects, ingest_tokens RESTART IDENTITY CASCADE`.execute(
     db,
   )
   await sql`DELETE FROM org_members WHERE user_id != '11111111-1111-1111-1111-111111111111'`.execute(
     db,
   )
   await sql`DELETE FROM users WHERE id != '11111111-1111-1111-1111-111111111111'`.execute(db)
+}
+
+/**
+ * Return a Kysely connected as the `argus_app` runtime role (NO BYPASSRLS).
+ * Created by migration 0003 with a known dev password. Tests that exercise
+ * RLS / withTenantTx must use this instead of the super-user `createTestDb()`.
+ */
+export function createAppRoleTestDb(): Kysely<DB> {
+  const url = process.env.DATABASE_URL
+  if (!url) throw new Error('DATABASE_URL not set — global setup did not run')
+  const u = new URL(url)
+  u.username = 'argus_app'
+  u.password = 'argus_app_dev_pwd'
+  return createKysely(u.toString())
 }
