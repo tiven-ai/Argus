@@ -1,4 +1,5 @@
 import { Wrench } from 'lucide-react'
+import { useTranslation } from 'react-i18next'
 
 interface ToolSchema {
   name?: string
@@ -37,27 +38,28 @@ export function ToolDefinitionsList({ tools }: { tools: unknown[] }) {
 }
 
 function ToolDefinitionCard({ tool }: { tool: unknown }) {
-  const t = tool as ToolSchema
-  const params = t.parameters?.properties ?? {}
-  const required = new Set(t.parameters?.required ?? [])
+  const { t } = useTranslation()
+  const sch = tool as ToolSchema
+  const params = sch.parameters?.properties ?? {}
+  const required = new Set(sch.parameters?.required ?? [])
   const hasParams = Object.keys(params).length > 0
   return (
     <div className="border border-hairline rounded p-2 space-y-2">
       <div className="flex items-baseline gap-2">
         <Wrench className="h-3.5 w-3.5 text-text-3 shrink-0" strokeWidth={1.75} />
-        <span className="font-mono u-h-md text-text-1">{t.name ?? '(unnamed)'}</span>
+        <span className="font-mono u-h-md text-text-1">{sch.name ?? t('tool.unnamed')}</span>
       </div>
-      {t.description && <p className="u-caption text-text-3">{t.description}</p>}
+      {sch.description && <p className="u-caption text-text-3">{sch.description}</p>}
       {hasParams && (
         <div>
-          <p className="u-caption text-text-3 mb-1">Parameters</p>
+          <p className="u-caption text-text-3 mb-1">{t('tool.parameters')}</p>
           <ul className="u-caption space-y-0.5">
             {Object.entries(params).map(([key, prop]) => (
               <li key={key}>
                 <span className="font-mono text-text-2">{key}</span>{' '}
                 <span className="text-text-3">
                   ({prop?.type ?? 'any'}
-                  {required.has(key) ? ', required' : ''})
+                  {required.has(key) ? `, ${t('tool.required')}` : ''})
                 </span>
                 {prop?.description && <span className="text-text-3"> — {prop.description}</span>}
               </li>
@@ -74,22 +76,28 @@ export function ToolCallList({ toolCalls }: { toolCalls: unknown[] }) {
     <ul className="space-y-2">
       {toolCalls.map((tc, i) => {
         const obj = tc as ToolCall
-        return (
-          <li key={obj.id ?? i} className="border border-hairline rounded p-2 space-y-1.5">
-            <div className="flex items-center gap-2">
-              <Wrench className="h-3.5 w-3.5 text-text-3 shrink-0" strokeWidth={1.75} />
-              <span className="font-mono u-h-md text-text-1">{obj.name ?? '(unnamed)'}</span>
-              {obj.id && <span className="u-caption text-text-4 font-mono ml-auto">{obj.id}</span>}
-            </div>
-            {obj.arguments !== undefined && <ToolArguments args={obj.arguments} />}
-          </li>
-        )
+        return <ToolCallCard key={obj.id ?? i} call={obj} />
       })}
     </ul>
   )
 }
 
+function ToolCallCard({ call }: { call: ToolCall }) {
+  const { t } = useTranslation()
+  return (
+    <li className="border border-hairline rounded p-2 space-y-1.5">
+      <div className="flex items-center gap-2">
+        <Wrench className="h-3.5 w-3.5 text-text-3 shrink-0" strokeWidth={1.75} />
+        <span className="font-mono u-h-md text-text-1">{call.name ?? t('tool.unnamed')}</span>
+        {call.id && <span className="u-caption text-text-4 font-mono ml-auto">{call.id}</span>}
+      </div>
+      {call.arguments !== undefined && <ToolArguments args={call.arguments} />}
+    </li>
+  )
+}
+
 function ToolArguments({ args }: { args: unknown }) {
+  const { t } = useTranslation()
   let parsed: unknown = args
   if (typeof args === 'string') {
     try {
@@ -101,11 +109,11 @@ function ToolArguments({ args }: { args: unknown }) {
   if (parsed && typeof parsed === 'object' && !Array.isArray(parsed)) {
     const entries = Object.entries(parsed as Record<string, unknown>)
     if (entries.length === 0) {
-      return <p className="u-caption text-text-4">(no arguments)</p>
+      return <p className="u-caption text-text-4">{t('tool.noArguments')}</p>
     }
     return (
       <div>
-        <p className="u-caption text-text-3 mb-1">Arguments</p>
+        <p className="u-caption text-text-3 mb-1">{t('tool.arguments')}</p>
         <table className="u-caption w-full">
           <tbody>
             {entries.map(([key, value]) => (

@@ -1,4 +1,5 @@
 import { ChevronDown, ChevronRight } from 'lucide-react'
+import { useTranslation } from 'react-i18next'
 import type { Round } from '../types/round'
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible'
 import { RoundHeader } from './RoundHeader'
@@ -35,6 +36,7 @@ function CollapsibleSectionHeader({ icon, title }: { icon: string; title: string
 }
 
 export function RoundDetail({ round, index, total }: Props) {
+  const { t } = useTranslation()
   return (
     <div className="h-full overflow-auto p-4 space-y-5">
       <RoundHeader round={round} index={index} total={total} />
@@ -42,7 +44,7 @@ export function RoundDetail({ round, index, total }: Props) {
       <Collapsible defaultOpen={false} className="group">
         <CollapsibleTrigger asChild>
           <button type="button" className="w-full text-left">
-            <CollapsibleSectionHeader icon="📋" title="Context" />
+            <CollapsibleSectionHeader icon="📋" title={t('round.sections.context')} />
           </button>
         </CollapsibleTrigger>
         <CollapsibleContent className="mt-2">
@@ -51,18 +53,18 @@ export function RoundDetail({ round, index, total }: Props) {
       </Collapsible>
 
       <section>
-        <SectionHeader icon="⚡" title="Trigger" />
+        <SectionHeader icon="⚡" title={t('round.sections.trigger')} />
         <TriggerSection round={round} />
       </section>
 
       <section>
-        <SectionHeader icon="🧠" title="LLM Response" />
+        <SectionHeader icon="🧠" title={t('round.sections.llmResponse')} />
         <LlmResponseSection round={round} />
       </section>
 
       {round.toolExecutions.length > 0 && (
         <section>
-          <SectionHeader icon="🔧" title="Tool execution" />
+          <SectionHeader icon="🔧" title={t('round.sections.toolExecution')} />
           <ToolExecutionsSection round={round} />
         </section>
       )}
@@ -70,7 +72,7 @@ export function RoundDetail({ round, index, total }: Props) {
       <Collapsible defaultOpen={false} className="group">
         <CollapsibleTrigger asChild>
           <button type="button" className="w-full text-left">
-            <CollapsibleSectionHeader icon="🗂️" title="Raw" />
+            <CollapsibleSectionHeader icon="🗂️" title={t('round.sections.raw')} />
           </button>
         </CollapsibleTrigger>
         <CollapsibleContent className="mt-2">

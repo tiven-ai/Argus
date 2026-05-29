@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next'
 import type { Round } from '../../types/round'
 import { findEvent } from '../../lib/step-helpers'
 import { ToolCallList, ToolDefinitionsList } from './tool-displays'
@@ -39,6 +40,7 @@ function MessageRow({
 }
 
 export function ContextSection({ round }: Props) {
+  const { t } = useTranslation()
   const input = findEvent(round.llmCall, 'argus.input')?.attributes ?? {}
   const messages = Array.isArray(input.messages) ? input.messages : []
   const tools = Array.isArray(input.tools) ? input.tools : []
@@ -58,7 +60,7 @@ export function ContextSection({ round }: Props) {
     <div className="space-y-4">
       {systemPrompt && (
         <div>
-          <h4 className="u-caption text-text-3 mb-1">System prompt</h4>
+          <h4 className="u-caption text-text-3 mb-1">{t('round.context.systemPrompt')}</h4>
           <pre className="u-body bg-tile border border-hairline p-3 rounded whitespace-pre-wrap text-text-2">
             {systemPrompt}
           </pre>
@@ -66,13 +68,13 @@ export function ContextSection({ round }: Props) {
       )}
       {tools.length > 0 && (
         <div>
-          <h4 className="u-caption text-text-3 mb-1">Tools available</h4>
+          <h4 className="u-caption text-text-3 mb-1">{t('round.context.toolsAvailable')}</h4>
           <ToolDefinitionsList tools={tools} />
         </div>
       )}
       {nonSystemMessages.length > 0 && (
         <div>
-          <h4 className="u-caption text-text-3 mb-1">Message history</h4>
+          <h4 className="u-caption text-text-3 mb-1">{t('round.context.messageHistory')}</h4>
           <ul className="space-y-2">
             {nonSystemMessages.map((m, i) => {
               const obj = m as { role?: unknown; content?: unknown; tool_calls?: unknown[] }
@@ -89,7 +91,7 @@ export function ContextSection({ round }: Props) {
         </div>
       )}
       {!systemPrompt && tools.length === 0 && nonSystemMessages.length === 0 && (
-        <p className="u-body text-text-3">(no context captured for this round)</p>
+        <p className="u-body text-text-3">{t('round.context.empty')}</p>
       )}
     </div>
   )
