@@ -12,6 +12,7 @@ import { pusherRoutes } from './modules/pusher/index.js'
 import { authRoutes, resolveAuthContext, type AuthMiddlewareDeps } from './modules/auth/index.js'
 import { resolveIngestContext, tokenManagementRoutes } from './modules/tokens/index.js'
 import { dbTenantPlugin } from './modules/db-tenant/index.js'
+import { MockEmailSender, makeEmailSender, type EmailSender } from './modules/email/index.js'
 
 export interface ServerOptions {
   databaseUrl: string
@@ -22,6 +23,11 @@ export interface ServerOptions {
   cookieName: string
   cookieSecure?: boolean
   sessionTtlSeconds?: number
+  resendApiKey?: string
+  emailFrom?: string
+  appBaseUrl: string
+  /** Inject for tests; production builds from resendApiKey + emailFrom. */
+  emailSender?: EmailSender
 }
 
 export interface ArgusServer {
@@ -46,6 +52,24 @@ export async function createServer(opts: ServerOptions): Promise<ArgusServer> {
   await app.register(cookie)
   await app.register(dbTenantPlugin, { db })
 
+  // Build the email sender. Tests inject; production wires Resend via factory.
+  // Without RESEND_API_KEY we install a MockEmailSender with throwOnSend=true
+  // so boot succeeds but any actual send blows up loudly.
+  let emailSender: EmailSender
+  if (opts.emailSender) {
+    emailSender = opts.emailSender
+  } else if (opts.resendApiKey) {
+    emailSender = makeEmailSender({
+      resendApiKey: opts.resendApiKey,
+      from: opts.emailFrom ?? 'Argus <noreply@argus.dev>',
+    })
+  } else {
+    const mock = new MockEmailSender()
+    mock.throwOnSend = true
+    emailSender = mock
+  }
+  app.decorate('emailSender', emailSender)
+
   app.get('/healthz', async () => ({ status: 'ok' }))
 
   // Auth routes: always registered. In local mode the cookie isn't used but
@@ -67,6 +91,8 @@ export async function createServer(opts: ServerOptions): Promise<ArgusServer> {
     cookieSecure: opts.cookieSecure ?? false,
     sessionTtlSeconds: opts.sessionTtlSeconds ?? 7 * 24 * 3600,
     authMiddleware,
+    emailSender: app.emailSender,
+    appBaseUrl: opts.appBaseUrl,
   })
 
   await app.register(

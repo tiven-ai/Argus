@@ -23,6 +23,9 @@ const envSchema = z.object({
   // GRPC_PORT=0 disables the gRPC ingest server entirely. Default 4317 is the
   // OTLP standard.
   GRPC_PORT: z.coerce.number().int().min(0).default(4317),
+  RESEND_API_KEY: z.string().optional(),
+  EMAIL_FROM: z.string().default('Argus <noreply@argus.dev>'),
+  APP_BASE_URL: z.string().url().default('http://localhost:5173'),
 })
 
 export type Env = z.infer<typeof envSchema>

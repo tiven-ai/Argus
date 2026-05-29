@@ -13,6 +13,9 @@ async function main() {
     mode: env.ARGUS_MODE,
     jwtSecret: env.JWT_SECRET,
     cookieName: env.COOKIE_NAME,
+    resendApiKey: env.RESEND_API_KEY,
+    emailFrom: env.EMAIL_FROM,
+    appBaseUrl: env.APP_BASE_URL,
   })
 
   await app.listen({ port: env.PORT, host: env.HOST })

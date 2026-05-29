@@ -23,6 +23,7 @@ describe('GET /healthz', () => {
       mode: 'local',
       jwtSecret: 'local-dev-secret-not-for-production-x',
       cookieName: 'argus_session',
+      appBaseUrl: 'http://localhost:5173',
     })
     const res = await server.app.inject({ method: 'GET', url: '/healthz' })
     expect(res.statusCode).toBe(200)

@@ -6,6 +6,7 @@ import { createUser, findUserByEmail } from './dao.js'
 import { hashPassword, verifyPassword } from './password.js'
 import { signJwt } from './jwt.js'
 import { record as auditRecord } from '../audit/index.js'
+import type { EmailSender } from '../email/index.js'
 
 export interface AuthRoutesDeps {
   db: Kysely<DB>
@@ -19,6 +20,8 @@ export interface AuthRoutesDeps {
    * synthetic (local mode).
    */
   authMiddleware: preHandlerHookHandler
+  emailSender: EmailSender
+  appBaseUrl: string
 }
 
 const registerBodySchema = z.object({

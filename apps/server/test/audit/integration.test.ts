@@ -22,6 +22,7 @@ describe('audit log E2E', () => {
       mode: 'multi-tenant',
       jwtSecret: 'test-secret-at-least-32-chars-long-x',
       cookieName: 'argus_session',
+      appBaseUrl: 'http://localhost:5173',
     }
     server = await createServer(opts)
     await server.app.ready()
