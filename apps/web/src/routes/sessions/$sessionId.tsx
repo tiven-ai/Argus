@@ -24,9 +24,9 @@ function SessionDetail() {
   })
   const stream = useSessionStream(sessionId)
 
-  if (isLoading) return <div className="p-6 text-neutral-500">Loading…</div>
-  if (error) return <div className="p-6 text-red-600">Error: {String(error)}</div>
-  if (!data) return <div className="p-6">Not found</div>
+  if (isLoading) return <div className="p-6 u-body text-text-3">Loading…</div>
+  if (error) return <div className="p-6 u-body text-danger">Error: {String(error)}</div>
+  if (!data) return <div className="p-6 u-body text-text-2">Not found</div>
 
   return (
     <SessionReplay

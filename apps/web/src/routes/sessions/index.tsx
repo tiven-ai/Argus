@@ -21,53 +21,60 @@ function SessionsList() {
     }
   }, [error, navigate])
 
-  if (isLoading) return <p className="p-6 text-neutral-500">Loading…</p>
-  if (error) return <p className="p-6 text-red-600">Error: {String(error)}</p>
+  if (isLoading) return <p className="p-3 u-body text-text-3">Loading…</p>
+  if (error) return <p className="p-3 u-body text-danger">Error: {String(error)}</p>
   if (!data || data.sessions.length === 0) {
     return (
-      <div className="p-6 text-neutral-500">
+      <div className="p-6 u-body text-text-3">
         <p>No sessions yet.</p>
-        <p className="text-sm mt-2">
-          Try <code className="bg-neutral-100 px-1 rounded">pnpm db:seed</code> or send an OTLP
-          payload to <code className="bg-neutral-100 px-1 rounded">POST /v1/traces</code>.
+        <p className="mt-2">
+          Try <code className="bg-tile px-1 rounded text-text-2">pnpm db:seed</code> or send an OTLP
+          payload to <code className="bg-tile px-1 rounded text-text-2">POST /v1/traces</code>.
         </p>
       </div>
     )
   }
 
   return (
-    <div className="p-6 space-y-2 overflow-auto h-full">
-      <h2 className="text-lg font-semibold mb-4">Sessions</h2>
-      <table className="w-full text-sm">
-        <thead className="text-left text-neutral-500">
-          <tr>
-            <th className="py-2">Project</th>
-            <th>Service</th>
-            <th>Trace</th>
-            <th>Steps</th>
-            <th>Started</th>
-          </tr>
-        </thead>
-        <tbody>
-          {data.sessions.map((s) => (
-            <tr key={s.id} className="border-t hover:bg-neutral-50">
-              <td className="py-2">{s.projectName}</td>
-              <td>{s.serviceName}</td>
-              <td className="font-mono text-xs">
-                <Link
-                  to="/sessions/$sessionId"
-                  params={{ sessionId: s.id }}
-                  className="text-blue-700 hover:underline"
-                >
-                  {s.traceId.slice(0, 16)}…
-                </Link>
-              </td>
-              <td>{s.stepCount}</td>
-              <td className="text-neutral-500">{new Date(s.startedAt).toLocaleString()}</td>
+    <div className="p-6 overflow-auto h-full">
+      <h2 className="u-h-lg text-text-1 mb-3">Sessions</h2>
+      <div className="border border-hairline rounded">
+        <table className="w-full u-body">
+          <thead>
+            <tr className="text-left u-caption text-text-3 border-b border-hairline">
+              <th className="font-normal px-3 py-2">Project</th>
+              <th className="font-normal px-3 py-2">Service</th>
+              <th className="font-normal px-3 py-2">Trace</th>
+              <th className="font-normal px-3 py-2">Steps</th>
+              <th className="font-normal px-3 py-2">Started</th>
             </tr>
-          ))}
-        </tbody>
-      </table>
+          </thead>
+          <tbody>
+            {data.sessions.map((s) => (
+              <tr
+                key={s.id}
+                className="border-b border-hairline last:border-0 hover:bg-tile transition-colors"
+              >
+                <td className="px-3 py-2 text-text-1">{s.projectName}</td>
+                <td className="px-3 py-2 text-text-2">{s.serviceName}</td>
+                <td className="px-3 py-2">
+                  <Link
+                    to="/sessions/$sessionId"
+                    params={{ sessionId: s.id }}
+                    className="font-mono text-[11px] text-brand hover:text-brand-hover tabular"
+                  >
+                    {s.traceId.slice(0, 16)}…
+                  </Link>
+                </td>
+                <td className="px-3 py-2 text-text-2 tabular">{s.stepCount}</td>
+                <td className="px-3 py-2 text-text-3 tabular">
+                  {new Date(s.startedAt).toLocaleString()}
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
     </div>
   )
 }

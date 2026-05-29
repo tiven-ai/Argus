@@ -18,21 +18,21 @@ function Shell() {
   const { user, loading } = useAuth()
   if (loading) {
     return (
-      <div className="h-screen flex items-center justify-center text-neutral-500">Loading…</div>
+      <div className="h-screen flex items-center justify-center text-text-3 u-body">Loading…</div>
     )
   }
   return (
-    <div className="h-screen flex flex-col">
-      <header className="border-b px-6 py-3 flex items-center gap-4 shrink-0">
-        <Link to="/" className="text-lg font-bold tracking-tight">
+    <div className="h-screen flex flex-col bg-page text-text-2">
+      <header className="border-b border-hairline px-6 py-2.5 flex items-center gap-4 shrink-0">
+        <Link to="/" className="u-h-lg text-text-1 tracking-tight">
           Argus
         </Link>
-        <nav className="text-sm text-neutral-500 flex items-center gap-3">
-          <Link to="/sessions" className="hover:text-neutral-900">
+        <nav className="u-body flex items-center gap-3">
+          <Link to="/sessions" className="text-text-3 hover:text-text-1 transition-colors">
             Sessions
           </Link>
           {user && (
-            <Link to="/settings/tokens" className="hover:text-neutral-900">
+            <Link to="/settings/tokens" className="text-text-3 hover:text-text-1 transition-colors">
               Tokens
             </Link>
           )}
@@ -48,7 +48,7 @@ function Shell() {
 
 function SignInLink() {
   return (
-    <Link to="/login" className="text-sm text-blue-700 hover:underline">
+    <Link to="/login" className="u-body text-brand hover:text-brand-hover transition-colors">
       Sign in
     </Link>
   )
@@ -70,16 +70,16 @@ function UserMenu() {
       <button
         type="button"
         onClick={() => setOpen((v) => !v)}
-        className="text-sm text-neutral-700 hover:text-neutral-900 border rounded px-3 py-1"
+        className="h-8 px-4 rounded border border-hairline text-text-1 u-body hover:bg-tile transition-colors"
       >
         {user!.email}
       </button>
       {open && (
-        <div className="absolute right-0 mt-1 w-48 bg-white border rounded shadow text-sm z-50">
+        <div className="absolute right-0 mt-1 w-48 bg-popover border border-hairline rounded-md shadow-[var(--shadow-popover)] u-body z-50">
           <button
             type="button"
             onClick={handleLogout}
-            className="block w-full text-left px-3 py-2 hover:bg-neutral-50"
+            className="block w-full text-left px-3 py-2 text-text-2 hover:bg-tile transition-colors rounded-md"
           >
             Sign out
           </button>
