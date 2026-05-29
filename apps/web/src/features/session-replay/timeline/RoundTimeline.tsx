@@ -31,11 +31,11 @@ export function RoundTimeline({ rounds, activeRoundId, onSelect }: Props) {
 
   if (rounds.length === 0) {
     return (
-      <div className="p-4 text-sm text-neutral-500">
+      <div className="p-3 u-body text-text-3">
         <p>No rounds yet.</p>
         <p className="mt-2">
           Rounds appear when a session contains at least one LLM call. Try{' '}
-          <code className="bg-neutral-100 px-1 rounded">pnpm db:seed</code>.
+          <code className="bg-tile px-1 rounded text-text-2">pnpm db:seed</code>.
         </p>
       </div>
     )

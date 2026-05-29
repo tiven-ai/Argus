@@ -36,16 +36,16 @@ export function RoundRow({ round, index, active, onClick }: Props) {
       onClick={onClick}
       className={cn(
         'w-full flex items-start gap-2 px-3 py-2 text-left border-l-2 transition-colors',
-        active ? 'bg-blue-50 border-l-blue-500' : 'border-l-transparent hover:bg-neutral-50',
+        active ? 'bg-tint-brand border-l-brand' : 'border-l-transparent hover:bg-tile',
       )}
     >
-      <span className="text-xs text-neutral-400 w-6 shrink-0 mt-0.5 tabular-nums">{index + 1}</span>
-      <Icon className="h-4 w-4 mt-0.5 text-neutral-600 shrink-0" />
+      <span className="u-caption text-text-4 w-5 shrink-0 mt-0.5 tabular">{index + 1}</span>
+      <Icon className="h-4 w-4 mt-0.5 text-text-3 shrink-0" strokeWidth={1.75} />
       <div className="flex-1 min-w-0">
-        <p className="text-sm font-medium truncate">{label}</p>
-        {snippet && <p className="text-xs text-neutral-500 truncate">{snippet}</p>}
+        <p className="u-h-md text-text-1 truncate">{label}</p>
+        {snippet && <p className="u-caption text-text-3 truncate">{snippet}</p>}
       </div>
-      <div className="text-xs text-neutral-400 shrink-0 tabular-nums">
+      <div className="u-caption text-text-4 shrink-0 mt-0.5 tabular">
         {formatDuration(durationMs(round.llmCall))}
       </div>
     </button>

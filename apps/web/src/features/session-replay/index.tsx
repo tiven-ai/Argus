@@ -22,14 +22,14 @@ export function SessionReplay({ session, steps, activeRoundId, connected, onSele
     <div className="h-full flex flex-col">
       <SessionTopbar session={session} steps={steps} connected={connected} />
       <div className="flex-1 grid grid-cols-[380px_1fr] overflow-hidden">
-        <aside className="border-r overflow-hidden">
+        <aside className="border-r border-hairline overflow-hidden">
           <RoundTimeline rounds={rounds} activeRoundId={activeRound?.id} onSelect={onSelectRound} />
         </aside>
         <main className="overflow-hidden">
           {activeRound ? (
             <RoundDetail round={activeRound} index={activeIndex} total={rounds.length} />
           ) : (
-            <p className="p-6 text-neutral-500 text-sm">
+            <p className="p-6 u-body text-text-3">
               (no rounds in this session — needs at least one LLM call)
             </p>
           )}
