@@ -13,6 +13,9 @@ const envSchema = z.object({
   // be defined so the schema stays uniform.
   JWT_SECRET: z.string().min(32).default('local-dev-secret-not-for-production-x'),
   COOKIE_NAME: z.string().default('argus_session'),
+  // GRPC_PORT=0 disables the gRPC ingest server entirely. Default 4317 is the
+  // OTLP standard.
+  GRPC_PORT: z.coerce.number().int().min(0).default(4317),
 })
 
 export type Env = z.infer<typeof envSchema>
