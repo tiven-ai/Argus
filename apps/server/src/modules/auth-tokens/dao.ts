@@ -23,9 +23,7 @@ export async function findRateLimitBlockingToken(
     .where('kind', '=', kind)
     .where('consumed_at', 'is', null)
     .where(
-      'created_at',
-      '>',
-      sql<Date>`now() - interval '${sql.raw(String(ISSUE_RATE_LIMIT_SECONDS))} seconds'`,
+      sql<boolean>`created_at > now() - interval '${sql.raw(String(ISSUE_RATE_LIMIT_SECONDS))} seconds'`,
     )
     .orderBy('created_at', 'desc')
     .selectAll()
@@ -79,7 +77,7 @@ export async function findActiveByRaw(
     .where('token_hash', '=', hashToken(raw))
     .where('kind', '=', kind)
     .where('consumed_at', 'is', null)
-    .where('expires_at', '>', sql<Date>`now()`)
+    .where(sql<boolean>`expires_at > now()`)
     .selectAll()
     .executeTakeFirst()
   return row ? mapRow(row) : null
@@ -98,9 +96,9 @@ interface Row {
   id: string
   user_id: string
   kind: string
-  expires_at: Date | string
-  consumed_at: Date | string | null
-  created_at: Date | string
+  expires_at: unknown
+  consumed_at: unknown
+  created_at: unknown
 }
 
 function mapRow(r: Row): TokenRecord {
