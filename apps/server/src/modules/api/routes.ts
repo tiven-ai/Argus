@@ -1,6 +1,5 @@
 import type { FastifyInstance, FastifyPluginAsync } from 'fastify'
 import type { StorageBackend } from '../storage/types.js'
-import { DEFAULT_ORG_ID } from '../../constants.js'
 import { storedStepToApi } from './mappers.js'
 
 export interface ApiRoutesDeps {
@@ -8,10 +7,17 @@ export interface ApiRoutesDeps {
 }
 
 export const apiRoutes: FastifyPluginAsync<ApiRoutesDeps> = async (app: FastifyInstance, deps) => {
-  app.get('/api/sessions', async (request) => {
+  app.get('/api/sessions', async (request, reply) => {
+    if (!request.auth) {
+      reply.code(401)
+      return { error: 'unauthenticated' }
+    }
     const query = request.query as { limit?: string }
     const limit = query.limit ? Math.min(200, Math.max(1, parseInt(query.limit, 10))) : 50
-    const sessions = await deps.storage.listSessions({ orgId: DEFAULT_ORG_ID, limit })
+    const sessions = await deps.storage.listSessions({
+      orgId: request.auth.user.orgId,
+      limit,
+    })
     return {
       sessions: sessions.map((s) => ({
         id: s.id,
@@ -26,8 +32,15 @@ export const apiRoutes: FastifyPluginAsync<ApiRoutesDeps> = async (app: FastifyI
   })
 
   app.get('/api/sessions/:sessionId', async (request, reply) => {
+    if (!request.auth) {
+      reply.code(401)
+      return { error: 'unauthenticated' }
+    }
     const { sessionId } = request.params as { sessionId: string }
-    const detail = await deps.storage.getSession({ orgId: DEFAULT_ORG_ID, sessionId })
+    const detail = await deps.storage.getSession({
+      orgId: request.auth.user.orgId,
+      sessionId,
+    })
     if (!detail) {
       reply.code(404)
       return { error: 'not_found' }

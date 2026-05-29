@@ -6,6 +6,9 @@ async function main() {
   const { app } = await createServer({
     databaseUrl: env.DATABASE_URL,
     logLevel: env.LOG_LEVEL,
+    mode: env.ARGUS_MODE,
+    jwtSecret: env.JWT_SECRET,
+    cookieName: env.COOKIE_NAME,
   })
 
   await app.listen({ port: env.PORT, host: env.HOST })

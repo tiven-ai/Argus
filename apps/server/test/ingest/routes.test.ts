@@ -51,6 +51,9 @@ describe('POST /v1/traces', () => {
   async function makeApp() {
     const app = Fastify()
     const bus = new InProcMessageBus()
+    app.addHook('preHandler', async (req) => {
+      req.ingest = { orgId: '00000000-0000-0000-0000-000000000000' }
+    })
     await app.register(ingestRoutes, { storage, bus })
     return app
   }

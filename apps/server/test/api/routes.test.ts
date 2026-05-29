@@ -19,14 +19,17 @@ describe('Query API routes', () => {
     await db.destroy()
   })
 
-  async function makeApp() {
+  async function makeApp(orgId: string) {
     const app = Fastify()
+    app.addHook('preHandler', async (req) => {
+      req.auth = { user: { id: 'u', email: 'e', orgId } }
+    })
     await app.register(apiRoutes, { storage })
     return app
   }
 
   it('GET /api/sessions returns empty list initially', async () => {
-    const app = await makeApp()
+    const app = await makeApp(ORG)
     const res = await app.inject({ method: 'GET', url: '/api/sessions' })
     expect(res.statusCode).toBe(200)
     expect(ListSessionsResponseSchema.parse(res.json())).toEqual({ sessions: [] })
@@ -59,7 +62,7 @@ describe('Query API routes', () => {
       ],
     })
 
-    const app = await makeApp()
+    const app = await makeApp(ORG)
     const res = await app.inject({ method: 'GET', url: '/api/sessions' })
     expect(res.statusCode).toBe(200)
     const parsed = ListSessionsResponseSchema.parse(res.json())
@@ -100,7 +103,7 @@ describe('Query API routes', () => {
       ],
     })
 
-    const app = await makeApp()
+    const app = await makeApp(ORG)
     const list = await app.inject({ method: 'GET', url: '/api/sessions' })
     const sessionId = list.json().sessions[0].id
 
@@ -116,7 +119,7 @@ describe('Query API routes', () => {
   })
 
   it('GET /api/sessions/:id returns 404 for unknown id', async () => {
-    const app = await makeApp()
+    const app = await makeApp(ORG)
     const res = await app.inject({
       method: 'GET',
       url: '/api/sessions/00000000-0000-0000-0000-000000000000',

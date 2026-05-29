@@ -48,6 +48,15 @@ describe('SSE end-to-end: POST /v1/traces -> session stream', () => {
 
   beforeAll(async () => {
     app = Fastify()
+    app.addHook('preHandler', async (req) => {
+      if (req.url.startsWith('/v1/traces')) {
+        req.ingest = { orgId: '00000000-0000-0000-0000-000000000000' }
+      } else {
+        req.auth = {
+          user: { id: 'u', email: 'e', orgId: '00000000-0000-0000-0000-000000000000' },
+        }
+      }
+    })
     await app.register(ingestRoutes, { storage, bus })
     await app.register(pusherRoutes, { storage, bus })
     await app.listen({ port: 0, host: '127.0.0.1' })

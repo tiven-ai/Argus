@@ -15,6 +15,12 @@ export const ingestRoutes: FastifyPluginAsync<IngestRoutesDeps> = async (
   deps,
 ) => {
   app.post('/v1/traces', async (request, reply) => {
+    const ingest = request.ingest
+    if (!ingest) {
+      reply.code(401)
+      return { error: 'unauthenticated' }
+    }
+
     const parseResult = otlpExportRequestSchema.safeParse(request.body)
     if (!parseResult.success) {
       reply.code(400)
@@ -34,7 +40,15 @@ export const ingestRoutes: FastifyPluginAsync<IngestRoutesDeps> = async (
 
     let acceptedCount = 0
     for (const trace of traces) {
-      const result = await deps.storage.writeTrace(trace)
+      // Stamp orgId from the request context. If the token also pinned a
+      // specific project, force the project name to match — clients can't write
+      // to projects outside their token's scope.
+      const overridden = {
+        ...trace,
+        orgId: ingest.orgId,
+        projectName: ingest.projectName ?? trace.projectName,
+      }
+      const result = await deps.storage.writeTrace(overridden)
       for (const stored of result.writtenSteps) {
         deps.bus.publish(`session:${result.sessionId}`, storedStepToApi(stored))
       }

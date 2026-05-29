@@ -1,5 +1,4 @@
 import type { FastifyInstance, FastifyPluginAsync, FastifyRequest } from 'fastify'
-import { DEFAULT_ORG_ID } from '../../constants.js'
 import { storedStepToApi } from '../api/mappers.js'
 import type { MessageBus, MessageHandler } from '../pubsub/types.js'
 import type { Step } from '@argus/shared-types'
@@ -20,8 +19,21 @@ export const pusherRoutes: FastifyPluginAsync<PusherRoutesDeps> = async (
   app.get<{ Params: { sessionId: string } }>(
     '/api/sessions/:sessionId/stream',
     async (request, reply) => {
+      if (!request.auth) {
+        reply.code(401)
+        return { error: 'unauthenticated' }
+      }
+      const orgId = request.auth.user.orgId
       const { sessionId } = request.params
       const lastEventId = readLastEventId(request)
+
+      // 404 guard: refuse to open a stream for a session that doesn't belong
+      // to the requester's org. (Previously this leaked over SSE.)
+      const detail = await deps.storage.getSession({ orgId, sessionId })
+      if (!detail) {
+        reply.code(404)
+        return { error: 'not_found' }
+      }
 
       reply.hijack()
       reply.raw.writeHead(200, {
@@ -31,46 +43,35 @@ export const pusherRoutes: FastifyPluginAsync<PusherRoutesDeps> = async (
         'X-Accel-Buffering': 'no',
       })
 
-      // Initial replay: any steps written after lastEventId (if provided).
       if (lastEventId) {
-        const detail = await deps.storage.getSession({
-          orgId: DEFAULT_ORG_ID,
-          sessionId,
-        })
-        if (detail) {
-          const idx = detail.steps.findIndex((s) => s.id === lastEventId)
-          const replay = idx >= 0 ? detail.steps.slice(idx + 1) : []
-          for (const stored of replay) {
-            const step = storedStepToApi(stored)
-            reply.raw.write(formatSseEvent(step.id, { type: 'step', step }))
-          }
+        const idx = detail.steps.findIndex((s) => s.id === lastEventId)
+        const replay = idx >= 0 ? detail.steps.slice(idx + 1) : []
+        for (const stored of replay) {
+          const step = storedStepToApi(stored)
+          reply.raw.write(formatSseEvent(step.id, { type: 'step', step }))
         }
       }
 
-      // Initial sync marker so the client knows the stream is live.
       reply.raw.write(formatSseEvent(undefined, { type: 'connected' }))
 
-      // Live subscription.
       const handler: MessageHandler = (payload) => {
         const step = payload as Step
         try {
           reply.raw.write(formatSseEvent(step.id, { type: 'step', step }))
         } catch {
-          // Socket already closed; cleanup will run via 'close' handler below.
+          // socket closed; cleanup runs via 'close' below
         }
       }
       const unsubscribe = deps.bus.subscribe(`session:${sessionId}`, handler)
 
-      // Heartbeat to keep proxies from closing idle connections.
       const heartbeat = setInterval(() => {
         try {
           reply.raw.write(formatSseComment('heartbeat'))
         } catch {
-          // Same as above.
+          // ditto
         }
       }, HEARTBEAT_INTERVAL_MS)
 
-      // Cleanup when the client disconnects.
       request.raw.on('close', () => {
         unsubscribe()
         clearInterval(heartbeat)
@@ -85,11 +86,9 @@ export const pusherRoutes: FastifyPluginAsync<PusherRoutesDeps> = async (
 }
 
 function readLastEventId(req: FastifyRequest): string | undefined {
-  // EventSource sends Last-Event-ID on auto-reconnect; check both header casings.
   const fromHeader =
     req.headers['last-event-id'] ?? (req.headers as Record<string, string>)['Last-Event-ID']
   if (typeof fromHeader === 'string' && fromHeader.length > 0) return fromHeader
-  // Allow ?lastEventId=... query param for testing / curl scenarios.
   const q = req.query as { lastEventId?: string } | undefined
   return q?.lastEventId
 }
