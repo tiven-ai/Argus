@@ -68,7 +68,7 @@ export interface StoredSessionDetail extends StoredSessionSummary {
 
 export interface WriteTraceResult {
   sessionId: string
-  /** Steps that were inserted or updated by this call, in input order. */
+  /** Steps that were inserted or updated by this call, ordered by started_at ASC. */
   writtenSteps: StoredStep[]
 }
 
