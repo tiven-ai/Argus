@@ -94,17 +94,20 @@ describe('SSE end-to-end: POST /v1/traces -> session stream', () => {
     const decoder = new TextDecoder()
 
     // Helper to read until we have at least one event terminator.
+    // `residual` carries bytes past `\n\n` from one call to the next, so a TCP
+    // chunk containing multiple events isn't dropped.
+    let residual = ''
     async function readNextEvent(): Promise<string> {
-      let buf = ''
+      let buf = residual
       while (true) {
+        const idx = buf.indexOf('\n\n')
+        if (idx >= 0) {
+          residual = buf.slice(idx + 2)
+          return buf.slice(0, idx)
+        }
         const { value, done } = await reader.read()
         if (done) throw new Error('SSE stream ended prematurely')
         buf += decoder.decode(value, { stream: true })
-        const idx = buf.indexOf('\n\n')
-        if (idx >= 0) {
-          const event = buf.slice(0, idx)
-          return event
-        }
       }
     }
 
