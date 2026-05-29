@@ -86,3 +86,11 @@ export async function getLocalDefaultUser(db: Kysely<DB>): Promise<UserRecord> {
     orgId: DEFAULT_ORG_ID,
   }
 }
+
+export async function markEmailVerified(db: Kysely<DB>, userId: string): Promise<void> {
+  await db
+    .updateTable('users')
+    .set({ email_verified_at: new Date() })
+    .where('id', '=', userId)
+    .execute()
+}

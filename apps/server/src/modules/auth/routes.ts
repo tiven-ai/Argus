@@ -7,6 +7,8 @@ import { hashPassword, verifyPassword } from './password.js'
 import { signJwt } from './jwt.js'
 import { record as auditRecord } from '../audit/index.js'
 import type { EmailSender } from '../email/index.js'
+import { issueAndSendEmailVerify } from './email-flows.js'
+import { findActiveByRaw, findRateLimitBlockingToken } from '../auth-tokens/index.js'
 
 export interface AuthRoutesDeps {
   db: Kysely<DB>
@@ -30,6 +32,8 @@ const registerBodySchema = z.object({
 })
 
 const loginBodySchema = registerBodySchema
+
+const confirmBodySchema = z.object({ token: z.string().min(8) })
 
 function setSessionCookie(
   reply: import('fastify').FastifyReply,
@@ -142,5 +146,60 @@ export const authRoutes: FastifyPluginAsync<AuthRoutesDeps> = async (
       return { error: 'unauthenticated' }
     }
     return { user: request.auth.user }
+  })
+
+  app.post(
+    '/auth/email-verify/request',
+    { preHandler: deps.authMiddleware },
+    async (request, reply) => {
+      if (!request.auth) {
+        reply.code(401)
+        return { error: 'unauthenticated' }
+      }
+      const userId = request.auth.user.id
+      const email = request.auth.user.email
+      const blocker = await findRateLimitBlockingToken(deps.db, userId, 'email_verify')
+      if (blocker) {
+        return { ok: true } // silent rate limit
+      }
+      try {
+        await issueAndSendEmailVerify(
+          { db: deps.db, emailSender: deps.emailSender, appBaseUrl: deps.appBaseUrl },
+          { userId, email },
+        )
+      } catch (err) {
+        request.log.warn(
+          { err, event: 'email_send_failed', purpose: 'email_verify_request' },
+          'email send failed',
+        )
+      }
+      return { ok: true }
+    },
+  )
+
+  app.post('/auth/email-verify/confirm', async (request, reply) => {
+    const parsed = confirmBodySchema.safeParse(request.body)
+    if (!parsed.success) {
+      reply.code(400)
+      return { error: 'invalid_input' }
+    }
+    const token = await findActiveByRaw(deps.db, parsed.data.token, 'email_verify')
+    if (!token) {
+      reply.code(400)
+      return { error: 'invalid_or_expired_token' }
+    }
+    await deps.db.transaction().execute(async (trx) => {
+      await trx
+        .updateTable('users')
+        .set({ email_verified_at: new Date() })
+        .where('id', '=', token.userId)
+        .execute()
+      await trx
+        .updateTable('auth_one_time_tokens')
+        .set({ consumed_at: new Date() })
+        .where('id', '=', token.id)
+        .execute()
+    })
+    return { ok: true }
   })
 }
