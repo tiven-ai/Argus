@@ -3,6 +3,7 @@ import { useQuery } from '@tanstack/react-query'
 import { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import { fetchSessions } from '../../lib/api'
+import { useLocaleFormat } from '../../lib/use-locale-format'
 
 export const Route = createFileRoute('/sessions/')({
   component: SessionsList,
@@ -10,6 +11,7 @@ export const Route = createFileRoute('/sessions/')({
 
 function SessionsList() {
   const { t } = useTranslation()
+  const f = useLocaleFormat()
   const navigate = useNavigate()
   const { data, isLoading, error } = useQuery({
     queryKey: ['sessions'],
@@ -74,7 +76,7 @@ function SessionsList() {
                 </td>
                 <td className="px-3 py-2 text-text-2 tabular">{s.stepCount}</td>
                 <td className="px-3 py-2 text-text-3 tabular">
-                  {new Date(s.startedAt).toLocaleString()}
+                  {f.dateTime(new Date(s.startedAt))}
                 </td>
               </tr>
             ))}

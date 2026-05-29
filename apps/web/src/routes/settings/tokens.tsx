@@ -9,6 +9,7 @@ import {
   type CreatedToken,
   type TokenRecord,
 } from '../../lib/api'
+import { useLocaleFormat } from '../../lib/use-locale-format'
 import { Badge } from '@/components/ui/badge'
 
 export const Route = createFileRoute('/settings/tokens')({
@@ -20,6 +21,7 @@ const inputClass =
 
 function TokensPage() {
   const { t } = useTranslation()
+  const f = useLocaleFormat()
   const queryClient = useQueryClient()
   const { data, isLoading, error } = useQuery({
     queryKey: ['tokens'],
@@ -149,7 +151,7 @@ function TokensPage() {
                       {tok.prefix}…
                     </td>
                     <td className="px-3 py-2 text-text-3 tabular">
-                      {new Date(tok.createdAt).toLocaleString()}
+                      {f.dateTime(new Date(tok.createdAt))}
                     </td>
                     <td className="px-3 py-2">
                       {tok.revokedAt ? (
