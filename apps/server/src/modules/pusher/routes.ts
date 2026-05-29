@@ -27,12 +27,37 @@ export const pusherRoutes: FastifyPluginAsync<PusherRoutesDeps> = async (
       const { sessionId } = request.params
       const lastEventId = readLastEventId(request)
 
+      // Subscribe FIRST so any step published during the getSession history
+      // read is captured (buffered) and drained after replay. Closes the
+      // subscribe-then-replay race: previously a publish landing between
+      // getSession resolving and bus.subscribe() registering was lost.
+      let replayDone = false
+      const buffer: Step[] = []
+      const seenIds = new Set<string>()
+
+      const handler: MessageHandler = (payload) => {
+        const step = payload as Step
+        if (!replayDone) {
+          buffer.push(step)
+          return
+        }
+        if (seenIds.has(step.id)) return
+        seenIds.add(step.id)
+        try {
+          reply.raw.write(formatSseEvent(step.id, { type: 'step', step }))
+        } catch {
+          // socket closed; cleanup runs via 'close' below
+        }
+      }
+      const unsubscribe = deps.bus.subscribe(`session:${sessionId}`, handler)
+
       // 404 guard: refuse to open a stream for a session that doesn't belong
       // to the requester's org. (Previously this leaked over SSE.)
       const detail = await request.server.withTenantTx(orgId, (trx) =>
         deps.storage.getSession(trx, { orgId, sessionId }),
       )
       if (!detail) {
+        unsubscribe()
         reply.code(404)
         return { error: 'not_found' }
       }
@@ -45,26 +70,29 @@ export const pusherRoutes: FastifyPluginAsync<PusherRoutesDeps> = async (
         'X-Accel-Buffering': 'no',
       })
 
+      // Replay history (if reconnect with Last-Event-ID).
       if (lastEventId) {
         const idx = detail.steps.findIndex((s) => s.id === lastEventId)
         const replay = idx >= 0 ? detail.steps.slice(idx + 1) : []
         for (const stored of replay) {
           const step = storedStepToApi(stored)
+          seenIds.add(step.id)
           reply.raw.write(formatSseEvent(step.id, { type: 'step', step }))
         }
       }
-
       reply.raw.write(formatSseEvent(undefined, { type: 'connected' }))
 
-      const handler: MessageHandler = (payload) => {
-        const step = payload as Step
+      // Drain buffered live events that arrived during replay.
+      replayDone = true
+      for (const step of buffer) {
+        if (seenIds.has(step.id)) continue
+        seenIds.add(step.id)
         try {
           reply.raw.write(formatSseEvent(step.id, { type: 'step', step }))
         } catch {
           // socket closed; cleanup runs via 'close' below
         }
       }
-      const unsubscribe = deps.bus.subscribe(`session:${sessionId}`, handler)
 
       const heartbeat = setInterval(() => {
         try {
