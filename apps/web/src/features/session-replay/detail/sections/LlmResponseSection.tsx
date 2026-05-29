@@ -1,11 +1,12 @@
 import type { Round } from '../../types/round'
 import { findEvent } from '../../lib/step-helpers'
+import { ToolCallList } from './tool-displays'
 
 interface Props {
   round: Round
 }
 
-export function LlmCallSection({ round }: Props) {
+export function LlmResponseSection({ round }: Props) {
   const output = findEvent(round.llmCall, 'argus.output')?.attributes ?? {}
   const text = typeof output.text === 'string' ? output.text : undefined
   const toolCalls = Array.isArray(output.tool_calls) ? output.tool_calls : undefined
@@ -24,9 +25,7 @@ export function LlmCallSection({ round }: Props) {
       {toolCalls && (
         <div>
           <h4 className="text-xs font-semibold text-neutral-500 uppercase mb-1">Tool calls</h4>
-          <pre className="text-xs bg-neutral-50 border p-2 rounded overflow-auto">
-            {JSON.stringify(toolCalls, null, 2)}
-          </pre>
+          <ToolCallList toolCalls={toolCalls} />
         </div>
       )}
       {stopReason && <p className="text-xs text-neutral-500">stop: {stopReason}</p>}

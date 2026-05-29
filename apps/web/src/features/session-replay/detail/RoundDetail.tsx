@@ -4,7 +4,7 @@ import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/component
 import { RoundHeader } from './RoundHeader'
 import { ContextSection } from './sections/ContextSection'
 import { TriggerSection } from './sections/TriggerSection'
-import { LlmCallSection } from './sections/LlmCallSection'
+import { LlmResponseSection } from './sections/LlmResponseSection'
 import { ToolExecutionsSection } from './sections/ToolExecutionsSection'
 import { RawSection } from './sections/RawSection'
 
@@ -63,8 +63,8 @@ export function RoundDetail({ round, index, total }: Props) {
       </section>
 
       <section>
-        <SectionHeader icon="🧠" title="LLM call" />
-        <LlmCallSection round={round} />
+        <SectionHeader icon="🧠" title="LLM Response" />
+        <LlmResponseSection round={round} />
       </section>
 
       {round.toolExecutions.length > 0 && (

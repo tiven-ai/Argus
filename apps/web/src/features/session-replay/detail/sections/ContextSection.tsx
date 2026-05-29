@@ -1,5 +1,6 @@
 import type { Round } from '../../types/round'
 import { findEvent } from '../../lib/step-helpers'
+import { ToolCallList, ToolDefinitionsList } from './tool-displays'
 
 interface Props {
   round: Round
@@ -14,16 +15,26 @@ function MessageRow({
   content?: string
   toolCalls?: unknown[]
 }) {
+  // For tool messages, parse stringified JSON content for readability.
+  let displayContent = content
+  if (role === 'tool' && typeof content === 'string') {
+    try {
+      const parsed = JSON.parse(content)
+      displayContent = JSON.stringify(parsed, null, 2)
+    } catch {
+      // leave as raw
+    }
+  }
   return (
     <li className="border rounded p-2 text-sm">
       <p className="text-xs text-neutral-500 mb-1 uppercase tracking-wide">{role}</p>
-      {content && content.length > 0 && (
-        <pre className="whitespace-pre-wrap text-sm">{content}</pre>
+      {displayContent && displayContent.length > 0 && (
+        <pre className="whitespace-pre-wrap text-sm">{displayContent}</pre>
       )}
       {toolCalls && toolCalls.length > 0 && (
-        <pre className="text-xs bg-neutral-50 border mt-1 p-2 rounded overflow-auto">
-          {JSON.stringify(toolCalls, null, 2)}
-        </pre>
+        <div className="mt-2">
+          <ToolCallList toolCalls={toolCalls} />
+        </div>
       )}
     </li>
   )
@@ -60,9 +71,7 @@ export function ContextSection({ round }: Props) {
       {tools.length > 0 && (
         <div>
           <h4 className="text-xs font-semibold text-neutral-500 uppercase mb-1">Tools available</h4>
-          <pre className="text-xs bg-neutral-50 border p-2 rounded overflow-auto">
-            {JSON.stringify(tools, null, 2)}
-          </pre>
+          <ToolDefinitionsList tools={tools} />
         </div>
       )}
       {nonSystemMessages.length > 0 && (
