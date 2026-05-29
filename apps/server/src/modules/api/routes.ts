@@ -14,10 +14,10 @@ export const apiRoutes: FastifyPluginAsync<ApiRoutesDeps> = async (app: FastifyI
     }
     const query = request.query as { limit?: string }
     const limit = query.limit ? Math.min(200, Math.max(1, parseInt(query.limit, 10))) : 50
-    const sessions = await deps.storage.listSessions({
-      orgId: request.auth.user.orgId,
-      limit,
-    })
+    const orgId = request.auth.user.orgId
+    const sessions = await request.server.withTenantTx(orgId, (trx) =>
+      deps.storage.listSessions(trx, { orgId, limit }),
+    )
     return {
       sessions: sessions.map((s) => ({
         id: s.id,
@@ -37,10 +37,10 @@ export const apiRoutes: FastifyPluginAsync<ApiRoutesDeps> = async (app: FastifyI
       return { error: 'unauthenticated' }
     }
     const { sessionId } = request.params as { sessionId: string }
-    const detail = await deps.storage.getSession({
-      orgId: request.auth.user.orgId,
-      sessionId,
-    })
+    const orgId = request.auth.user.orgId
+    const detail = await request.server.withTenantTx(orgId, (trx) =>
+      deps.storage.getSession(trx, { orgId, sessionId }),
+    )
     if (!detail) {
       reply.code(404)
       return { error: 'not_found' }

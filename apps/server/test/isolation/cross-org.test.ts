@@ -1,10 +1,11 @@
 import { afterAll, beforeEach, describe, expect, it } from 'vitest'
 import Fastify from 'fastify'
-import { createTestDb, truncateAll } from '../helpers/db.js'
+import { createAppRoleTestDb, createTestDb, truncateAll } from '../helpers/db.js'
 import { apiRoutes } from '../../src/modules/api/index.js'
 import { ingestRoutes } from '../../src/modules/ingest/index.js'
 import { PgStorage } from '../../src/modules/storage/pg.js'
 import { InProcMessageBus } from '../../src/modules/pubsub/index.js'
+import { dbTenantPlugin } from '../../src/modules/db-tenant/index.js'
 import { createUser } from '../../src/modules/auth/dao.js'
 import { hashPassword } from '../../src/modules/auth/password.js'
 import { createTokenForProject } from '../../src/modules/tokens/dao.js'
@@ -41,20 +42,23 @@ function payload(projectName: string) {
 }
 
 describe('cross-org isolation', () => {
-  const db = createTestDb()
-  const storage = new PgStorage(db)
+  const admin = createTestDb()
+  const appDb = createAppRoleTestDb()
+  const storage = new PgStorage()
   const bus = new InProcMessageBus()
 
   beforeEach(async () => {
-    await truncateAll(db)
+    await truncateAll(admin)
   })
 
   afterAll(async () => {
-    await db.destroy()
+    await appDb.destroy()
+    await admin.destroy()
   })
 
   async function makeIngestApp(orgId: string) {
     const app = Fastify()
+    await app.register(dbTenantPlugin, { db: appDb })
     app.addHook('preHandler', async (req) => {
       req.ingest = { orgId }
     })
@@ -64,6 +68,7 @@ describe('cross-org isolation', () => {
 
   async function makeQueryApp(orgId: string) {
     const app = Fastify()
+    await app.register(dbTenantPlugin, { db: appDb })
     app.addHook('preHandler', async (req) => {
       req.auth = { user: { id: 'u', email: 'e', orgId } }
     })
@@ -72,12 +77,12 @@ describe('cross-org isolation', () => {
   }
 
   it('user A writes a trace; user B cannot see it in /api/sessions', async () => {
-    const a = await createUser(db, {
+    const a = await createUser(admin, {
       email: 'alice@example.com',
       passwordHash: await hashPassword('pwpwpwpw'),
       orgName: 'a-org',
     })
-    const b = await createUser(db, {
+    const b = await createUser(admin, {
       email: 'bob@example.com',
       passwordHash: await hashPassword('pwpwpwpw'),
       orgName: 'b-org',
@@ -104,12 +109,12 @@ describe('cross-org isolation', () => {
   })
 
   it("user B with user A's session UUID still gets 404", async () => {
-    const a = await createUser(db, {
+    const a = await createUser(admin, {
       email: 'a@example.com',
       passwordHash: await hashPassword('pwpwpwpw'),
       orgName: 'a-org',
     })
-    const b = await createUser(db, {
+    const b = await createUser(admin, {
       email: 'b@example.com',
       passwordHash: await hashPassword('pwpwpwpw'),
       orgName: 'b-org',
@@ -133,12 +138,12 @@ describe('cross-org isolation', () => {
   })
 
   it("token created in org A can't be used to write to org B's data", async () => {
-    const a = await createUser(db, {
+    const a = await createUser(admin, {
       email: 'a@example.com',
       passwordHash: await hashPassword('pwpwpwpw'),
       orgName: 'a-org',
     })
-    const created = await createTokenForProject(db, {
+    const created = await createTokenForProject(admin, {
       orgId: a.orgId,
       projectName: 'a-proj',
       tokenName: 't',
@@ -147,6 +152,7 @@ describe('cross-org isolation', () => {
     // The token resolves to a's org. Even if the payload claims a different
     // project name, the ingest route overrides it to the token's project.
     const ingestApp = Fastify()
+    await ingestApp.register(dbTenantPlugin, { db: appDb })
     ingestApp.addHook('preHandler', async (req) => {
       req.ingest = {
         orgId: created ? a.orgId : '',

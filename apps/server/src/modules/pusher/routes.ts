@@ -29,7 +29,9 @@ export const pusherRoutes: FastifyPluginAsync<PusherRoutesDeps> = async (
 
       // 404 guard: refuse to open a stream for a session that doesn't belong
       // to the requester's org. (Previously this leaked over SSE.)
-      const detail = await deps.storage.getSession({ orgId, sessionId })
+      const detail = await request.server.withTenantTx(orgId, (trx) =>
+        deps.storage.getSession(trx, { orgId, sessionId }),
+      )
       if (!detail) {
         reply.code(404)
         return { error: 'not_found' }

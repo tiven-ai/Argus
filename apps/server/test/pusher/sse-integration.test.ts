@@ -5,7 +5,8 @@ import { ingestRoutes } from '../../src/modules/ingest/index.js'
 import { pusherRoutes } from '../../src/modules/pusher/index.js'
 import { PgStorage } from '../../src/modules/storage/pg.js'
 import { InProcMessageBus } from '../../src/modules/pubsub/index.js'
-import { createTestDb, truncateAll } from '../helpers/db.js'
+import { dbTenantPlugin } from '../../src/modules/db-tenant/index.js'
+import { createAppRoleTestDb, createTestDb, truncateAll } from '../helpers/db.js'
 import type { FastifyInstance } from 'fastify'
 
 const HEX_TRACE = '0123456789abcdef0123456789abcdef'
@@ -40,14 +41,16 @@ function makeOtlpPayload() {
 }
 
 describe('SSE end-to-end: POST /v1/traces -> session stream', () => {
-  const db = createTestDb()
-  const storage = new PgStorage(db)
+  const admin = createTestDb()
+  const appDb = createAppRoleTestDb()
+  const storage = new PgStorage()
   const bus = new InProcMessageBus()
   let app: FastifyInstance
   let port: number
 
   beforeAll(async () => {
     app = Fastify()
+    await app.register(dbTenantPlugin, { db: appDb })
     app.addHook('preHandler', async (req) => {
       if (req.url.startsWith('/v1/traces')) {
         req.ingest = { orgId: '00000000-0000-0000-0000-000000000000' }
@@ -66,11 +69,12 @@ describe('SSE end-to-end: POST /v1/traces -> session stream', () => {
   afterAll(async () => {
     bus.removeAllSubscribers()
     await app.close()
-    await db.destroy()
+    await appDb.destroy()
+    await admin.destroy()
   })
 
   beforeEach(async () => {
-    await truncateAll(db)
+    await truncateAll(admin)
   })
 
   it('publishes a step to a live SSE subscriber after ingest', async () => {
@@ -84,9 +88,11 @@ describe('SSE end-to-end: POST /v1/traces -> session stream', () => {
     })
 
     // Find the session id via storage (avoids depending on an API route).
-    const [summary] = await storage.listSessions({
-      orgId: '00000000-0000-0000-0000-000000000000',
-    })
+    const [summary] = await app.withTenantTx('00000000-0000-0000-0000-000000000000', (trx) =>
+      storage.listSessions(trx, {
+        orgId: '00000000-0000-0000-0000-000000000000',
+      }),
+    )
     expect(summary).toBeDefined()
     const sessionId = summary!.id
 
