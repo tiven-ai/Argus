@@ -19,6 +19,8 @@
   "dependencies": {
     "@argus/shared-types": "workspace:*",
     "@fastify/cookie": "^11.0.0",
+    "@grpc/grpc-js": "^1.12.0",
+    "@grpc/proto-loader": "^0.7.13",
     "bcryptjs": "^2.4.3",
     "fastify": "^5.0.0",
     "jsonwebtoken": "^9.0.0",
