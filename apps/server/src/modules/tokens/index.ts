@@ -3,3 +3,5 @@ export { createTokenForProject, listTokensForOrg, revokeToken, resolveTokenConte
 export type { CreatedTokenRecord, StoredTokenRecord, ResolvedTokenContext } from './dao.js'
 export { resolveIngestContext } from './middleware.js'
 export type { IngestContext, TokenMiddlewareDeps } from './middleware.js'
+export { tokenManagementRoutes } from './routes.js'
+export type { TokenRoutesDeps } from './routes.js'
