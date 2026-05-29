@@ -43,6 +43,10 @@ export function resolveAuthContext(deps: AuthMiddlewareDeps): preHandlerHookHand
       reply.code(401)
       throw new Error('unauthenticated')
     }
+    if (user.passwordVersion !== payload.pv) {
+      reply.code(401)
+      throw new Error('unauthenticated')
+    }
 
     request.auth = {
       user: {

@@ -56,7 +56,7 @@ describe('resolveAuthContext middleware', () => {
       passwordHash: await hashPassword('pw'),
       orgName: 'Alice workspace',
     })
-    const token = signJwt({ userId: user.id }, SECRET, 3600)
+    const token = signJwt({ userId: user.id, pv: user.passwordVersion }, SECRET, 3600)
     const app = await makeApp('multi-tenant')
     const res = await app.inject({
       method: 'GET',

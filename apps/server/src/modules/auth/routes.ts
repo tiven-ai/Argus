@@ -50,8 +50,9 @@ function setSessionCookie(
   reply: import('fastify').FastifyReply,
   deps: AuthRoutesDeps,
   userId: string,
+  passwordVersion: number,
 ) {
-  const token = signJwt({ userId }, deps.jwtSecret, deps.sessionTtlSeconds)
+  const token = signJwt({ userId, pv: passwordVersion }, deps.jwtSecret, deps.sessionTtlSeconds)
   reply.setCookie(deps.cookieName, token, {
     httpOnly: true,
     sameSite: 'lax',
@@ -91,7 +92,7 @@ export const authRoutes: FastifyPluginAsync<AuthRoutesDeps> = async (
 
     const passwordHash = await hashPassword(password)
     const record = await createUser(deps.db, { email, passwordHash, orgName: '' })
-    setSessionCookie(reply, deps, record.id)
+    setSessionCookie(reply, deps, record.id, record.passwordVersion)
     await app.withTenantTx(record.orgId, (trx) =>
       auditRecord(trx, {
         eventType: 'register',
@@ -149,7 +150,7 @@ export const authRoutes: FastifyPluginAsync<AuthRoutesDeps> = async (
       return { error: 'invalid_credentials' }
     }
 
-    setSessionCookie(reply, deps, record.id)
+    setSessionCookie(reply, deps, record.id, record.passwordVersion)
     await app.withTenantTx(record.orgId, (trx) =>
       auditRecord(trx, {
         eventType: 'login_success',

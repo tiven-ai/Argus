@@ -1,20 +1,22 @@
 import jwt from 'jsonwebtoken'
 
-export interface JwtPayload {
+export interface SessionPayload {
   userId: string
+  pv: number
 }
 
-export function signJwt(payload: JwtPayload, secret: string, expiresInSeconds: number): string {
+export function signJwt(payload: SessionPayload, secret: string, expiresInSeconds: number): string {
   return jwt.sign(payload, secret, { algorithm: 'HS256', expiresIn: expiresInSeconds })
 }
 
-export function verifyJwt(token: string, secret: string): JwtPayload | null {
+export function verifyJwt(token: string, secret: string): SessionPayload | null {
   try {
     const decoded = jwt.verify(token, secret, { algorithms: ['HS256'] })
     if (typeof decoded !== 'object' || decoded === null) return null
-    const { userId } = decoded as { userId?: unknown }
+    const { userId, pv } = decoded as { userId?: unknown; pv?: unknown }
     if (typeof userId !== 'string') return null
-    return { userId }
+    if (typeof pv !== 'number') return null
+    return { userId, pv }
   } catch {
     return null
   }

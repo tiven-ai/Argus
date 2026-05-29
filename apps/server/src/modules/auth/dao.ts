@@ -14,6 +14,7 @@ export interface UserRecord {
   passwordHash: string
   orgId: string
   emailVerifiedAt: Date | null
+  passwordVersion: number
 }
 
 function emailLocalPart(email: string): string {
@@ -46,6 +47,7 @@ export async function createUser(db: Kysely<DB>, input: CreateUserInput): Promis
       passwordHash: user.password_hash,
       orgId: org.id,
       emailVerifiedAt: null,
+      passwordVersion: 1,
     }
   })
 }
@@ -61,6 +63,7 @@ export async function findUserByEmail(db: Kysely<DB>, email: string): Promise<Us
       'u.password_hash as passwordHash',
       'm.org_id as orgId',
       'u.email_verified_at as emailVerifiedAt',
+      'u.password_version as passwordVersion',
     ])
     .executeTakeFirst()
   if (!row) return null
@@ -72,6 +75,7 @@ export async function findUserByEmail(db: Kysely<DB>, email: string): Promise<Us
     emailVerifiedAt: row.emailVerifiedAt
       ? new Date(row.emailVerifiedAt as unknown as string)
       : null,
+    passwordVersion: Number(row.passwordVersion),
   }
 }
 
@@ -86,6 +90,7 @@ export async function findUserById(db: Kysely<DB>, userId: string): Promise<User
       'u.password_hash as passwordHash',
       'm.org_id as orgId',
       'u.email_verified_at as emailVerifiedAt',
+      'u.password_version as passwordVersion',
     ])
     .executeTakeFirst()
   if (!row) return null
@@ -97,6 +102,7 @@ export async function findUserById(db: Kysely<DB>, userId: string): Promise<User
     emailVerifiedAt: row.emailVerifiedAt
       ? new Date(row.emailVerifiedAt as unknown as string)
       : null,
+    passwordVersion: Number(row.passwordVersion),
   }
 }
 
@@ -112,6 +118,7 @@ export async function getLocalDefaultUser(db: Kysely<DB>): Promise<UserRecord> {
     passwordHash: '$local$',
     orgId: DEFAULT_ORG_ID,
     emailVerifiedAt: null,
+    passwordVersion: 1,
   }
 }
 
