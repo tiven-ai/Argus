@@ -23,7 +23,7 @@ describe('Query API routes', () => {
     app = Fastify()
     await app.register(dbTenantPlugin, { db: appDb })
     app.addHook('preHandler', async (req) => {
-      req.auth = { user: { id: 'u', email: 'e', orgId: ORG } }
+      req.auth = { user: { id: 'u', email: 'e', orgId: ORG, emailVerifiedAt: null } }
     })
     await app.register(apiRoutes, { storage })
   })

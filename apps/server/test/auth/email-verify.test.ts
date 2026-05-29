@@ -59,6 +59,10 @@ describe('email verify routes', () => {
       payload: { email, password: 'password123' },
     })
     expect(res.statusCode).toBe(200)
+    // Register fires a verify email; clear the rate-limit-blocking token so
+    // subsequent /auth/email-verify/request calls in this test aren't throttled.
+    await admin.deleteFrom('auth_one_time_tokens').execute()
+    sender.sent.length = 0
     const c = res.cookies[0]!
     return `${c.name}=${c.value}`
   }

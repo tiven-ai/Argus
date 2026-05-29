@@ -101,7 +101,25 @@ export const authRoutes: FastifyPluginAsync<AuthRoutesDeps> = async (
         userAgent: request.headers['user-agent'],
       }),
     )
-    return { user: { id: record.id, email: record.email, orgId: record.orgId } }
+    try {
+      await issueAndSendEmailVerify(
+        { db: deps.db, emailSender: deps.emailSender, appBaseUrl: deps.appBaseUrl },
+        { userId: record.id, email: record.email },
+      )
+    } catch (err) {
+      request.log.warn(
+        { err, event: 'email_send_failed', purpose: 'register_verify' },
+        'email send failed',
+      )
+    }
+    return {
+      user: {
+        id: record.id,
+        email: record.email,
+        orgId: record.orgId,
+        emailVerifiedAt: null,
+      },
+    }
   })
 
   app.post('/auth/login', async (request, reply) => {
@@ -141,7 +159,14 @@ export const authRoutes: FastifyPluginAsync<AuthRoutesDeps> = async (
         userAgent: request.headers['user-agent'],
       }),
     )
-    return { user: { id: record.id, email: record.email, orgId: record.orgId } }
+    return {
+      user: {
+        id: record.id,
+        email: record.email,
+        orgId: record.orgId,
+        emailVerifiedAt: record.emailVerifiedAt?.toISOString() ?? null,
+      },
+    }
   })
 
   app.post('/auth/logout', async (_request, reply) => {

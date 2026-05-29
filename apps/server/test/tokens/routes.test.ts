@@ -21,7 +21,7 @@ describe('token management routes', () => {
     const app = Fastify()
     await app.register(dbTenantPlugin, { db })
     app.addHook('preHandler', async (req) => {
-      if (orgId) req.auth = { user: { id: userId, email: 'e', orgId } }
+      if (orgId) req.auth = { user: { id: userId, email: 'e', orgId, emailVerifiedAt: null } }
     })
     await app.register(tokenManagementRoutes, { db })
     return app

@@ -13,6 +13,7 @@ export interface UserRecord {
   email: string
   passwordHash: string
   orgId: string
+  emailVerifiedAt: Date | null
 }
 
 function emailLocalPart(email: string): string {
@@ -39,7 +40,13 @@ export async function createUser(db: Kysely<DB>, input: CreateUserInput): Promis
       .insertInto('org_members')
       .values({ user_id: user.id, org_id: org.id, role: 'owner' })
       .execute()
-    return { id: user.id, email: user.email, passwordHash: user.password_hash, orgId: org.id }
+    return {
+      id: user.id,
+      email: user.email,
+      passwordHash: user.password_hash,
+      orgId: org.id,
+      emailVerifiedAt: null,
+    }
   })
 }
 
@@ -53,9 +60,19 @@ export async function findUserByEmail(db: Kysely<DB>, email: string): Promise<Us
       'u.email as email',
       'u.password_hash as passwordHash',
       'm.org_id as orgId',
+      'u.email_verified_at as emailVerifiedAt',
     ])
     .executeTakeFirst()
-  return row ?? null
+  if (!row) return null
+  return {
+    id: row.id,
+    email: row.email,
+    passwordHash: row.passwordHash,
+    orgId: row.orgId,
+    emailVerifiedAt: row.emailVerifiedAt
+      ? new Date(row.emailVerifiedAt as unknown as string)
+      : null,
+  }
 }
 
 export async function findUserById(db: Kysely<DB>, userId: string): Promise<UserRecord | null> {
@@ -68,9 +85,19 @@ export async function findUserById(db: Kysely<DB>, userId: string): Promise<User
       'u.email as email',
       'u.password_hash as passwordHash',
       'm.org_id as orgId',
+      'u.email_verified_at as emailVerifiedAt',
     ])
     .executeTakeFirst()
-  return row ?? null
+  if (!row) return null
+  return {
+    id: row.id,
+    email: row.email,
+    passwordHash: row.passwordHash,
+    orgId: row.orgId,
+    emailVerifiedAt: row.emailVerifiedAt
+      ? new Date(row.emailVerifiedAt as unknown as string)
+      : null,
+  }
 }
 
 export async function getLocalDefaultUser(db: Kysely<DB>): Promise<UserRecord> {
@@ -84,6 +111,7 @@ export async function getLocalDefaultUser(db: Kysely<DB>): Promise<UserRecord> {
     email: DEFAULT_USER_EMAIL,
     passwordHash: '$local$',
     orgId: DEFAULT_ORG_ID,
+    emailVerifiedAt: null,
   }
 }
 

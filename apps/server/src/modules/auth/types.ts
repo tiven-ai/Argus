@@ -2,6 +2,7 @@ export interface AuthUser {
   id: string
   email: string
   orgId: string
+  emailVerifiedAt: string | null
 }
 
 export interface AuthContext {

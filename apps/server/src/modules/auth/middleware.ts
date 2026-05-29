@@ -15,7 +15,14 @@ export function resolveAuthContext(deps: AuthMiddlewareDeps): preHandlerHookHand
   return async (request: FastifyRequest, reply: FastifyReply) => {
     if (deps.mode === 'local') {
       const user = await getLocalDefaultUser(deps.db)
-      request.auth = { user: { id: user.id, email: user.email, orgId: user.orgId } }
+      request.auth = {
+        user: {
+          id: user.id,
+          email: user.email,
+          orgId: user.orgId,
+          emailVerifiedAt: user.emailVerifiedAt?.toISOString() ?? null,
+        },
+      }
       return
     }
 
@@ -37,6 +44,13 @@ export function resolveAuthContext(deps: AuthMiddlewareDeps): preHandlerHookHand
       throw new Error('unauthenticated')
     }
 
-    request.auth = { user: { id: user.id, email: user.email, orgId: user.orgId } }
+    request.auth = {
+      user: {
+        id: user.id,
+        email: user.email,
+        orgId: user.orgId,
+        emailVerifiedAt: user.emailVerifiedAt?.toISOString() ?? null,
+      },
+    }
   }
 }

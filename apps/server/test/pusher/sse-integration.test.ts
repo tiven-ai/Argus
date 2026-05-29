@@ -56,7 +56,12 @@ describe('SSE end-to-end: POST /v1/traces -> session stream', () => {
         req.ingest = { orgId: '00000000-0000-0000-0000-000000000000' }
       } else {
         req.auth = {
-          user: { id: 'u', email: 'e', orgId: '00000000-0000-0000-0000-000000000000' },
+          user: {
+            id: 'u',
+            email: 'e',
+            orgId: '00000000-0000-0000-0000-000000000000',
+            emailVerifiedAt: null,
+          },
         }
       }
     })

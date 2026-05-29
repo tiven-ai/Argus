@@ -70,7 +70,7 @@ describe('cross-org isolation', () => {
     const app = Fastify()
     await app.register(dbTenantPlugin, { db: appDb })
     app.addHook('preHandler', async (req) => {
-      req.auth = { user: { id: 'u', email: 'e', orgId } }
+      req.auth = { user: { id: 'u', email: 'e', orgId, emailVerifiedAt: null } }
     })
     await app.register(apiRoutes, { storage })
     return app
