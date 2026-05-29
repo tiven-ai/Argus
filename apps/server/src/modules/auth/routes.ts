@@ -1,5 +1,5 @@
 import type { FastifyInstance, FastifyPluginAsync, preHandlerHookHandler } from 'fastify'
-import type { Kysely } from 'kysely'
+import { sql, type Kysely } from 'kysely'
 import { z } from 'zod'
 import type { DB } from '../../db/schema.js'
 import { createUser, findUserByEmail } from './dao.js'
@@ -292,7 +292,7 @@ export const authRoutes: FastifyPluginAsync<AuthRoutesDeps> = async (
     await deps.db.transaction().execute(async (trx) => {
       await trx
         .updateTable('users')
-        .set({ password_hash: newHash })
+        .set({ password_hash: newHash, password_version: sql<number>`password_version + 1` })
         .where('id', '=', found.userId)
         .execute()
       await trx
