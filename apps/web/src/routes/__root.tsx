@@ -1,5 +1,7 @@
 import { createRootRoute, Link, Outlet, useNavigate } from '@tanstack/react-router'
 import { useState } from 'react'
+import { useTranslation } from 'react-i18next'
+import i18n, { LOCALE_LABELS, SUPPORTED_LOCALES, type SupportedLocale } from '../i18n'
 import { AuthProvider, useAuth } from '../lib/auth-provider'
 
 export const Route = createRootRoute({
@@ -15,10 +17,13 @@ function RootLayout() {
 }
 
 function Shell() {
+  const { t } = useTranslation()
   const { user, loading } = useAuth()
   if (loading) {
     return (
-      <div className="h-screen flex items-center justify-center text-text-3 u-body">Loading…</div>
+      <div className="h-screen flex items-center justify-center text-text-3 u-body">
+        {t('common.loading')}
+      </div>
     )
   }
   return (
@@ -29,11 +34,11 @@ function Shell() {
         </Link>
         <nav className="u-body flex items-center gap-3">
           <Link to="/sessions" className="text-text-3 hover:text-text-1 transition-colors">
-            Sessions
+            {t('shell.nav.sessions')}
           </Link>
           {user && (
             <Link to="/settings/tokens" className="text-text-3 hover:text-text-1 transition-colors">
-              Tokens
+              {t('shell.nav.tokens')}
             </Link>
           )}
         </nav>
@@ -47,14 +52,16 @@ function Shell() {
 }
 
 function SignInLink() {
+  const { t } = useTranslation()
   return (
     <Link to="/login" className="u-body text-brand hover:text-brand-hover transition-colors">
-      Sign in
+      {t('shell.auth.signIn')}
     </Link>
   )
 }
 
 function UserMenu() {
+  const { t, i18n: i18nInstance } = useTranslation()
   const { user, logout } = useAuth()
   const navigate = useNavigate()
   const [open, setOpen] = useState(false)
@@ -64,6 +71,13 @@ function UserMenu() {
     setOpen(false)
     void navigate({ to: '/login' })
   }
+
+  function switchTo(code: SupportedLocale) {
+    void i18n.changeLanguage(code)
+    setOpen(false)
+  }
+
+  const current = i18nInstance.resolvedLanguage as SupportedLocale | undefined
 
   return (
     <div className="relative">
@@ -75,13 +89,26 @@ function UserMenu() {
         {user!.email}
       </button>
       {open && (
-        <div className="absolute right-0 mt-1 w-48 bg-popover border border-hairline rounded-md shadow-[var(--shadow-popover)] u-body z-50">
+        <div className="absolute right-0 mt-1 w-56 bg-popover border border-hairline rounded-md shadow-[var(--shadow-popover)] u-body z-50 py-1">
+          <div className="px-3 pt-1 pb-1 u-caption text-text-3">{t('shell.language')}</div>
+          {SUPPORTED_LOCALES.map((code) => (
+            <button
+              type="button"
+              key={code}
+              onClick={() => switchTo(code)}
+              className="flex items-center justify-between w-full text-left px-3 py-1.5 text-text-2 hover:bg-tile transition-colors"
+            >
+              <span>{LOCALE_LABELS[code]}</span>
+              {current === code && <span className="text-brand">✓</span>}
+            </button>
+          ))}
+          <div className="h-px bg-hairline my-1" />
           <button
             type="button"
             onClick={handleLogout}
-            className="block w-full text-left px-3 py-2 text-text-2 hover:bg-tile transition-colors rounded-md"
+            className="block w-full text-left px-3 py-1.5 text-text-2 hover:bg-tile transition-colors"
           >
-            Sign out
+            {t('shell.auth.signOut')}
           </button>
         </div>
       )}
