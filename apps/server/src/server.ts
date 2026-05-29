@@ -44,24 +44,28 @@ export async function createServer(opts: ServerOptions): Promise<ArgusServer> {
 
   // Auth routes: always registered. In local mode the cookie isn't used but
   // registering routes lets the web app's AuthProvider hit /auth/me uniformly.
-  await app.register(authRoutes, {
-    db,
-    cookieName: opts.cookieName,
-    jwtSecret: opts.jwtSecret,
-    cookieSecure: opts.cookieSecure ?? false,
-    sessionTtlSeconds: opts.sessionTtlSeconds ?? 7 * 24 * 3600,
-  })
-
-  // Authenticated UI/query API + pusher SSE.
+  // Auth middleware computed once and shared between the auth-context scope
+  // (for /api/* + pusher) and the /auth/me route inside authRoutes.
   const authDeps: AuthMiddlewareDeps = {
     db,
     mode: opts.mode,
     cookieName: opts.cookieName,
     jwtSecret: opts.jwtSecret,
   }
+  const authMiddleware = resolveAuthContext(authDeps)
+
+  await app.register(authRoutes, {
+    db,
+    cookieName: opts.cookieName,
+    jwtSecret: opts.jwtSecret,
+    cookieSecure: opts.cookieSecure ?? false,
+    sessionTtlSeconds: opts.sessionTtlSeconds ?? 7 * 24 * 3600,
+    authMiddleware,
+  })
+
   await app.register(
     async (scope) => {
-      scope.addHook('preHandler', resolveAuthContext(authDeps))
+      scope.addHook('preHandler', authMiddleware)
       await scope.register(apiRoutes, { storage })
       await scope.register(pusherRoutes, { storage, bus })
       await scope.register(tokenManagementRoutes, { db })

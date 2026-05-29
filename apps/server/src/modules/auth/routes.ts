@@ -1,4 +1,4 @@
-import type { FastifyInstance, FastifyPluginAsync, FastifyReply } from 'fastify'
+import type { FastifyInstance, FastifyPluginAsync, preHandlerHookHandler } from 'fastify'
 import type { Kysely } from 'kysely'
 import { z } from 'zod'
 import type { DB } from '../../db/schema.js'
@@ -12,6 +12,12 @@ export interface AuthRoutesDeps {
   jwtSecret: string
   cookieSecure: boolean
   sessionTtlSeconds: number
+  /**
+   * The same auth middleware applied to /api/* routes. /auth/me uses it so it
+   * resolves `request.auth` whether the cookie is real (multi-tenant) or
+   * synthetic (local mode).
+   */
+  authMiddleware: preHandlerHookHandler
 }
 
 const registerBodySchema = z.object({
@@ -21,7 +27,11 @@ const registerBodySchema = z.object({
 
 const loginBodySchema = registerBodySchema
 
-function setSessionCookie(reply: FastifyReply, deps: AuthRoutesDeps, userId: string) {
+function setSessionCookie(
+  reply: import('fastify').FastifyReply,
+  deps: AuthRoutesDeps,
+  userId: string,
+) {
   const token = signJwt({ userId }, deps.jwtSecret, deps.sessionTtlSeconds)
   reply.setCookie(deps.cookieName, token, {
     httpOnly: true,
@@ -32,7 +42,7 @@ function setSessionCookie(reply: FastifyReply, deps: AuthRoutesDeps, userId: str
   })
 }
 
-function clearSessionCookie(reply: FastifyReply, deps: AuthRoutesDeps) {
+function clearSessionCookie(reply: import('fastify').FastifyReply, deps: AuthRoutesDeps) {
   reply.setCookie(deps.cookieName, '', {
     httpOnly: true,
     sameSite: 'lax',
@@ -94,7 +104,9 @@ export const authRoutes: FastifyPluginAsync<AuthRoutesDeps> = async (
     return { ok: true }
   })
 
-  app.get('/auth/me', async (request, reply) => {
+  // /auth/me uses the same auth middleware as /api/* so it works in both
+  // local (auto-default-user) and multi-tenant (cookie required) modes.
+  app.get('/auth/me', { preHandler: deps.authMiddleware }, async (request, reply) => {
     if (!request.auth) {
       reply.code(401)
       return { error: 'unauthenticated' }

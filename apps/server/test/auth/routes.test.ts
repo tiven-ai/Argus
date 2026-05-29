@@ -27,6 +27,7 @@ describe('auth routes', () => {
       jwtSecret: SECRET,
       cookieSecure: false,
       sessionTtlSeconds: 3600,
+      authMiddleware: async () => {},
     })
     return app
   }
