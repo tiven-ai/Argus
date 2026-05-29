@@ -25,18 +25,16 @@ function LiveDot({ active }: { active: boolean }) {
   return (
     <span
       title={active ? 'Streaming live' : 'Not connected'}
-      className="inline-flex items-center gap-1 text-xs"
+      className="inline-flex items-center gap-1 u-caption"
     >
       <span
         className={
           active
-            ? 'inline-block h-2 w-2 rounded-full bg-emerald-500 animate-pulse'
-            : 'inline-block h-2 w-2 rounded-full bg-neutral-300'
+            ? 'inline-block h-1.5 w-1.5 rounded-pill bg-success animate-pulse'
+            : 'inline-block h-1.5 w-1.5 rounded-pill bg-text-4'
         }
       />
-      <span className={active ? 'text-emerald-700' : 'text-neutral-400'}>
-        {active ? 'LIVE' : 'offline'}
-      </span>
+      <span className={active ? 'text-success' : 'text-text-4'}>{active ? 'LIVE' : 'offline'}</span>
     </span>
   )
 }
@@ -46,25 +44,25 @@ export function SessionTopbar({ session, steps, connected }: Props) {
   const status = sessionStatus(steps)
   const tokens = sessionTokens(steps)
   return (
-    <div className="border-b px-6 py-3 flex items-center gap-4">
+    <div className="border-b border-hairline px-6 py-2.5 flex items-center gap-4">
       <Link
         to="/sessions"
-        className="text-neutral-500 hover:text-neutral-900"
+        className="text-text-3 hover:text-text-1 transition-colors"
         aria-label="Back to sessions"
       >
-        <ArrowLeft className="h-4 w-4" />
+        <ArrowLeft className="h-4 w-4" strokeWidth={1.75} />
       </Link>
       <div className="flex-1 min-w-0">
         <div className="flex items-center gap-2 min-w-0">
-          <h2 className="text-base font-semibold truncate">
+          <h2 className="u-h-lg text-text-1 truncate">
             {session.projectName} / {session.serviceName}
           </h2>
           <Badge variant={statusVariant(status)}>{status}</Badge>
           <LiveDot active={connected} />
         </div>
-        <p className="text-xs font-mono text-neutral-400 truncate">{session.traceId}</p>
+        <p className="u-caption font-mono text-text-4 truncate tabular">{session.traceId}</p>
       </div>
-      <div className="text-xs text-neutral-500 flex items-center gap-3 shrink-0 tabular-nums">
+      <div className="u-caption text-text-3 flex items-center gap-3 shrink-0 tabular">
         <span>{formatDuration(duration)}</span>
         {(tokens.input > 0 || tokens.output > 0) && (
           <span>

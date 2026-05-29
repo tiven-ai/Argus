@@ -16,25 +16,18 @@ interface Props {
 
 function SectionHeader({ icon, title }: { icon: string; title: string }) {
   return (
-    <h4 className="text-sm font-semibold flex items-center gap-2 mb-2">
+    <h4 className="u-h-md text-text-1 flex items-center gap-2 mb-2">
       <span aria-hidden="true">{icon}</span>
       <span>{title}</span>
     </h4>
   )
 }
 
-function CollapsibleSectionHeader({
-  icon,
-  title,
-  open,
-}: {
-  icon: string
-  title: string
-  open: boolean
-}) {
+function CollapsibleSectionHeader({ icon, title }: { icon: string; title: string }) {
   return (
-    <h4 className="text-sm font-semibold flex items-center gap-2 cursor-pointer select-none hover:text-neutral-900 text-neutral-600">
-      {open ? <ChevronDown className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}
+    <h4 className="u-h-md flex items-center gap-2 cursor-pointer select-none text-text-3 hover:text-text-1 transition-colors group">
+      <ChevronRight className="h-4 w-4 group-data-[state=open]:hidden" />
+      <ChevronDown className="h-4 w-4 hidden group-data-[state=open]:block" />
       <span aria-hidden="true">{icon}</span>
       <span>{title}</span>
     </h4>
@@ -46,10 +39,10 @@ export function RoundDetail({ round, index, total }: Props) {
     <div className="h-full overflow-auto p-4 space-y-5">
       <RoundHeader round={round} index={index} total={total} />
 
-      <Collapsible defaultOpen={false}>
+      <Collapsible defaultOpen={false} className="group">
         <CollapsibleTrigger asChild>
           <button type="button" className="w-full text-left">
-            <CollapsibleSectionHeader icon="📋" title="Context" open={false} />
+            <CollapsibleSectionHeader icon="📋" title="Context" />
           </button>
         </CollapsibleTrigger>
         <CollapsibleContent className="mt-2">
@@ -74,10 +67,10 @@ export function RoundDetail({ round, index, total }: Props) {
         </section>
       )}
 
-      <Collapsible defaultOpen={false}>
+      <Collapsible defaultOpen={false} className="group">
         <CollapsibleTrigger asChild>
           <button type="button" className="w-full text-left">
-            <CollapsibleSectionHeader icon="🗂️" title="Raw" open={false} />
+            <CollapsibleSectionHeader icon="🗂️" title="Raw" />
           </button>
         </CollapsibleTrigger>
         <CollapsibleContent className="mt-2">
