@@ -1,0 +1,7 @@
+export type { AuthContext, AuthUser } from './types.js'
+export { hashPassword, verifyPassword } from './password.js'
+export { signJwt, verifyJwt } from './jwt.js'
+export { createUser, findUserByEmail, findUserById, getLocalDefaultUser } from './dao.js'
+export type { CreateUserInput, UserRecord } from './dao.js'
+export { resolveAuthContext } from './middleware.js'
+export type { AuthMiddlewareDeps } from './middleware.js'

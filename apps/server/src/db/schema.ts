@@ -57,24 +57,25 @@ export interface StepEvents {
 }
 
 export interface Users {
-  id: string
+  id: Generated<string>
   email: string
+  password_hash: string
   created_at: Generated<Timestamp>
 }
 
 export interface OrgMembers {
   user_id: string
   org_id: string
-  role: string
+  role: Generated<string>
   created_at: Generated<Timestamp>
 }
 
 export interface IngestTokens {
   id: Generated<string>
-  org_id: string
+  project_id: string
+  name: string
+  token_prefix: string
   token_hash: string
-  label: string | null
-  created_by: string
   created_at: Generated<Timestamp>
   revoked_at: Timestamp | null
 }
