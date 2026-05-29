@@ -1,9 +1,13 @@
-import { afterAll, beforeEach, describe, expect, it } from 'vitest'
+import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'vitest'
 import Fastify from 'fastify'
+import type { Kysely } from 'kysely'
+import type { DB } from '../../src/db/schema.js'
 import { ingestRoutes } from '../../src/modules/ingest/index.js'
 import { PgStorage } from '../../src/modules/storage/pg.js'
 import { InProcMessageBus } from '../../src/modules/pubsub/index.js'
-import { createTestDb, truncateAll } from '../helpers/db.js'
+import { dbTenantPlugin } from '../../src/modules/db-tenant/index.js'
+import { createAppRoleTestDb, createTestDb, truncateAll } from '../helpers/db.js'
+import { DEFAULT_ORG_ID } from '../../src/constants.js'
 
 const HEX_TRACE = '0123456789abcdef0123456789abcdef'
 const HEX_SPAN = 'aaaaaaaaaaaaaaaa'
@@ -37,22 +41,30 @@ function makePayload() {
 }
 
 describe('POST /v1/traces', () => {
-  const db = createTestDb()
-  const storage = new PgStorage(db)
+  let appDb: Kysely<DB>
+  let admin: Kysely<DB>
+  const storage = new PgStorage()
+
+  beforeAll(() => {
+    appDb = createAppRoleTestDb()
+    admin = createTestDb()
+  })
 
   beforeEach(async () => {
-    await truncateAll(db)
+    await truncateAll(admin)
   })
 
   afterAll(async () => {
-    await db.destroy()
+    await appDb.destroy()
+    await admin.destroy()
   })
 
   async function makeApp() {
     const app = Fastify()
     const bus = new InProcMessageBus()
+    await app.register(dbTenantPlugin, { db: appDb })
     app.addHook('preHandler', async (req) => {
-      req.ingest = { orgId: '00000000-0000-0000-0000-000000000000' }
+      req.ingest = { orgId: DEFAULT_ORG_ID }
     })
     await app.register(ingestRoutes, { storage, bus })
     return app
@@ -68,9 +80,9 @@ describe('POST /v1/traces', () => {
     expect(res.statusCode).toBe(200)
     expect(res.json()).toEqual({ accepted: 1 })
 
-    const sessions = await storage.listSessions({
-      orgId: '00000000-0000-0000-0000-000000000000',
-    })
+    const sessions = await app.withTenantTx(DEFAULT_ORG_ID, (trx) =>
+      storage.listSessions(trx, { orgId: DEFAULT_ORG_ID }),
+    )
     expect(sessions).toHaveLength(1)
     expect(sessions[0]?.traceId).toBe(HEX_TRACE)
     await app.close()

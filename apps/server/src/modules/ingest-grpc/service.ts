@@ -1,6 +1,7 @@
 import * as grpc from '@grpc/grpc-js'
 import type { Kysely } from 'kysely'
 import type { DB } from '../../db/schema.js'
+import type { Tx } from '../db-tenant/index.js'
 import type { MessageBus } from '../pubsub/types.js'
 import type { StorageBackend } from '../storage/types.js'
 import {
@@ -18,6 +19,7 @@ export interface TraceServiceDeps {
   storage: StorageBackend
   bus: MessageBus
   mode: 'local' | 'multi-tenant'
+  withTenantTx: <T>(orgId: string, fn: (trx: Tx) => Promise<T>) => Promise<T>
 }
 
 interface ExportRequest {
@@ -93,10 +95,13 @@ export function makeTraceServiceHandlers(deps: TraceServiceDeps): {
         }
 
         // ---- Write + publish ----
-        await processIngestion(
-          traces,
-          { orgId, projectId, projectName },
-          { storage: deps.storage, bus: deps.bus },
+        await deps.withTenantTx(orgId, (trx) =>
+          processIngestion(
+            trx,
+            traces,
+            { orgId, projectId, projectName },
+            { storage: deps.storage, bus: deps.bus },
+          ),
         )
 
         callback(null, {})

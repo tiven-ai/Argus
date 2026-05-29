@@ -38,7 +38,9 @@ export const ingestRoutes: FastifyPluginAsync<IngestRoutesDeps> = async (
       throw err
     }
 
-    const { accepted } = await processIngestion(traces, ingest, deps)
+    const { accepted } = await app.withTenantTx(ingest.orgId, (trx) =>
+      processIngestion(trx, traces, ingest, deps),
+    )
     reply.code(200)
     return { accepted }
   })

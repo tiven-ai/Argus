@@ -1,11 +1,16 @@
-import { afterAll, beforeEach, describe, expect, it, vi } from 'vitest'
+import { afterAll, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest'
+import Fastify, { type FastifyInstance } from 'fastify'
+import type { Kysely } from 'kysely'
+import type { DB } from '../../src/db/schema.js'
 import type { WriteTraceInput } from '../../src/modules/storage/types.js'
 import { InProcMessageBus } from '../../src/modules/pubsub/index.js'
 import { PgStorage } from '../../src/modules/storage/pg.js'
 import { processIngestion } from '../../src/modules/ingest/index.js'
-import { createTestDb, truncateAll } from '../helpers/db.js'
+import { dbTenantPlugin } from '../../src/modules/db-tenant/index.js'
+import { createAppRoleTestDb, createTestDb, truncateAll } from '../helpers/db.js'
+import { DEFAULT_ORG_ID } from '../../src/constants.js'
 
-const DEFAULT_ORG = '00000000-0000-0000-0000-000000000000'
+const DEFAULT_ORG = DEFAULT_ORG_ID
 
 function makeTrace(projectName: string): WriteTraceInput {
   const now = new Date('2026-05-29T12:00:00Z')
@@ -36,21 +41,34 @@ function makeTrace(projectName: string): WriteTraceInput {
 }
 
 describe('processIngestion', () => {
-  const db = createTestDb()
-  const storage = new PgStorage(db)
+  let app: FastifyInstance
+  let appDb: Kysely<DB>
+  let admin: Kysely<DB>
+  const storage = new PgStorage()
+
+  beforeAll(async () => {
+    appDb = createAppRoleTestDb()
+    admin = createTestDb()
+    app = Fastify()
+    await app.register(dbTenantPlugin, { db: appDb })
+  })
 
   beforeEach(async () => {
-    await truncateAll(db)
+    await truncateAll(admin)
   })
 
   afterAll(async () => {
-    await db.destroy()
+    await app.close()
+    await appDb.destroy()
+    await admin.destroy()
   })
 
   it('writes traces and publishes each written step to the bus', async () => {
     const bus = new InProcMessageBus()
     const handler = vi.fn()
-    const sessions = await storage.listSessions({ orgId: DEFAULT_ORG })
+    const sessions = await app.withTenantTx(DEFAULT_ORG, (trx) =>
+      storage.listSessions(trx, { orgId: DEFAULT_ORG }),
+    )
     const subBefore = sessions.length
 
     const published: Array<{ channel: string; payload: unknown }> = []
@@ -60,19 +78,16 @@ describe('processIngestion', () => {
       return realPublish(ch, payload)
     }
 
-    const result = await processIngestion(
-      [makeTrace('p1')],
-      { orgId: DEFAULT_ORG },
-      {
-        storage,
-        bus,
-      },
+    const result = await app.withTenantTx(DEFAULT_ORG, (trx) =>
+      processIngestion(trx, [makeTrace('p1')], { orgId: DEFAULT_ORG }, { storage, bus }),
     )
 
     expect(result.accepted).toBe(1)
     expect(published).toHaveLength(1)
     expect(published[0]?.channel).toMatch(/^session:[0-9a-f-]+$/)
-    const newSessions = await storage.listSessions({ orgId: DEFAULT_ORG })
+    const newSessions = await app.withTenantTx(DEFAULT_ORG, (trx) =>
+      storage.listSessions(trx, { orgId: DEFAULT_ORG }),
+    )
     expect(newSessions).toHaveLength(subBefore + 1)
     expect(newSessions[0]?.projectName).toBe('p1')
 
@@ -81,12 +96,17 @@ describe('processIngestion', () => {
 
   it('overrides projectName when ctx.projectName is set (token-scoped ingestion)', async () => {
     const bus = new InProcMessageBus()
-    await processIngestion(
-      [makeTrace('attacker-claimed')],
-      { orgId: DEFAULT_ORG, projectName: 'real-project' },
-      { storage, bus },
+    await app.withTenantTx(DEFAULT_ORG, (trx) =>
+      processIngestion(
+        trx,
+        [makeTrace('attacker-claimed')],
+        { orgId: DEFAULT_ORG, projectName: 'real-project' },
+        { storage, bus },
+      ),
     )
-    const list = await storage.listSessions({ orgId: DEFAULT_ORG })
+    const list = await app.withTenantTx(DEFAULT_ORG, (trx) =>
+      storage.listSessions(trx, { orgId: DEFAULT_ORG }),
+    )
     expect(list[0]?.projectName).toBe('real-project')
   })
 })

@@ -1,12 +1,17 @@
-import { afterAll, beforeEach, describe, expect, it } from 'vitest'
+import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'vitest'
+import Fastify, { type FastifyInstance } from 'fastify'
+import type { Kysely } from 'kysely'
 import * as grpc from '@grpc/grpc-js'
+import type { DB } from '../../src/db/schema.js'
 import { startGrpcServer, loadOtlpProto } from '../../src/modules/ingest-grpc/index.js'
 import { PgStorage } from '../../src/modules/storage/pg.js'
 import { InProcMessageBus } from '../../src/modules/pubsub/index.js'
-import { createTestDb, truncateAll } from '../helpers/db.js'
+import { dbTenantPlugin } from '../../src/modules/db-tenant/index.js'
+import { createAppRoleTestDb, createTestDb, truncateAll } from '../helpers/db.js'
 import { createTokenForProject } from '../../src/modules/tokens/dao.js'
 import { createUser } from '../../src/modules/auth/dao.js'
 import { hashPassword } from '../../src/modules/auth/password.js'
+import { DEFAULT_ORG_ID } from '../../src/constants.js'
 
 const HEX_TRACE = '0123456789abcdef0123456789abcdef'
 const HEX_SPAN = 'aaaaaaaaaaaaaaaa'
@@ -44,19 +49,30 @@ function makeExportRequest(projectName: string) {
 }
 
 describe('gRPC TraceService.Export end-to-end', () => {
-  const db = createTestDb()
-  const storage = new PgStorage(db)
+  let app: FastifyInstance
+  let appDb: Kysely<DB>
+  let admin: Kysely<DB>
+  const storage = new PgStorage()
   const bus = new InProcMessageBus()
 
   let closeServer: () => Promise<void>
 
+  beforeAll(async () => {
+    appDb = createAppRoleTestDb()
+    admin = createTestDb()
+    app = Fastify()
+    await app.register(dbTenantPlugin, { db: appDb })
+  })
+
   beforeEach(async () => {
-    await truncateAll(db)
+    await truncateAll(admin)
   })
 
   afterAll(async () => {
     await closeServer?.()
-    await db.destroy()
+    await app.close()
+    await appDb.destroy()
+    await admin.destroy()
   })
 
   function makeClient(port: number, metadata?: grpc.Metadata) {
@@ -88,10 +104,11 @@ describe('gRPC TraceService.Export end-to-end', () => {
     const started = await startGrpcServer({
       host: '127.0.0.1',
       port: 0,
-      db,
+      db: admin,
       storage,
       bus,
       mode: 'local',
+      withTenantTx: app.withTenantTx.bind(app),
     })
     closeServer = started.close
 
@@ -99,9 +116,9 @@ describe('gRPC TraceService.Export end-to-end', () => {
     const response = await c.export(makeExportRequest('grpc-demo'))
     expect(response).toBeDefined()
 
-    const sessions = await storage.listSessions({
-      orgId: '00000000-0000-0000-0000-000000000000',
-    })
+    const sessions = await app.withTenantTx(DEFAULT_ORG_ID, (trx) =>
+      storage.listSessions(trx, { orgId: DEFAULT_ORG_ID }),
+    )
     expect(sessions).toHaveLength(1)
     expect(sessions[0]?.projectName).toBe('grpc-demo')
     expect(sessions[0]?.traceId).toBe(HEX_TRACE)
@@ -113,10 +130,11 @@ describe('gRPC TraceService.Export end-to-end', () => {
     const started = await startGrpcServer({
       host: '127.0.0.1',
       port: 0,
-      db,
+      db: admin,
       storage,
       bus,
       mode: 'multi-tenant',
+      withTenantTx: app.withTenantTx.bind(app),
     })
     closeServer = started.close
 
@@ -129,12 +147,12 @@ describe('gRPC TraceService.Export end-to-end', () => {
   }, 15_000)
 
   it('multi-tenant mode: accepts a valid bearer token and writes to its org', async () => {
-    const user = await createUser(db, {
+    const user = await createUser(admin, {
       email: 'g@example.com',
       passwordHash: await hashPassword('pwpwpwpw'),
       orgName: 'g-org',
     })
-    const created = await createTokenForProject(db, {
+    const created = await createTokenForProject(admin, {
       orgId: user.orgId,
       projectName: 'g-proj',
       tokenName: 'grpc',
@@ -143,10 +161,11 @@ describe('gRPC TraceService.Export end-to-end', () => {
     const started = await startGrpcServer({
       host: '127.0.0.1',
       port: 0,
-      db,
+      db: admin,
       storage,
       bus,
       mode: 'multi-tenant',
+      withTenantTx: app.withTenantTx.bind(app),
     })
     closeServer = started.close
 
@@ -157,7 +176,9 @@ describe('gRPC TraceService.Export end-to-end', () => {
     const response = await c.export(makeExportRequest('attacker-claimed'))
     expect(response).toBeDefined()
 
-    const list = await storage.listSessions({ orgId: user.orgId })
+    const list = await app.withTenantTx(user.orgId, (trx) =>
+      storage.listSessions(trx, { orgId: user.orgId }),
+    )
     expect(list).toHaveLength(1)
     // Token's project name overrides the attacker-claimed one.
     expect(list[0]?.projectName).toBe('g-proj')
