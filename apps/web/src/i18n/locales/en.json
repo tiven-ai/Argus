@@ -1,0 +1,162 @@
+{
+  "common": {
+    "loading": "Loading…",
+    "error": "Error: {{message}}",
+    "notFound": "Not found"
+  },
+  "shell": {
+    "nav": {
+      "sessions": "Sessions",
+      "tokens": "Tokens"
+    },
+    "auth": {
+      "signIn": "Sign in",
+      "signOut": "Sign out"
+    },
+    "language": "Language"
+  },
+  "auth": {
+    "login": {
+      "title": "Sign in to Argus",
+      "email": "Email",
+      "password": "Password",
+      "submit": "Sign in",
+      "submitting": "Signing in…",
+      "noAccount": "No account?",
+      "register": "Register",
+      "failed": "Login failed"
+    },
+    "register": {
+      "title": "Create your Argus account",
+      "email": "Email",
+      "passwordHint": "Password (min 8 chars)",
+      "submit": "Create account",
+      "submitting": "Creating…",
+      "haveAccount": "Already have one?",
+      "signIn": "Sign in",
+      "failed": "Registration failed"
+    }
+  },
+  "sessions": {
+    "list": {
+      "title": "Sessions",
+      "empty": {
+        "title": "No sessions yet.",
+        "hintPrefix": "Try ",
+        "hintMiddle": " or send an OTLP payload to ",
+        "hintSuffix": "."
+      },
+      "columns": {
+        "project": "Project",
+        "service": "Service",
+        "trace": "Trace",
+        "steps": "Steps",
+        "started": "Started"
+      }
+    },
+    "replay": {
+      "noRounds": "(no rounds in this session — needs at least one LLM call)"
+    }
+  },
+  "topbar": {
+    "back": "Back to sessions",
+    "streamingLive": "Streaming live",
+    "notConnected": "Not connected",
+    "live": "LIVE",
+    "offline": "offline",
+    "tokens": "tokens {{input}}/{{output}}",
+    "stepCount_one": "{{count}} step",
+    "stepCount_other": "{{count}} steps"
+  },
+  "timeline": {
+    "empty": {
+      "title": "No rounds yet.",
+      "hintPrefix": "Rounds appear when a session contains at least one LLM call. Try ",
+      "hintSuffix": "."
+    },
+    "trigger": {
+      "user": "User",
+      "toolResult": "Tool result · {{name}}",
+      "initial": "Initial"
+    }
+  },
+  "round": {
+    "header": {
+      "title": "Round {{index}} / {{total}}",
+      "tokens": "tokens {{input}}/{{output}}",
+      "toolExec_one": "{{count}} tool exec",
+      "toolExec_other": "{{count}} tool exec"
+    },
+    "sections": {
+      "context": "Context",
+      "trigger": "Trigger",
+      "llmResponse": "LLM Response",
+      "toolExecution": "Tool execution",
+      "raw": "Raw"
+    },
+    "context": {
+      "systemPrompt": "System prompt",
+      "toolsAvailable": "Tools available",
+      "messageHistory": "Message history",
+      "empty": "(no context captured for this round)"
+    },
+    "trigger": {
+      "initial": "(initial round — no preceding user message or tool result)",
+      "toolResultPrefix": "Tool result · "
+    },
+    "llmResponse": {
+      "text": "Text",
+      "toolCalls": "Tool calls",
+      "stop": "stop: {{reason}}",
+      "empty": "(no output)"
+    },
+    "toolExecution": {
+      "empty": "(no tool executions)",
+      "input": "Input",
+      "output": "Output",
+      "noOutput": "(no output)"
+    }
+  },
+  "tool": {
+    "unnamed": "(unnamed)",
+    "parameters": "Parameters",
+    "arguments": "Arguments",
+    "noArguments": "(no arguments)",
+    "required": "required"
+  },
+  "tokens": {
+    "title": "Ingest tokens",
+    "introPrefix": "Use a token in the ",
+    "introMiddle": " header when POSTing to ",
+    "introSuffix": ". The token's project determines where the traces land.",
+    "create": {
+      "title": "Create a new token",
+      "projectName": "Project name",
+      "projectPlaceholder": "e.g. customer-bot",
+      "tokenName": "Token name",
+      "tokenPlaceholder": "e.g. production",
+      "submit": "Create token",
+      "submitting": "Creating…"
+    },
+    "reveal": {
+      "warning": "Save this token now — it will not be shown again.",
+      "dismiss": "I've saved it"
+    },
+    "existing": {
+      "title": "Existing tokens",
+      "empty": "(no tokens yet)",
+      "columns": {
+        "project": "Project",
+        "name": "Name",
+        "prefix": "Prefix",
+        "created": "Created",
+        "status": "Status"
+      },
+      "status": {
+        "active": "active",
+        "revoked": "revoked"
+      },
+      "revoke": "Revoke"
+    }
+  }
+}
