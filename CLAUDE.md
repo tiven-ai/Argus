@@ -31,6 +31,7 @@ The high-level design lives in `docs/superpowers/specs/2026-05-28-argus-design.m
 - **Adding a new tenant-data table:** (1) include `org_id uuid NOT NULL REFERENCES orgs(id) ON DELETE CASCADE`, (2) `ALTER TABLE … ENABLE ROW LEVEL SECURITY; ALTER TABLE … FORCE ROW LEVEL SECURITY`, (3) `CREATE POLICY tenant_isolation … USING/WITH CHECK (org_id = current_setting('argus.current_org_id', true)::uuid)`, (4) `GRANT SELECT, INSERT, UPDATE, DELETE … TO argus_app`, (5) tests for that table wrap in `withTenantTx`.
 - **Adding a new audit event:** add the literal to `AuditEventType` in `apps/server/src/modules/audit/types.ts`, call `audit.record(trx, { eventType: 'new_event_type', ... })` at the relevant code path, write an integration test that asserts the row lands.
 - **Adding a new auth one-time-token kind:** extend `TokenKind` in `apps/server/src/modules/auth-tokens/types.ts`, write an `issueAndSend<Kind>` helper in `apps/server/src/modules/auth/email-flows.ts`, add a public confirm route, write the matching integration test under `apps/server/test/auth/`. Don't pile new kinds into existing helpers.
+- **Adding a recurring server-side maintenance task:** put it in `apps/server/src/modules/<module>/cleanup.ts` as a pure async function over a `Kysely<DB>` (no Fastify decorator). Wire in `main.ts` via `setInterval(...).unref()` gated on an env-var interval (0 = disabled). Cron-style tasks DO NOT register Fastify routes.
 
 ## Repo orientation
 
@@ -46,3 +47,4 @@ The high-level design lives in `docs/superpowers/specs/2026-05-28-argus-design.m
 - **Don't add UI strings without translating** to en/zh-CN/ja once i18n lands in M6.
 - **Use Span Events for structured payloads, not large attributes.** `argus.input` / `argus.output` / `argus.error` events carry the data. Attributes are for IDs, names, classifications, and small scalars.
 - **Sending email from a route handler:** use `app.emailSender.send(...)` via the Fastify decorator from the email module. Wrap in try/catch when the operation is best-effort (e.g., register's verification email); let it surface when the user explicitly triggered it (e.g., `/auth/password-reset/request`). Tests use MockEmailSender via the existing DI pattern.
+- **Background cleanup cron jobs use the super-user `cleanupDb` pool, not `argus_app`.** `audit_log` is under RLS; without `SET LOCAL argus.current_org_id` cron-style DELETEs land on `0 rows`. The super-user connection bypasses RLS and runs the DELETE globally.
