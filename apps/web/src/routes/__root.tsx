@@ -32,8 +32,7 @@ function Shell() {
             Sessions
           </Link>
           {user && (
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            <Link to={'/settings/tokens' as any} className="hover:text-neutral-900">
+            <Link to="/settings/tokens" className="hover:text-neutral-900">
               Tokens
             </Link>
           )}

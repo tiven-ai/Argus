@@ -12,8 +12,10 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as SessionsRouteImport } from './routes/sessions'
 import { Route as RegisterRouteImport } from './routes/register'
 import { Route as LoginRouteImport } from './routes/login'
+import { Route as SettingsRouteRouteImport } from './routes/settings/route'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as SessionsIndexRouteImport } from './routes/sessions/index'
+import { Route as SettingsTokensRouteImport } from './routes/settings/tokens'
 import { Route as SessionsSessionIdRouteImport } from './routes/sessions/$sessionId'
 
 const SessionsRoute = SessionsRouteImport.update({
@@ -31,6 +33,11 @@ const LoginRoute = LoginRouteImport.update({
   path: '/login',
   getParentRoute: () => rootRouteImport,
 } as any)
+const SettingsRouteRoute = SettingsRouteRouteImport.update({
+  id: '/settings',
+  path: '/settings',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
@@ -41,6 +48,11 @@ const SessionsIndexRoute = SessionsIndexRouteImport.update({
   path: '/',
   getParentRoute: () => SessionsRoute,
 } as any)
+const SettingsTokensRoute = SettingsTokensRouteImport.update({
+  id: '/tokens',
+  path: '/tokens',
+  getParentRoute: () => SettingsRouteRoute,
+} as any)
 const SessionsSessionIdRoute = SessionsSessionIdRouteImport.update({
   id: '/$sessionId',
   path: '/$sessionId',
@@ -49,51 +61,69 @@ const SessionsSessionIdRoute = SessionsSessionIdRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/settings': typeof SettingsRouteRouteWithChildren
   '/login': typeof LoginRoute
   '/register': typeof RegisterRoute
   '/sessions': typeof SessionsRouteWithChildren
   '/sessions/$sessionId': typeof SessionsSessionIdRoute
+  '/settings/tokens': typeof SettingsTokensRoute
   '/sessions/': typeof SessionsIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/settings': typeof SettingsRouteRouteWithChildren
   '/login': typeof LoginRoute
   '/register': typeof RegisterRoute
   '/sessions/$sessionId': typeof SessionsSessionIdRoute
+  '/settings/tokens': typeof SettingsTokensRoute
   '/sessions': typeof SessionsIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/settings': typeof SettingsRouteRouteWithChildren
   '/login': typeof LoginRoute
   '/register': typeof RegisterRoute
   '/sessions': typeof SessionsRouteWithChildren
   '/sessions/$sessionId': typeof SessionsSessionIdRoute
+  '/settings/tokens': typeof SettingsTokensRoute
   '/sessions/': typeof SessionsIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/settings'
     | '/login'
     | '/register'
     | '/sessions'
     | '/sessions/$sessionId'
+    | '/settings/tokens'
     | '/sessions/'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/login' | '/register' | '/sessions/$sessionId' | '/sessions'
+  to:
+    | '/'
+    | '/settings'
+    | '/login'
+    | '/register'
+    | '/sessions/$sessionId'
+    | '/settings/tokens'
+    | '/sessions'
   id:
     | '__root__'
     | '/'
+    | '/settings'
     | '/login'
     | '/register'
     | '/sessions'
     | '/sessions/$sessionId'
+    | '/settings/tokens'
     | '/sessions/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  SettingsRouteRoute: typeof SettingsRouteRouteWithChildren
   LoginRoute: typeof LoginRoute
   RegisterRoute: typeof RegisterRoute
   SessionsRoute: typeof SessionsRouteWithChildren
@@ -122,6 +152,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof LoginRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/settings': {
+      id: '/settings'
+      path: '/settings'
+      fullPath: '/settings'
+      preLoaderRoute: typeof SettingsRouteRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/': {
       id: '/'
       path: '/'
@@ -136,6 +173,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof SessionsIndexRouteImport
       parentRoute: typeof SessionsRoute
     }
+    '/settings/tokens': {
+      id: '/settings/tokens'
+      path: '/tokens'
+      fullPath: '/settings/tokens'
+      preLoaderRoute: typeof SettingsTokensRouteImport
+      parentRoute: typeof SettingsRouteRoute
+    }
     '/sessions/$sessionId': {
       id: '/sessions/$sessionId'
       path: '/$sessionId'
@@ -145,6 +189,18 @@ declare module '@tanstack/react-router' {
     }
   }
 }
+
+interface SettingsRouteRouteChildren {
+  SettingsTokensRoute: typeof SettingsTokensRoute
+}
+
+const SettingsRouteRouteChildren: SettingsRouteRouteChildren = {
+  SettingsTokensRoute: SettingsTokensRoute,
+}
+
+const SettingsRouteRouteWithChildren = SettingsRouteRoute._addFileChildren(
+  SettingsRouteRouteChildren,
+)
 
 interface SessionsRouteChildren {
   SessionsSessionIdRoute: typeof SessionsSessionIdRoute
@@ -156,12 +212,11 @@ const SessionsRouteChildren: SessionsRouteChildren = {
   SessionsIndexRoute: SessionsIndexRoute,
 }
 
-const SessionsRouteWithChildren = SessionsRoute._addFileChildren(
-  SessionsRouteChildren,
-)
+const SessionsRouteWithChildren = SessionsRoute._addFileChildren(SessionsRouteChildren)
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  SettingsRouteRoute: SettingsRouteRouteWithChildren,
   LoginRoute: LoginRoute,
   RegisterRoute: RegisterRoute,
   SessionsRoute: SessionsRouteWithChildren,
