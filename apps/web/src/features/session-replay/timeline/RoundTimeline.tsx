@@ -1,4 +1,5 @@
 import { useEffect, useRef } from 'react'
+import { useTranslation } from 'react-i18next'
 import { useVirtualizer } from '@tanstack/react-virtual'
 import type { Round } from '../types/round'
 import { RoundRow } from './RoundRow'
@@ -10,6 +11,7 @@ interface Props {
 }
 
 export function RoundTimeline({ rounds, activeRoundId, onSelect }: Props) {
+  const { t } = useTranslation()
   const parentRef = useRef<HTMLDivElement>(null)
   const virtualizer = useVirtualizer({
     count: rounds.length,
@@ -27,15 +29,16 @@ export function RoundTimeline({ rounds, activeRoundId, onSelect }: Props) {
       lastScrolledRef.current = activeRoundId
     }
     // virtualizer intentionally omitted from deps to avoid scroll-storm under streaming
-  }, [activeRoundId, rounds])
+  }, [activeRoundId, rounds, virtualizer])
 
   if (rounds.length === 0) {
     return (
       <div className="p-3 u-body text-text-3">
-        <p>No rounds yet.</p>
+        <p>{t('timeline.empty.title')}</p>
         <p className="mt-2">
-          Rounds appear when a session contains at least one LLM call. Try{' '}
-          <code className="bg-tile px-1 rounded text-text-2">pnpm db:seed</code>.
+          {t('timeline.empty.hintPrefix')}
+          <code className="bg-tile px-1 rounded text-text-2">pnpm db:seed</code>
+          {t('timeline.empty.hintSuffix')}
         </p>
       </div>
     )

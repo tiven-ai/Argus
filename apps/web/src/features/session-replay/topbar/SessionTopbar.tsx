@@ -1,5 +1,6 @@
 import { ArrowLeft } from 'lucide-react'
 import { Link } from '@tanstack/react-router'
+import { useTranslation } from 'react-i18next'
 import type { SessionSummary, Step } from '@argus/shared-types'
 import { Badge } from '@/components/ui/badge'
 import {
@@ -22,9 +23,10 @@ function statusVariant(s: 'OK' | 'ERROR' | 'UNSET') {
 }
 
 function LiveDot({ active }: { active: boolean }) {
+  const { t } = useTranslation()
   return (
     <span
-      title={active ? 'Streaming live' : 'Not connected'}
+      title={active ? t('topbar.streamingLive') : t('topbar.notConnected')}
       className="inline-flex items-center gap-1 u-caption"
     >
       <span
@@ -34,12 +36,15 @@ function LiveDot({ active }: { active: boolean }) {
             : 'inline-block h-1.5 w-1.5 rounded-pill bg-text-4'
         }
       />
-      <span className={active ? 'text-success' : 'text-text-4'}>{active ? 'LIVE' : 'offline'}</span>
+      <span className={active ? 'text-success' : 'text-text-4'}>
+        {active ? t('topbar.live') : t('topbar.offline')}
+      </span>
     </span>
   )
 }
 
 export function SessionTopbar({ session, steps, connected }: Props) {
+  const { t } = useTranslation()
   const duration = sessionDurationMs(steps)
   const status = sessionStatus(steps)
   const tokens = sessionTokens(steps)
@@ -48,7 +53,7 @@ export function SessionTopbar({ session, steps, connected }: Props) {
       <Link
         to="/sessions"
         className="text-text-3 hover:text-text-1 transition-colors"
-        aria-label="Back to sessions"
+        aria-label={t('topbar.back')}
       >
         <ArrowLeft className="h-4 w-4" strokeWidth={1.75} />
       </Link>
@@ -65,11 +70,9 @@ export function SessionTopbar({ session, steps, connected }: Props) {
       <div className="u-caption text-text-3 flex items-center gap-3 shrink-0 tabular">
         <span>{formatDuration(duration)}</span>
         {(tokens.input > 0 || tokens.output > 0) && (
-          <span>
-            tokens {tokens.input}/{tokens.output}
-          </span>
+          <span>{t('topbar.tokens', { input: tokens.input, output: tokens.output })}</span>
         )}
-        <span>{steps.length} steps</span>
+        <span>{t('topbar.stepCount', { count: steps.length })}</span>
       </div>
     </div>
   )

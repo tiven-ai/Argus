@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next'
 import type { Round } from '../types/round'
 import { cn } from '@/lib/utils'
 import { durationMs, findEvent, formatDuration } from '../lib/step-helpers'
@@ -27,8 +28,9 @@ function snippetForTrigger(round: Round): string | null {
 }
 
 export function RoundRow({ round, index, active, onClick }: Props) {
+  const { t } = useTranslation()
   const Icon = iconForRoundTrigger(round)
-  const label = labelForRoundTrigger(round)
+  const label = labelForRoundTrigger(round, t)
   const snippet = snippetForTrigger(round)
   return (
     <button
