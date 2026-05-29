@@ -44,7 +44,7 @@ describe('audit.record', () => {
     })
     const rows = await admin.selectFrom('audit_log').selectAll().execute()
     expect(rows).toHaveLength(1)
-    const r = rows[0]
+    const r = rows[0]!
     expect(r.org_id).toBe(ORG_A)
     expect(r.actor_user_id).toBe(USER_A)
     expect(r.event_type).toBe('token_create')
@@ -60,10 +60,10 @@ describe('audit.record', () => {
     })
     const rows = await admin.selectFrom('audit_log').selectAll().execute()
     expect(rows).toHaveLength(1)
-    expect(rows[0].target_kind).toBeNull()
-    expect(rows[0].metadata).toBeNull()
-    expect(rows[0].ip).toBeNull()
-    expect(rows[0].user_agent).toBeNull()
+    expect(rows[0]!.target_kind).toBeNull()
+    expect(rows[0]!.metadata).toBeNull()
+    expect(rows[0]!.ip).toBeNull()
+    expect(rows[0]!.user_agent).toBeNull()
   })
 
   test('throws when called without active GUC (outside withTenantTx)', async () => {
@@ -80,6 +80,6 @@ describe('audit.record', () => {
       await record(trx, { eventType: 'login_success', actorUserId: USER_A, userAgent: longUa })
     })
     const rows = await admin.selectFrom('audit_log').selectAll().execute()
-    expect(rows[0].user_agent?.length).toBe(2048)
+    expect(rows[0]!.user_agent?.length).toBe(2048)
   })
 })

@@ -122,8 +122,8 @@ describe('auth routes', () => {
     expect(res.statusCode).toBe(200)
     const rows = await db.selectFrom('audit_log').selectAll().execute()
     expect(rows).toHaveLength(1)
-    expect(rows[0].event_type).toBe('register')
-    expect(rows[0].metadata).toEqual({ method: 'register' })
+    expect(rows[0]!.event_type).toBe('register')
+    expect(rows[0]!.metadata).toEqual({ method: 'register' })
     await app.close()
   })
 
@@ -143,7 +143,7 @@ describe('auth routes', () => {
     expect(res.statusCode).toBe(200)
     const rows = await db.selectFrom('audit_log').selectAll().execute()
     expect(rows).toHaveLength(1)
-    expect(rows[0].event_type).toBe('login_success')
+    expect(rows[0]!.event_type).toBe('login_success')
     await app.close()
   })
 

@@ -21,9 +21,9 @@ describe('migration 0003 — roles + RLS topology', () => {
       FROM pg_roles WHERE rolname = 'argus_app'
     `.execute(adminDb)
     expect(row.rows).toHaveLength(1)
-    expect(row.rows[0].rolsuper).toBe(false)
-    expect(row.rows[0].rolbypassrls).toBe(false)
-    expect(row.rows[0].rolcanlogin).toBe(true)
+    expect(row.rows[0]!.rolsuper).toBe(false)
+    expect(row.rows[0]!.rolbypassrls).toBe(false)
+    expect(row.rows[0]!.rolcanlogin).toBe(true)
   })
 
   test('argus_app can connect and SELECT on a non-RLS table (users)', async () => {

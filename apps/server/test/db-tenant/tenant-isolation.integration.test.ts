@@ -42,7 +42,7 @@ describe('tenant_isolation policy', () => {
       trx.selectFrom('projects').selectAll().execute(),
     )
     expect(rows).toHaveLength(1)
-    expect(rows[0].id).toBe(PROJ_A)
+    expect(rows[0]!.id).toBe(PROJ_A)
   })
 
   test('SET LOCAL to org B → only project B is visible', async () => {
@@ -50,7 +50,7 @@ describe('tenant_isolation policy', () => {
       trx.selectFrom('projects').selectAll().execute(),
     )
     expect(rows).toHaveLength(1)
-    expect(rows[0].id).toBe(PROJ_B)
+    expect(rows[0]!.id).toBe(PROJ_B)
   })
 
   test('INSERT into org A while SET to org B raises RowSecurityViolation', async () => {
