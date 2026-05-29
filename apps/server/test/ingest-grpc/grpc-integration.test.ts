@@ -48,7 +48,6 @@ describe('gRPC TraceService.Export end-to-end', () => {
   const storage = new PgStorage(db)
   const bus = new InProcMessageBus()
 
-  let serverPort: number
   let closeServer: () => Promise<void>
 
   beforeEach(async () => {
@@ -94,7 +93,6 @@ describe('gRPC TraceService.Export end-to-end', () => {
       bus,
       mode: 'local',
     })
-    serverPort = started.port
     closeServer = started.close
 
     const c = makeClient(started.port)
