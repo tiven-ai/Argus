@@ -5,7 +5,6 @@ interface Props {
 }
 
 export function RawSection({ round }: Props) {
-  // Combine the round into a single readable JSON dump.
   const payload = {
     id: round.id,
     trigger: round.trigger,
@@ -13,7 +12,7 @@ export function RawSection({ round }: Props) {
     toolExecutions: round.toolExecutions,
   }
   return (
-    <pre className="text-xs bg-neutral-50 border p-3 rounded overflow-auto">
+    <pre className="u-caption bg-tile border border-hairline p-3 rounded overflow-auto text-text-2">
       {JSON.stringify(payload, null, 2)}
     </pre>
   )

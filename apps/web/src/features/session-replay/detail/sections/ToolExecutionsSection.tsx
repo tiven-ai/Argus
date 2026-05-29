@@ -8,7 +8,7 @@ interface Props {
 
 export function ToolExecutionsSection({ round }: Props) {
   if (round.toolExecutions.length === 0) {
-    return <p className="text-neutral-500 text-sm">(no tool executions)</p>
+    return <p className="u-body text-text-3">(no tool executions)</p>
   }
   return (
     <ul className="space-y-4">
@@ -17,25 +17,25 @@ export function ToolExecutionsSection({ round }: Props) {
         const output = findEvent(t, 'argus.output')?.attributes
         const toolName = t.componentName ?? t.name
         return (
-          <li key={t.id} className="border rounded p-3 space-y-2">
-            <div className="flex items-center gap-2 text-sm">
-              <Wrench className="h-4 w-4 text-neutral-500" />
-              <span className="font-mono">{toolName}</span>
+          <li key={t.id} className="border border-hairline rounded p-2 space-y-2">
+            <div className="flex items-center gap-2 u-body">
+              <Wrench className="h-4 w-4 text-text-3" strokeWidth={1.75} />
+              <span className="font-mono text-text-1">{toolName}</span>
             </div>
             <div>
-              <p className="text-xs text-neutral-500 mb-1 uppercase">Input</p>
-              <pre className="text-xs bg-neutral-50 border p-2 rounded overflow-auto">
+              <p className="u-caption text-text-3 mb-1">Input</p>
+              <pre className="u-caption bg-tile border border-hairline p-2 rounded overflow-auto text-text-2">
                 {JSON.stringify(input, null, 2)}
               </pre>
             </div>
             <div>
-              <p className="text-xs text-neutral-500 mb-1 uppercase">Output</p>
+              <p className="u-caption text-text-3 mb-1">Output</p>
               {output ? (
-                <pre className="text-xs bg-green-50 border border-green-100 p-2 rounded overflow-auto">
+                <pre className="u-caption bg-tint-success p-2 rounded overflow-auto text-text-1">
                   {JSON.stringify(output, null, 2)}
                 </pre>
               ) : (
-                <p className="text-xs text-neutral-500">(no output)</p>
+                <p className="u-caption text-text-4">(no output)</p>
               )}
             </div>
           </li>

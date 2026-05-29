@@ -10,7 +10,7 @@ export function TriggerSection({ round }: Props) {
   const t = round.trigger
   if (!t) {
     return (
-      <p className="text-neutral-500 text-sm">
+      <p className="u-body text-text-3">
         (initial round — no preceding user message or tool result)
       </p>
     )
@@ -20,10 +20,10 @@ export function TriggerSection({ round }: Props) {
     const text = String(findEvent(t, 'argus.input')?.attributes.text ?? '(no text)')
     return (
       <div className="flex gap-3 items-start">
-        <div className="rounded-full bg-blue-100 p-2 shrink-0">
-          <User className="h-4 w-4 text-blue-700" />
+        <div className="w-7 h-7 rounded-md border border-hairline bg-page flex items-center justify-center shrink-0">
+          <User className="h-4 w-4 text-brand" strokeWidth={1.75} />
         </div>
-        <div className="rounded-lg bg-blue-50 border border-blue-100 px-4 py-3 max-w-prose whitespace-pre-wrap text-sm">
+        <div className="rounded bg-tint-brand px-3 py-2 max-w-prose whitespace-pre-wrap u-body text-text-1">
           {text}
         </div>
       </div>
@@ -35,13 +35,13 @@ export function TriggerSection({ round }: Props) {
     const output = findEvent(t, 'argus.output')?.attributes ?? {}
     return (
       <div className="space-y-2">
-        <div className="flex items-center gap-2 text-sm text-neutral-600">
-          <Wrench className="h-4 w-4" />
+        <div className="flex items-center gap-2 u-body text-text-2">
+          <Wrench className="h-4 w-4 text-text-3" strokeWidth={1.75} />
           <span>
-            Tool result · <span className="font-mono">{toolName}</span>
+            Tool result · <span className="font-mono text-text-1">{toolName}</span>
           </span>
         </div>
-        <pre className="text-xs bg-green-50 border border-green-100 p-3 rounded overflow-auto">
+        <pre className="u-caption bg-tint-success p-3 rounded overflow-auto text-text-1">
           {JSON.stringify(output, null, 2)}
         </pre>
       </div>
@@ -49,7 +49,7 @@ export function TriggerSection({ round }: Props) {
   }
 
   return (
-    <pre className="text-xs bg-neutral-50 border p-3 rounded overflow-auto">
+    <pre className="u-caption bg-tile border border-hairline p-3 rounded overflow-auto text-text-2">
       {JSON.stringify(t, null, 2)}
     </pre>
   )

@@ -16,21 +16,21 @@ export function LlmResponseSection({ round }: Props) {
     <div className="space-y-4">
       {text && (
         <div>
-          <h4 className="text-xs font-semibold text-neutral-500 uppercase mb-1">Text</h4>
-          <pre className="text-sm bg-amber-50 border border-amber-100 p-3 rounded whitespace-pre-wrap">
+          <h4 className="u-caption text-text-3 mb-1">Text</h4>
+          <pre className="u-body bg-tile border border-hairline p-3 rounded whitespace-pre-wrap text-text-1">
             {text}
           </pre>
         </div>
       )}
       {toolCalls && (
         <div>
-          <h4 className="text-xs font-semibold text-neutral-500 uppercase mb-1">Tool calls</h4>
+          <h4 className="u-caption text-text-3 mb-1">Tool calls</h4>
           <ToolCallList toolCalls={toolCalls} />
         </div>
       )}
-      {stopReason && <p className="text-xs text-neutral-500">stop: {stopReason}</p>}
+      {stopReason && <p className="u-caption text-text-3">stop: {stopReason}</p>}
       {!text && !toolCalls && (
-        <pre className="text-xs bg-neutral-50 border p-3 rounded overflow-auto">
+        <pre className="u-caption bg-tile border border-hairline p-3 rounded overflow-auto text-text-2">
           {JSON.stringify(output, null, 2)}
         </pre>
       )}
