@@ -3,6 +3,7 @@ import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import i18n, { LOCALE_LABELS, SUPPORTED_LOCALES, type SupportedLocale } from '../i18n'
 import { AuthProvider, useAuth } from '../lib/auth-provider'
+import { VerifyNagBar } from '../features/email-verify-nag/VerifyNagBar'
 
 export const Route = createRootRoute({
   component: RootLayout,
@@ -44,6 +45,7 @@ function Shell() {
         </nav>
         <div className="ml-auto">{user ? <UserMenu /> : <SignInLink />}</div>
       </header>
+      <VerifyNagBar />
       <main className="flex-1 overflow-hidden">
         <Outlet />
       </main>
