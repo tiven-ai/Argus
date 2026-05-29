@@ -12,6 +12,9 @@ describe('GET /healthz', () => {
     server = await createServer({
       databaseUrl: process.env.DATABASE_URL!,
       logLevel: 'silent',
+      mode: 'local',
+      jwtSecret: 'local-dev-secret-not-for-production-x',
+      cookieName: 'argus_session',
     })
     const res = await server.app.inject({ method: 'GET', url: '/healthz' })
     expect(res.statusCode).toBe(200)
