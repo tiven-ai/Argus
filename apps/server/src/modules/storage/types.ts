@@ -72,17 +72,22 @@ export interface WriteTraceResult {
   writtenSteps: StoredStep[]
 }
 
+import type { Tx } from '../db-tenant/index.js'
+
 export interface StorageBackend {
   /**
    * Upserts project + service + session, then inserts steps (and their events).
    * Returns the session id and the steps that were written (with their DB ids
    * and updated step_event rows), so callers can publish them downstream.
    */
-  writeTrace(input: WriteTraceInput): Promise<WriteTraceResult>
+  writeTrace(trx: Tx, input: WriteTraceInput): Promise<WriteTraceResult>
 
   /** Returns sessions for an org, most recently started first. */
-  listSessions(opts: { orgId: string; limit?: number }): Promise<StoredSessionSummary[]>
+  listSessions(trx: Tx, opts: { orgId: string; limit?: number }): Promise<StoredSessionSummary[]>
 
   /** Returns one session with all its steps + step events, or null. */
-  getSession(opts: { orgId: string; sessionId: string }): Promise<StoredSessionDetail | null>
+  getSession(
+    trx: Tx,
+    opts: { orgId: string; sessionId: string },
+  ): Promise<StoredSessionDetail | null>
 }

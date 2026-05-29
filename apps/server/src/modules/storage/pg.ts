@@ -1,5 +1,4 @@
-import type { Kysely, Transaction } from 'kysely'
-import type { DB } from '../../db/schema.js'
+import type { Tx } from '../db-tenant/index.js'
 import type {
   NewStep,
   StorageBackend,
@@ -12,70 +11,67 @@ import type {
 } from './types.js'
 
 export class PgStorage implements StorageBackend {
-  constructor(private readonly db: Kysely<DB>) {}
+  async writeTrace(trx: Tx, input: WriteTraceInput): Promise<WriteTraceResult> {
+    const projectId = await this.upsertProject(trx, input.orgId, input.projectName)
+    const serviceId = await this.upsertService(trx, projectId, input.serviceName)
+    const sessionId = await this.upsertSession(
+      trx,
+      input.orgId,
+      serviceId,
+      input.traceId,
+      input.sessionStartedAt,
+      input.sessionEndedAt,
+    )
 
-  async writeTrace(input: WriteTraceInput): Promise<WriteTraceResult> {
     const insertedSpanIds: string[] = []
-
-    const sessionId = await this.db.transaction().execute(async (trx) => {
-      const projectId = await this.upsertProject(trx, input.orgId, input.projectName)
-      const serviceId = await this.upsertService(trx, projectId, input.serviceName)
-      const sessionId = await this.upsertSession(
-        trx,
-        serviceId,
-        input.traceId,
-        input.sessionStartedAt,
-        input.sessionEndedAt,
-      )
-
-      for (const step of input.steps) {
-        const stepId = await this.upsertStep(trx, sessionId, step)
-        if (step.events.length > 0) {
-          await trx.deleteFrom('step_events').where('step_id', '=', stepId).execute()
-          await trx
-            .insertInto('step_events')
-            .values(
-              step.events.map((e) => ({
-                step_id: stepId,
-                name: e.name,
-                ts: e.ts,
-                attributes: JSON.stringify(e.attributes),
-              })),
-            )
-            .execute()
-        }
-        insertedSpanIds.push(step.spanId)
+    for (const step of input.steps) {
+      const stepId = await this.upsertStep(trx, input.orgId, sessionId, step)
+      if (step.events.length > 0) {
+        await trx.deleteFrom('step_events').where('step_id', '=', stepId).execute()
+        await trx
+          .insertInto('step_events')
+          .values(
+            step.events.map((e) => ({
+              org_id: input.orgId,
+              step_id: stepId,
+              name: e.name,
+              ts: e.ts,
+              attributes: JSON.stringify(e.attributes),
+            })),
+          )
+          .execute()
       }
+      insertedSpanIds.push(step.spanId)
+    }
 
-      const { count } = await trx
-        .selectFrom('steps')
-        .select((eb) => eb.fn.countAll().as('count'))
-        .where('session_id', '=', sessionId)
-        .executeTakeFirstOrThrow()
-      await trx
-        .updateTable('sessions')
-        .set({ step_count: Number(count) })
-        .where('id', '=', sessionId)
-        .execute()
+    const { count } = await trx
+      .selectFrom('steps')
+      .select((eb) => eb.fn.countAll().as('count'))
+      .where('session_id', '=', sessionId)
+      .executeTakeFirstOrThrow()
+    await trx
+      .updateTable('sessions')
+      .set({ step_count: Number(count) })
+      .where('id', '=', sessionId)
+      .execute()
 
-      return sessionId
-    })
-
-    // After commit, read back the written steps in input order, with their events.
-    const detail = await this.getSession({ orgId: input.orgId, sessionId })
+    const detail = await this.getSession(trx, { orgId: input.orgId, sessionId })
     const writtenSteps: StoredStep[] =
       detail?.steps.filter((s) => insertedSpanIds.includes(s.spanId)) ?? []
 
     return { sessionId, writtenSteps }
   }
 
-  async listSessions(opts: { orgId: string; limit?: number }): Promise<StoredSessionSummary[]> {
+  async listSessions(
+    trx: Tx,
+    opts: { orgId: string; limit?: number },
+  ): Promise<StoredSessionSummary[]> {
     const limit = opts.limit ?? 50
-    const rows = await this.db
+    const rows = await trx
       .selectFrom('sessions as ses')
       .innerJoin('services as svc', 'svc.id', 'ses.service_id')
       .innerJoin('projects as prj', 'prj.id', 'svc.project_id')
-      .where('prj.org_id', '=', opts.orgId)
+      .where('ses.org_id', '=', opts.orgId)
       .select([
         'ses.id as id',
         'ses.trace_id as traceId',
@@ -96,16 +92,16 @@ export class PgStorage implements StorageBackend {
     }))
   }
 
-  async getSession(opts: {
-    orgId: string
-    sessionId: string
-  }): Promise<StoredSessionDetail | null> {
-    const summaryRow = await this.db
+  async getSession(
+    trx: Tx,
+    opts: { orgId: string; sessionId: string },
+  ): Promise<StoredSessionDetail | null> {
+    const summaryRow = await trx
       .selectFrom('sessions as ses')
       .innerJoin('services as svc', 'svc.id', 'ses.service_id')
       .innerJoin('projects as prj', 'prj.id', 'svc.project_id')
       .where('ses.id', '=', opts.sessionId)
-      .where('prj.org_id', '=', opts.orgId)
+      .where('ses.org_id', '=', opts.orgId)
       .select([
         'ses.id as id',
         'ses.trace_id as traceId',
@@ -119,7 +115,7 @@ export class PgStorage implements StorageBackend {
 
     if (!summaryRow) return null
 
-    const stepRows = await this.db
+    const stepRows = await trx
       .selectFrom('steps')
       .where('session_id', '=', opts.sessionId)
       .selectAll()
@@ -129,7 +125,7 @@ export class PgStorage implements StorageBackend {
     const eventRows =
       stepRows.length === 0
         ? []
-        : await this.db
+        : await trx
             .selectFrom('step_events')
             .where(
               'step_id',
@@ -180,7 +176,7 @@ export class PgStorage implements StorageBackend {
     }
   }
 
-  private async upsertProject(trx: Transaction<DB>, orgId: string, name: string): Promise<string> {
+  private async upsertProject(trx: Tx, orgId: string, name: string): Promise<string> {
     const existing = await trx
       .selectFrom('projects')
       .where('org_id', '=', orgId)
@@ -197,11 +193,7 @@ export class PgStorage implements StorageBackend {
     return inserted.id
   }
 
-  private async upsertService(
-    trx: Transaction<DB>,
-    projectId: string,
-    name: string,
-  ): Promise<string> {
+  private async upsertService(trx: Tx, projectId: string, name: string): Promise<string> {
     const existing = await trx
       .selectFrom('services')
       .where('project_id', '=', projectId)
@@ -219,7 +211,8 @@ export class PgStorage implements StorageBackend {
   }
 
   private async upsertSession(
-    trx: Transaction<DB>,
+    trx: Tx,
+    orgId: string,
     serviceId: string,
     traceId: string,
     startedAt: Date,
@@ -254,6 +247,7 @@ export class PgStorage implements StorageBackend {
     const inserted = await trx
       .insertInto('sessions')
       .values({
+        org_id: orgId,
         service_id: serviceId,
         trace_id: traceId,
         started_at: startedAt,
@@ -265,7 +259,8 @@ export class PgStorage implements StorageBackend {
   }
 
   private async upsertStep(
-    trx: Transaction<DB>,
+    trx: Tx,
+    orgId: string,
     sessionId: string,
     step: NewStep,
   ): Promise<string> {
@@ -277,6 +272,7 @@ export class PgStorage implements StorageBackend {
       .executeTakeFirst()
 
     const values = {
+      org_id: orgId,
       session_id: sessionId,
       span_id: step.spanId,
       parent_span_id: step.parentSpanId,
