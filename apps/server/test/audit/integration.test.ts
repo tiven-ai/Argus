@@ -1,5 +1,4 @@
 import { describe, expect, test, beforeAll, afterAll, beforeEach } from 'vitest'
-import { sql } from 'kysely'
 import { createServer, type ServerOptions } from '../../src/server.js'
 import type { ArgusServer } from '../../src/server.js'
 import { createTestDb, truncateAll } from '../helpers/db.js'
