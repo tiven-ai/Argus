@@ -13,6 +13,8 @@ import { authRoutes, resolveAuthContext, type AuthMiddlewareDeps } from './modul
 import { resolveIngestContext, tokenManagementRoutes } from './modules/tokens/index.js'
 import { dbTenantPlugin } from './modules/db-tenant/index.js'
 import { MockEmailSender, makeEmailSender, type EmailSender } from './modules/email/index.js'
+import { cleanupExpiredTokens } from './modules/auth-tokens/index.js'
+import { cleanupOldAuditLogs } from './modules/audit/index.js'
 
 export interface ServerOptions {
   databaseUrl: string
@@ -28,6 +30,11 @@ export interface ServerOptions {
   appBaseUrl: string
   /** Inject for tests; production builds from resendApiKey + emailFrom. */
   emailSender?: EmailSender
+  /** Super-user pool for cleanup crons. If not provided, audit cron is skipped. */
+  cleanupDb?: Kysely<DB>
+  tokenCleanupIntervalMs?: number
+  auditCleanupIntervalMs?: number
+  auditRetentionDays?: number
 }
 
 export interface ArgusServer {
@@ -117,6 +124,42 @@ export async function createServer(opts: ServerOptions): Promise<ArgusServer> {
   app.addHook('onClose', async () => {
     bus.removeAllSubscribers()
     await db.destroy()
+  })
+
+  // Background cleanup crons. Both timers are .unref()'d so they don't keep the
+  // event loop alive. The audit cleanup REQUIRES the super-user `cleanupDb`
+  // pool because `audit_log` is under RLS — the argus_app role's DELETE would
+  // evaluate the policy USING clause (which expects a per-org setting) and
+  // refuse the global sweep.
+  const timers: NodeJS.Timeout[] = []
+  if (opts.tokenCleanupIntervalMs && opts.tokenCleanupIntervalMs > 0) {
+    const t = setInterval(() => {
+      cleanupExpiredTokens(db).catch((err) =>
+        app.log.warn({ err, event: 'token_cleanup_failed' }, 'token cleanup failed'),
+      )
+    }, opts.tokenCleanupIntervalMs)
+    t.unref()
+    timers.push(t)
+  }
+  if (
+    opts.cleanupDb &&
+    opts.auditCleanupIntervalMs &&
+    opts.auditCleanupIntervalMs > 0 &&
+    opts.auditRetentionDays !== undefined &&
+    opts.auditRetentionDays > 0
+  ) {
+    const cleanupDb = opts.cleanupDb
+    const days = opts.auditRetentionDays
+    const t = setInterval(() => {
+      cleanupOldAuditLogs(cleanupDb, days).catch((err) =>
+        app.log.warn({ err, event: 'audit_cleanup_failed' }, 'audit cleanup failed'),
+      )
+    }, opts.auditCleanupIntervalMs)
+    t.unref()
+    timers.push(t)
+  }
+  app.addHook('onClose', async () => {
+    for (const t of timers) clearInterval(t)
   })
 
   return { app, db, bus }

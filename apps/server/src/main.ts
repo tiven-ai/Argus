@@ -1,9 +1,15 @@
 import { loadEnv } from './env.js'
 import { createServer } from './server.js'
+import { createKysely } from './db/kysely.js'
 import { startGrpcServer, type StartedGrpcServer } from './modules/ingest-grpc/index.js'
 
 async function main() {
   const env = loadEnv()
+  // Super-user pool for background cleanup crons. audit_log is under RLS; the
+  // argus_app role's DELETE would refuse the global sweep without
+  // SET LOCAL argus.current_org_id. This pool is owned by main.ts (not
+  // createServer) so its lifetime spans both HTTP + gRPC.
+  const cleanupDb = createKysely(env.DATABASE_URL)
   // loadEnv always populates APP_DATABASE_URL (either from env or derived from
   // DATABASE_URL by swapping in the argus_app role) — the `!` is therefore safe.
   const { app, db, bus } = await createServer({
@@ -16,6 +22,10 @@ async function main() {
     resendApiKey: env.RESEND_API_KEY,
     emailFrom: env.EMAIL_FROM,
     appBaseUrl: env.APP_BASE_URL,
+    cleanupDb,
+    tokenCleanupIntervalMs: env.TOKEN_CLEANUP_INTERVAL_MS,
+    auditCleanupIntervalMs: env.AUDIT_CLEANUP_INTERVAL_MS,
+    auditRetentionDays: env.AUDIT_RETENTION_DAYS,
   })
 
   await app.listen({ port: env.PORT, host: env.HOST })
@@ -46,6 +56,7 @@ async function main() {
   const shutdown = async () => {
     app.log.info('Shutting down…')
     await Promise.all([app.close(), grpc?.close() ?? Promise.resolve()])
+    await cleanupDb.destroy()
     process.exit(0)
   }
   process.on('SIGINT', shutdown)

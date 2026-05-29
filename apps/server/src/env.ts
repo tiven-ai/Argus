@@ -26,6 +26,17 @@ const envSchema = z.object({
   RESEND_API_KEY: z.string().optional(),
   EMAIL_FROM: z.string().default('Argus <noreply@argus.dev>'),
   APP_BASE_URL: z.string().url().default('http://localhost:5173'),
+  TOKEN_CLEANUP_INTERVAL_MS: z.coerce
+    .number()
+    .int()
+    .min(0)
+    .default(60 * 60 * 1000),
+  AUDIT_CLEANUP_INTERVAL_MS: z.coerce
+    .number()
+    .int()
+    .min(0)
+    .default(60 * 60 * 1000),
+  AUDIT_RETENTION_DAYS: z.coerce.number().int().min(0).default(90),
 })
 
 export type Env = z.infer<typeof envSchema>
