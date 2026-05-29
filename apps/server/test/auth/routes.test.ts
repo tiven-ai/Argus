@@ -1,14 +1,16 @@
-import { afterAll, beforeEach, describe, expect, it } from 'vitest'
+import { afterAll, beforeEach, describe, expect, it, test } from 'vitest'
 import Fastify from 'fastify'
 import cookie from '@fastify/cookie'
-import { createTestDb, truncateAll } from '../helpers/db.js'
+import { createAppRoleTestDb, createTestDb, truncateAll } from '../helpers/db.js'
 import { authRoutes } from '../../src/modules/auth/routes.js'
+import { dbTenantPlugin } from '../../src/modules/db-tenant/index.js'
 
 const SECRET = 'test-secret-xxxxxxxxxxxxxxxxxxxxxxxxxxxx'
 const COOKIE = 'argus_session'
 
 describe('auth routes', () => {
   const db = createTestDb()
+  const appDb = createAppRoleTestDb()
 
   beforeEach(async () => {
     await truncateAll(db)
@@ -16,11 +18,13 @@ describe('auth routes', () => {
 
   afterAll(async () => {
     await db.destroy()
+    await appDb.destroy()
   })
 
   async function makeApp() {
     const app = Fastify()
     await app.register(cookie)
+    await app.register(dbTenantPlugin, { db: appDb })
     await app.register(authRoutes, {
       db,
       cookieName: COOKIE,
@@ -105,6 +109,54 @@ describe('auth routes', () => {
     const setCookie = String(res.headers['set-cookie'])
     expect(setCookie).toContain(`${COOKIE}=`)
     expect(setCookie.toLowerCase()).toContain('max-age=0')
+    await app.close()
+  })
+
+  test('successful register inserts a register audit row', async () => {
+    const app = await makeApp()
+    const res = await app.inject({
+      method: 'POST',
+      url: '/auth/register',
+      payload: { email: 'new@a.com', password: 'password123' },
+    })
+    expect(res.statusCode).toBe(200)
+    const rows = await db.selectFrom('audit_log').selectAll().execute()
+    expect(rows).toHaveLength(1)
+    expect(rows[0].event_type).toBe('register')
+    expect(rows[0].metadata).toEqual({ method: 'register' })
+    await app.close()
+  })
+
+  test('successful login inserts a login_success row', async () => {
+    const app = await makeApp()
+    await app.inject({
+      method: 'POST',
+      url: '/auth/register',
+      payload: { email: 'log@a.com', password: 'password123' },
+    })
+    await db.deleteFrom('audit_log').execute() // clear register row
+    const res = await app.inject({
+      method: 'POST',
+      url: '/auth/login',
+      payload: { email: 'log@a.com', password: 'password123' },
+    })
+    expect(res.statusCode).toBe(200)
+    const rows = await db.selectFrom('audit_log').selectAll().execute()
+    expect(rows).toHaveLength(1)
+    expect(rows[0].event_type).toBe('login_success')
+    await app.close()
+  })
+
+  test('failed login does NOT insert into audit_log', async () => {
+    const app = await makeApp()
+    const res = await app.inject({
+      method: 'POST',
+      url: '/auth/login',
+      payload: { email: 'nobody@a.com', password: 'wrongpassword' },
+    })
+    expect(res.statusCode).toBe(401)
+    const rows = await db.selectFrom('audit_log').selectAll().execute()
+    expect(rows).toHaveLength(0)
     await app.close()
   })
 })

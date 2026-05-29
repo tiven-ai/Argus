@@ -5,6 +5,7 @@ import type { DB } from '../../db/schema.js'
 import { createUser, findUserByEmail } from './dao.js'
 import { hashPassword, verifyPassword } from './password.js'
 import { signJwt } from './jwt.js'
+import { record as auditRecord } from '../audit/index.js'
 
 export interface AuthRoutesDeps {
   db: Kysely<DB>
@@ -73,6 +74,15 @@ export const authRoutes: FastifyPluginAsync<AuthRoutesDeps> = async (
     const passwordHash = await hashPassword(password)
     const record = await createUser(deps.db, { email, passwordHash, orgName: '' })
     setSessionCookie(reply, deps, record.id)
+    await app.withTenantTx(record.orgId, (trx) =>
+      auditRecord(trx, {
+        eventType: 'register',
+        actorUserId: record.id,
+        metadata: { method: 'register' },
+        ip: request.ip,
+        userAgent: request.headers['user-agent'],
+      }),
+    )
     return { user: { id: record.id, email: record.email, orgId: record.orgId } }
   })
 
@@ -86,16 +96,33 @@ export const authRoutes: FastifyPluginAsync<AuthRoutesDeps> = async (
 
     const record = await findUserByEmail(deps.db, email)
     if (!record) {
+      request.log.warn(
+        { event: 'login_failure', email, ip: request.ip, userAgent: request.headers['user-agent'] },
+        'login_failure',
+      )
       reply.code(401)
       return { error: 'invalid_credentials' }
     }
     const ok = await verifyPassword(password, record.passwordHash)
     if (!ok) {
+      request.log.warn(
+        { event: 'login_failure', email, ip: request.ip, userAgent: request.headers['user-agent'] },
+        'login_failure',
+      )
       reply.code(401)
       return { error: 'invalid_credentials' }
     }
 
     setSessionCookie(reply, deps, record.id)
+    await app.withTenantTx(record.orgId, (trx) =>
+      auditRecord(trx, {
+        eventType: 'login_success',
+        actorUserId: record.id,
+        metadata: { method: 'cookie' },
+        ip: request.ip,
+        userAgent: request.headers['user-agent'],
+      }),
+    )
     return { user: { id: record.id, email: record.email, orgId: record.orgId } }
   })
 
