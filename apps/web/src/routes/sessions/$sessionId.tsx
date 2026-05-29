@@ -4,11 +4,9 @@ import { z } from 'zod'
 import { fetchSession } from '../../lib/api'
 import { useSessionStream } from '../../lib/use-session-stream'
 import { SessionReplay } from '../../features/session-replay'
-import type { TabKey } from '../../features/session-replay/detail/StepDetail'
 
 const searchSchema = z.object({
-  step: z.string().optional(),
-  tab: z.enum(['input', 'output', 'events', 'raw']).default('input'),
+  round: z.string().optional(),
 })
 
 export const Route = createFileRoute('/sessions/$sessionId')({
@@ -34,13 +32,9 @@ function SessionDetail() {
     <SessionReplay
       session={data.session}
       steps={data.steps}
-      activeStepId={search.step}
-      activeTab={search.tab}
+      activeRoundId={search.round}
       connected={stream.connected}
-      onSelectStep={(step) => navigate({ search: (prev) => ({ ...prev, step }), replace: true })}
-      onSelectTab={(tab: TabKey) =>
-        navigate({ search: (prev) => ({ ...prev, tab }), replace: true })
-      }
+      onSelectRound={(round) => navigate({ search: { round }, replace: true })}
     />
   )
 }

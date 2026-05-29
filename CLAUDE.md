@@ -27,11 +27,7 @@ The high-level design lives in `docs/superpowers/specs/2026-05-28-argus-design.m
 - Keep modules small and focused. Module ↔ module communication only through `index.ts`.
 - Strict TypeScript everywhere. No `any` without a `// reason:` comment.
 - Never use `git commit --no-verify` or `--no-gpg-sign` unless explicitly asked.
-- **Adding a step renderer (M2+).** Each step type has a `StepRenderer` in `apps/web/src/features/session-replay/renderers/`. To add one:
-  1. Create the renderer file (export a `StepRenderer` object with `id`, `match(step) -> priority`, and optional `renderInput` / `renderOutput`)
-  2. Register it in `renderers/registry.ts` by importing and adding to the `renderers` array
-  3. Add a priority test case in `registry.test.ts`
-     Specialized renderers use priority 10+; `GenericJsonRenderer` sits at 1 as fallback.
+- **Round-based replay UI (post-M3).** The session detail page is structured around `Round` objects derived by `computeRounds(steps)` in `apps/web/src/features/session-replay/lib/compute-rounds.ts`. Each row = one LLM call. The right panel composes 5 sections (Context / Trigger / LLM call / Tool execution / Raw) under `apps/web/src/features/session-replay/detail/sections/`. To add a new section: create a `*Section.tsx` under `sections/`, then add it to `RoundDetail.tsx`'s composition (collapsible if context/raw-like, plain `<section>` if always-open).
 
 ## Repo orientation
 
