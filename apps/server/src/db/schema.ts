@@ -63,6 +63,7 @@ export interface Users {
   id: Generated<string>
   email: string
   password_hash: string
+  email_verified_at: Timestamp | null
   created_at: Generated<Timestamp>
 }
 
@@ -96,6 +97,16 @@ export interface AuditLog {
   user_agent: string | null
 }
 
+export interface AuthOneTimeTokens {
+  id: Generated<string>
+  user_id: string
+  kind: string
+  token_hash: string
+  expires_at: Timestamp
+  consumed_at: Timestamp | null
+  created_at: Generated<Timestamp>
+}
+
 export interface DB {
   orgs: Orgs
   projects: Projects
@@ -107,4 +118,5 @@ export interface DB {
   org_members: OrgMembers
   ingest_tokens: IngestTokens
   audit_log: AuditLog
+  auth_one_time_tokens: AuthOneTimeTokens
 }
