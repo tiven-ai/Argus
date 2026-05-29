@@ -56,6 +56,29 @@ export interface StepEvents {
   attributes: Json
 }
 
+export interface Users {
+  id: string
+  email: string
+  created_at: Generated<Timestamp>
+}
+
+export interface OrgMembers {
+  user_id: string
+  org_id: string
+  role: string
+  created_at: Generated<Timestamp>
+}
+
+export interface IngestTokens {
+  id: Generated<string>
+  org_id: string
+  token_hash: string
+  label: string | null
+  created_by: string
+  created_at: Generated<Timestamp>
+  revoked_at: Timestamp | null
+}
+
 export interface DB {
   orgs: Orgs
   projects: Projects
@@ -63,4 +86,7 @@ export interface DB {
   sessions: Sessions
   steps: Steps
   step_events: StepEvents
+  users: Users
+  org_members: OrgMembers
+  ingest_tokens: IngestTokens
 }
