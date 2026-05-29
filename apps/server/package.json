@@ -18,7 +18,10 @@
   },
   "dependencies": {
     "@argus/shared-types": "workspace:*",
+    "@fastify/cookie": "^11.0.0",
+    "bcryptjs": "^2.4.3",
     "fastify": "^5.0.0",
+    "jsonwebtoken": "^9.0.0",
     "kysely": "^0.27.0",
     "pg": "^8.13.0",
     "zod": "^3.23.0"
@@ -27,6 +30,8 @@
     "@argus/eslint-config": "workspace:*",
     "@argus/tsconfig": "workspace:*",
     "@testcontainers/postgresql": "^10.0.0",
+    "@types/bcryptjs": "^2.4.6",
+    "@types/jsonwebtoken": "^9.0.0",
     "@types/node": "^22.0.0",
     "@types/pg": "^8.11.0",
     "eslint": "^9.0.0",
