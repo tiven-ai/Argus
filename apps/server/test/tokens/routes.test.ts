@@ -1,6 +1,7 @@
 import { afterAll, beforeEach, describe, expect, it } from 'vitest'
 import Fastify from 'fastify'
 import { createTestDb, truncateAll } from '../helpers/db.js'
+import { dbTenantPlugin } from '../../src/modules/db-tenant/index.js'
 import { tokenManagementRoutes } from '../../src/modules/tokens/routes.js'
 import { createUser } from '../../src/modules/auth/dao.js'
 import { hashPassword } from '../../src/modules/auth/password.js'
@@ -16,10 +17,11 @@ describe('token management routes', () => {
     await db.destroy()
   })
 
-  async function makeApp(orgId: string | null) {
+  async function makeApp(orgId: string | null, userId = 'u') {
     const app = Fastify()
+    await app.register(dbTenantPlugin, { db })
     app.addHook('preHandler', async (req) => {
-      if (orgId) req.auth = { user: { id: 'u', email: 'e', orgId } }
+      if (orgId) req.auth = { user: { id: userId, email: 'e', orgId } }
     })
     await app.register(tokenManagementRoutes, { db })
     return app
@@ -38,16 +40,33 @@ describe('token management routes', () => {
       passwordHash: await hashPassword('pwpwpwpw'),
       orgName: 'org',
     })
-    const app = await makeApp(u.orgId)
+    const app = await makeApp(u.orgId, u.id)
     const res = await app.inject({
       method: 'POST',
       url: '/api/tokens',
       payload: { projectName: 'p1', tokenName: 'first' },
     })
     expect(res.statusCode).toBe(200)
-    const body = res.json() as { token: string; record: { prefix: string } }
+    const body = res.json() as { token: string; record: { id: string; prefix: string } }
     expect(body.token).toMatch(/^argus_[0-9a-f]{32}$/)
     expect(body.record.prefix).toBe(body.token.slice(0, 12))
+
+    // audit_log should have a token_create row for this org + user.
+    const audit = await db
+      .selectFrom('audit_log')
+      .selectAll()
+      .where('org_id', '=', u.orgId)
+      .where('event_type', '=', 'token_create')
+      .execute()
+    expect(audit).toHaveLength(1)
+    expect(audit[0]?.actor_user_id).toBe(u.id)
+    expect(audit[0]?.target_kind).toBe('ingest_token')
+    expect(audit[0]?.target_id).toBe(body.record.id)
+    expect(audit[0]?.metadata).toEqual({
+      project: 'p1',
+      name: 'first',
+      prefix: body.record.prefix,
+    })
     await app.close()
   })
 
@@ -57,7 +76,7 @@ describe('token management routes', () => {
       passwordHash: await hashPassword('pwpwpwpw'),
       orgName: 'org',
     })
-    const app = await makeApp(u.orgId)
+    const app = await makeApp(u.orgId, u.id)
     await app.inject({
       method: 'POST',
       url: '/api/tokens',
@@ -77,7 +96,7 @@ describe('token management routes', () => {
       passwordHash: await hashPassword('pwpwpwpw'),
       orgName: 'org',
     })
-    const app = await makeApp(u.orgId)
+    const app = await makeApp(u.orgId, u.id)
     const created = (await app
       .inject({
         method: 'POST',
@@ -94,6 +113,18 @@ describe('token management routes', () => {
     const listRes = await app.inject({ method: 'GET', url: '/api/tokens' })
     const list = listRes.json() as { tokens: Array<{ revokedAt: string | null }> }
     expect(list.tokens[0]?.revokedAt).not.toBeNull()
+
+    // audit_log should have a token_revoke row for this org + user + token.
+    const audit = await db
+      .selectFrom('audit_log')
+      .selectAll()
+      .where('org_id', '=', u.orgId)
+      .where('event_type', '=', 'token_revoke')
+      .execute()
+    expect(audit).toHaveLength(1)
+    expect(audit[0]?.actor_user_id).toBe(u.id)
+    expect(audit[0]?.target_kind).toBe('ingest_token')
+    expect(audit[0]?.target_id).toBe(created.record.id)
     await app.close()
   })
 
@@ -108,7 +139,7 @@ describe('token management routes', () => {
       passwordHash: await hashPassword('pwpwpwpw'),
       orgName: 'org-b',
     })
-    const appA = await makeApp(a.orgId)
+    const appA = await makeApp(a.orgId, a.id)
     const tokenRes = await appA.inject({
       method: 'POST',
       url: '/api/tokens',
@@ -117,7 +148,7 @@ describe('token management routes', () => {
     const aTokenId = (tokenRes.json() as { record: { id: string } }).record.id
     await appA.close()
 
-    const appB = await makeApp(b.orgId)
+    const appB = await makeApp(b.orgId, b.id)
     const res = await appB.inject({ method: 'DELETE', url: `/api/tokens/${aTokenId}` })
     expect(res.statusCode).toBe(404)
     await appB.close()

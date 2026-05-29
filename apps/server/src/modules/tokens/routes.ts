@@ -2,6 +2,7 @@ import type { FastifyInstance, FastifyPluginAsync } from 'fastify'
 import type { Kysely } from 'kysely'
 import { z } from 'zod'
 import type { DB } from '../../db/schema.js'
+import { record as auditRecord } from '../audit/index.js'
 import { createTokenForProject, listTokensForOrg, revokeToken } from './dao.js'
 
 export interface TokenRoutesDeps {
@@ -53,6 +54,22 @@ export const tokenManagementRoutes: FastifyPluginAsync<TokenRoutesDeps> = async 
       projectName: parsed.data.projectName,
       tokenName: parsed.data.tokenName,
     })
+    const { user } = request.auth
+    await app.withTenantTx(user.orgId, (trx) =>
+      auditRecord(trx, {
+        eventType: 'token_create',
+        actorUserId: user.id,
+        targetKind: 'ingest_token',
+        targetId: created.id,
+        metadata: {
+          project: parsed.data.projectName,
+          name: created.name,
+          prefix: created.prefix,
+        },
+        ip: request.ip,
+        userAgent: request.headers['user-agent'],
+      }),
+    )
     return {
       token: created.token,
       record: {
@@ -79,6 +96,17 @@ export const tokenManagementRoutes: FastifyPluginAsync<TokenRoutesDeps> = async 
       reply.code(404)
       return { error: 'not_found' }
     }
+    const { user } = request.auth
+    await app.withTenantTx(user.orgId, (trx) =>
+      auditRecord(trx, {
+        eventType: 'token_revoke',
+        actorUserId: user.id,
+        targetKind: 'ingest_token',
+        targetId: request.params.id,
+        ip: request.ip,
+        userAgent: request.headers['user-agent'],
+      }),
+    )
     return { ok: true }
   })
 }
