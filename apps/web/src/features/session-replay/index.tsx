@@ -23,8 +23,8 @@ export function SessionReplay({ session, steps, activeRoundId, connected, onSele
   return (
     <div className="h-full flex flex-col">
       <SessionTopbar session={session} steps={steps} connected={connected} />
-      <div className="flex-1 grid grid-cols-[380px_1fr] overflow-hidden">
-        <aside className="border-r border-hairline overflow-hidden">
+      <div className="flex-1 grid grid-cols-1 grid-rows-[1fr_1fr] sm:grid-rows-1 sm:grid-cols-[minmax(280px,360px)_1fr] overflow-hidden">
+        <aside className="border-b sm:border-b-0 sm:border-r border-hairline overflow-hidden">
           <RoundTimeline rounds={rounds} activeRoundId={activeRound?.id} onSelect={onSelectRound} />
         </aside>
         <main className="overflow-hidden">
