@@ -4,8 +4,11 @@ import { startGrpcServer, type StartedGrpcServer } from './modules/ingest-grpc/i
 
 async function main() {
   const env = loadEnv()
+  // loadEnv always populates APP_DATABASE_URL (either from env or derived from
+  // DATABASE_URL by swapping in the argus_app role) — the `!` is therefore safe.
   const { app, db, bus } = await createServer({
     databaseUrl: env.DATABASE_URL,
+    appDatabaseUrl: env.APP_DATABASE_URL!,
     logLevel: env.LOG_LEVEL,
     mode: env.ARGUS_MODE,
     jwtSecret: env.JWT_SECRET,
@@ -16,9 +19,9 @@ async function main() {
   app.log.info(`Argus HTTP server listening on http://${env.HOST}:${env.PORT}`)
 
   // We need access to the storage/db/bus to wire the gRPC service. createServer
-  // already constructed PgStorage from db. We pass the same db + a fresh
-  // PgStorage in here (it's a thin wrapper, instantiating twice is fine), so we
-  // don't have to widen createServer's return shape.
+  // already constructed PgStorage. We pass the same db + a fresh PgStorage in
+  // here (it's a thin wrapper with no per-instance state, instantiating twice
+  // is fine), so we don't have to widen createServer's return shape.
   let grpc: StartedGrpcServer | undefined
   if (env.GRPC_PORT > 0) {
     const { PgStorage } = await import('./modules/storage/pg.js')
@@ -26,9 +29,10 @@ async function main() {
       host: env.HOST,
       port: env.GRPC_PORT,
       db,
-      storage: new PgStorage(db),
+      storage: new PgStorage(),
       bus,
       mode: env.ARGUS_MODE,
+      withTenantTx: app.withTenantTx.bind(app),
     })
     app.log.info(`Argus gRPC server listening on ${env.HOST}:${grpc.port}`)
   } else {

@@ -11,9 +11,11 @@ import { apiRoutes } from './modules/api/index.js'
 import { pusherRoutes } from './modules/pusher/index.js'
 import { authRoutes, resolveAuthContext, type AuthMiddlewareDeps } from './modules/auth/index.js'
 import { resolveIngestContext, tokenManagementRoutes } from './modules/tokens/index.js'
+import { dbTenantPlugin } from './modules/db-tenant/index.js'
 
 export interface ServerOptions {
   databaseUrl: string
+  appDatabaseUrl: string
   logLevel?: string
   mode: 'local' | 'multi-tenant'
   jwtSecret: string
@@ -34,11 +36,15 @@ export async function createServer(opts: ServerOptions): Promise<ArgusServer> {
     bodyLimit: 8 * 1024 * 1024,
   })
 
-  const db = createKysely(opts.databaseUrl)
-  const storage = new PgStorage(db)
+  // Runtime pool uses the argus_app role; this is what app code touches.
+  // The migration-role databaseUrl is reserved for migration runners only and
+  // is not opened here.
+  const db = createKysely(opts.appDatabaseUrl)
+  const storage = new PgStorage()
   const bus = new InProcMessageBus()
 
   await app.register(cookie)
+  await app.register(dbTenantPlugin, { db })
 
   app.get('/healthz', async () => ({ status: 'ok' }))
 

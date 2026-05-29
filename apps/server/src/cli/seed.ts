@@ -1,11 +1,14 @@
+import { sql } from 'kysely'
 import { loadEnv } from '../env.js'
 import { createKysely } from '../db/kysely.js'
 import { PgStorage } from '../modules/storage/pg.js'
+import type { WriteTraceInput } from '../modules/storage/types.js'
 
 async function main() {
   const env = loadEnv()
   const db = createKysely(env.DATABASE_URL)
-  const storage = new PgStorage(db)
+  const storage = new PgStorage()
+  const ORG_ID = '00000000-0000-0000-0000-000000000000'
 
   const now = new Date()
   const traceId = '0123456789abcdef0123456789abcdef'
@@ -47,8 +50,8 @@ async function main() {
     content: JSON.stringify(toolResult),
   }
 
-  await storage.writeTrace({
-    orgId: '00000000-0000-0000-0000-000000000000',
+  const writeInput: WriteTraceInput = {
+    orgId: ORG_ID,
     projectName: 'demo',
     serviceName: 'weather-bot',
     traceId,
@@ -221,6 +224,14 @@ async function main() {
         ],
       },
     ],
+  }
+
+  // PgStorage methods take a Tx and rely on the `argus.current_org_id` GUC for
+  // RLS. The CLI doesn't go through Fastify's withTenantTx decorator, so we
+  // inline the SET LOCAL + writeTrace dance here.
+  await db.transaction().execute(async (trx) => {
+    await sql`SELECT set_config('argus.current_org_id', ${ORG_ID}, true)`.execute(trx)
+    await storage.writeTrace(trx, writeInput)
   })
 
   console.log(`Seed complete. trace_id=${traceId}`)
