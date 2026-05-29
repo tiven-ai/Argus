@@ -1,6 +1,7 @@
 import { createFileRoute, Link, useNavigate } from '@tanstack/react-router'
 import { useQuery } from '@tanstack/react-query'
 import { useEffect } from 'react'
+import { useTranslation } from 'react-i18next'
 import { fetchSessions } from '../../lib/api'
 
 export const Route = createFileRoute('/sessions/')({
@@ -8,6 +9,7 @@ export const Route = createFileRoute('/sessions/')({
 })
 
 function SessionsList() {
+  const { t } = useTranslation()
   const navigate = useNavigate()
   const { data, isLoading, error } = useQuery({
     queryKey: ['sessions'],
@@ -21,15 +23,19 @@ function SessionsList() {
     }
   }, [error, navigate])
 
-  if (isLoading) return <p className="p-3 u-body text-text-3">Loading…</p>
-  if (error) return <p className="p-3 u-body text-danger">Error: {String(error)}</p>
+  if (isLoading) return <p className="p-3 u-body text-text-3">{t('common.loading')}</p>
+  if (error)
+    return <p className="p-3 u-body text-danger">{t('common.error', { message: String(error) })}</p>
   if (!data || data.sessions.length === 0) {
     return (
       <div className="p-6 u-body text-text-3">
-        <p>No sessions yet.</p>
+        <p>{t('sessions.list.empty.title')}</p>
         <p className="mt-2">
-          Try <code className="bg-tile px-1 rounded text-text-2">pnpm db:seed</code> or send an OTLP
-          payload to <code className="bg-tile px-1 rounded text-text-2">POST /v1/traces</code>.
+          {t('sessions.list.empty.hintPrefix')}
+          <code className="bg-tile px-1 rounded text-text-2">pnpm db:seed</code>
+          {t('sessions.list.empty.hintMiddle')}
+          <code className="bg-tile px-1 rounded text-text-2">POST /v1/traces</code>
+          {t('sessions.list.empty.hintSuffix')}
         </p>
       </div>
     )
@@ -37,16 +43,16 @@ function SessionsList() {
 
   return (
     <div className="p-6 overflow-auto h-full">
-      <h2 className="u-h-lg text-text-1 mb-3">Sessions</h2>
+      <h2 className="u-h-lg text-text-1 mb-3">{t('sessions.list.title')}</h2>
       <div className="border border-hairline rounded">
         <table className="w-full u-body">
           <thead>
             <tr className="text-left u-caption text-text-3 border-b border-hairline">
-              <th className="font-normal px-3 py-2">Project</th>
-              <th className="font-normal px-3 py-2">Service</th>
-              <th className="font-normal px-3 py-2">Trace</th>
-              <th className="font-normal px-3 py-2">Steps</th>
-              <th className="font-normal px-3 py-2">Started</th>
+              <th className="font-normal px-3 py-2">{t('sessions.list.columns.project')}</th>
+              <th className="font-normal px-3 py-2">{t('sessions.list.columns.service')}</th>
+              <th className="font-normal px-3 py-2">{t('sessions.list.columns.trace')}</th>
+              <th className="font-normal px-3 py-2">{t('sessions.list.columns.steps')}</th>
+              <th className="font-normal px-3 py-2">{t('sessions.list.columns.started')}</th>
             </tr>
           </thead>
           <tbody>

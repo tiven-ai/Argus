@@ -1,6 +1,7 @@
 import { createFileRoute } from '@tanstack/react-router'
 import { useQuery } from '@tanstack/react-query'
 import { z } from 'zod'
+import { useTranslation } from 'react-i18next'
 import { fetchSession } from '../../lib/api'
 import { useSessionStream } from '../../lib/use-session-stream'
 import { SessionReplay } from '../../features/session-replay'
@@ -15,6 +16,7 @@ export const Route = createFileRoute('/sessions/$sessionId')({
 })
 
 function SessionDetail() {
+  const { t } = useTranslation()
   const { sessionId } = Route.useParams()
   const search = Route.useSearch()
   const navigate = Route.useNavigate()
@@ -24,9 +26,12 @@ function SessionDetail() {
   })
   const stream = useSessionStream(sessionId)
 
-  if (isLoading) return <div className="p-6 u-body text-text-3">Loading…</div>
-  if (error) return <div className="p-6 u-body text-danger">Error: {String(error)}</div>
-  if (!data) return <div className="p-6 u-body text-text-2">Not found</div>
+  if (isLoading) return <div className="p-6 u-body text-text-3">{t('common.loading')}</div>
+  if (error)
+    return (
+      <div className="p-6 u-body text-danger">{t('common.error', { message: String(error) })}</div>
+    )
+  if (!data) return <div className="p-6 u-body text-text-2">{t('common.notFound')}</div>
 
   return (
     <SessionReplay
