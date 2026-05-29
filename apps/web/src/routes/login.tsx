@@ -1,5 +1,6 @@
 import { createFileRoute, Link, useNavigate } from '@tanstack/react-router'
 import { useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { useAuth } from '../lib/auth-provider'
 
 export const Route = createFileRoute('/login')({
@@ -7,6 +8,7 @@ export const Route = createFileRoute('/login')({
 })
 
 function LoginPage() {
+  const { t } = useTranslation()
   const { login } = useAuth()
   const navigate = useNavigate()
   const [email, setEmail] = useState('')
@@ -22,7 +24,7 @@ function LoginPage() {
       await login(email, password)
       void navigate({ to: '/sessions' })
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Login failed')
+      setError(err instanceof Error ? err.message : t('auth.login.failed'))
     } finally {
       setSubmitting(false)
     }
@@ -34,9 +36,9 @@ function LoginPage() {
         onSubmit={onSubmit}
         className="w-full max-w-sm space-y-4 border border-hairline rounded p-6"
       >
-        <h1 className="u-h-xl text-text-1">Sign in to Argus</h1>
+        <h1 className="u-h-xl text-text-1">{t('auth.login.title')}</h1>
         <label className="block space-y-1">
-          <span className="u-caption text-text-3">Email</span>
+          <span className="u-caption text-text-3">{t('auth.login.email')}</span>
           <input
             type="email"
             value={email}
@@ -46,7 +48,7 @@ function LoginPage() {
           />
         </label>
         <label className="block space-y-1">
-          <span className="u-caption text-text-3">Password</span>
+          <span className="u-caption text-text-3">{t('auth.login.password')}</span>
           <input
             type="password"
             value={password}
@@ -62,12 +64,12 @@ function LoginPage() {
           disabled={submitting}
           className="w-full h-8 rounded bg-brand text-white u-body hover:bg-brand-hover transition-colors disabled:opacity-50"
         >
-          {submitting ? 'Signing in…' : 'Sign in'}
+          {submitting ? t('auth.login.submitting') : t('auth.login.submit')}
         </button>
         <p className="u-caption text-text-3 text-center">
-          No account?{' '}
+          {t('auth.login.noAccount')}{' '}
           <Link to="/register" className="text-brand hover:text-brand-hover">
-            Register
+            {t('auth.login.register')}
           </Link>
         </p>
       </form>
