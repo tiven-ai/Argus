@@ -94,3 +94,15 @@ export async function markEmailVerified(db: Kysely<DB>, userId: string): Promise
     .where('id', '=', userId)
     .execute()
 }
+
+export async function updatePassword(
+  db: Kysely<DB>,
+  userId: string,
+  passwordHash: string,
+): Promise<void> {
+  await db
+    .updateTable('users')
+    .set({ password_hash: passwordHash })
+    .where('id', '=', userId)
+    .execute()
+}
