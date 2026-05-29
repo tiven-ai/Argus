@@ -3,14 +3,17 @@ import { cva, type VariantProps } from 'class-variance-authority'
 import { cn } from '@/lib/utils'
 
 const badgeVariants = cva(
-  'inline-flex items-center rounded-md border px-2 py-0.5 text-xs font-medium transition-colors',
+  'inline-flex items-center gap-1 rounded-pill px-2 py-0.5 text-[11px] leading-4 font-normal tabular',
   {
     variants: {
       variant: {
-        default: 'border-transparent bg-neutral-900 text-neutral-50',
-        secondary: 'border-transparent bg-neutral-100 text-neutral-900',
-        destructive: 'border-transparent bg-red-600 text-white',
-        outline: 'text-neutral-900',
+        // "default" = success/active style (most badges in the app are OK status)
+        default: 'bg-tint-success text-success',
+        secondary: 'bg-tile text-text-3',
+        destructive: 'bg-tint-danger text-danger',
+        brand: 'bg-tint-brand text-brand',
+        warning: 'bg-tint-warning text-warning',
+        outline: 'border border-hairline text-text-2',
       },
     },
     defaultVariants: { variant: 'default' },
