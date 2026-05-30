@@ -5,12 +5,7 @@
     "notFound": "見つかりません"
   },
   "shell": {
-    "nav": {
-      "sessions": "セッション",
-      "tokens": "トークン"
-    },
     "auth": {
-      "signIn": "サインイン",
       "signOut": "サインアウト"
     },
     "language": "言語",
@@ -20,13 +15,20 @@
       "resent": "送信しました。受信トレイをご確認ください。",
       "dismiss": "閉じる"
     },
-    "org": { "workspace": "ワークスペース", "manageTeams": "チームを管理" },
-    "project": { "all": "すべてのプロジェクト" },
+    "org": {
+      "workspace": "ワークスペース",
+      "manageTeams": "チームを管理"
+    },
+    "project": {
+      "all": "すべてのプロジェクト"
+    },
     "sectionObserve": "観測",
     "settingsHeading": "設定",
     "soon": "近日",
     "soonHint": "近日公開",
-    "theme": { "toggle": "テーマを切り替え" },
+    "theme": {
+      "toggle": "テーマを切り替え"
+    },
     "search": {
       "open": "検索",
       "placeholder": "検索…",

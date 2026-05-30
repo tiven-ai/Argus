@@ -5,12 +5,7 @@
     "notFound": "Not found"
   },
   "shell": {
-    "nav": {
-      "sessions": "Sessions",
-      "tokens": "Tokens"
-    },
     "auth": {
-      "signIn": "Sign in",
       "signOut": "Sign out"
     },
     "language": "Language",
@@ -20,13 +15,20 @@
       "resent": "Sent. Check your inbox.",
       "dismiss": "Dismiss"
     },
-    "org": { "workspace": "Workspace", "manageTeams": "Manage teams" },
-    "project": { "all": "All projects" },
+    "org": {
+      "workspace": "Workspace",
+      "manageTeams": "Manage teams"
+    },
+    "project": {
+      "all": "All projects"
+    },
     "sectionObserve": "Observe",
     "settingsHeading": "Settings",
     "soon": "soon",
     "soonHint": "Coming soon",
-    "theme": { "toggle": "Toggle theme" },
+    "theme": {
+      "toggle": "Toggle theme"
+    },
     "search": {
       "open": "Search",
       "placeholder": "Search…",

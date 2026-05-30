@@ -1,4 +1,4 @@
-import { createContext, useContext, useState, type ReactNode } from 'react'
+import { createContext, useCallback, useContext, useState, type ReactNode } from 'react'
 import { createPortal } from 'react-dom'
 
 interface SlotValue {
@@ -16,10 +16,16 @@ export function TopbarSlotProvider({ children }: { children: ReactNode }) {
 /** Rendered once inside the Topbar; registers its DOM node as the portal target. */
 export function TopbarSlotTarget() {
   const ctx = useContext(SlotContext)
-  return <div ref={(node) => ctx?.setTarget(node)} className="flex items-center gap-2" />
+  const setTarget = ctx?.setTarget
+  // Stable ref callback: setTarget from useState is identity-stable, so this
+  // callback stays stable across Topbar re-renders and React does not re-run it.
+  // Without this, an inline ref callback would detach/attach every render —
+  // momentarily clearing the target and remounting every TopbarActions portal.
+  const ref = useCallback((node: HTMLElement | null) => setTarget?.(node), [setTarget])
+  return <div ref={ref} className="flex items-center gap-2" />
 }
 
-/** Render children into the topbar's action area from any page. */
+/** /** Render children into the topbar's action area from any page. */
 export function TopbarActions({ children }: { children: ReactNode }) {
   const ctx = useContext(SlotContext)
   if (!ctx?.target) return null
