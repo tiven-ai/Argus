@@ -1,8 +1,10 @@
 import {
   GetSessionResponseSchema,
   ListSessionsResponseSchema,
+  ListProjectsResponseSchema,
   type GetSessionResponse,
   type ListSessionsResponse,
+  type ListProjectsResponse,
 } from '@argus/shared-types'
 
 async function fetchJson(url: string, init?: RequestInit): Promise<unknown> {
@@ -12,8 +14,13 @@ async function fetchJson(url: string, init?: RequestInit): Promise<unknown> {
   return res.json()
 }
 
-export async function fetchSessions(): Promise<ListSessionsResponse> {
-  return ListSessionsResponseSchema.parse(await fetchJson('/api/sessions'))
+export async function fetchSessions(projectId?: string): Promise<ListSessionsResponse> {
+  const qs = projectId ? `?projectId=${encodeURIComponent(projectId)}` : ''
+  return ListSessionsResponseSchema.parse(await fetchJson(`/api/sessions${qs}`))
+}
+
+export async function fetchProjects(): Promise<ListProjectsResponse> {
+  return ListProjectsResponseSchema.parse(await fetchJson('/api/projects'))
 }
 
 export async function fetchSession(id: string): Promise<GetSessionResponse> {
