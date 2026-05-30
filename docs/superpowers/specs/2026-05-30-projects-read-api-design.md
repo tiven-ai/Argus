@@ -16,11 +16,11 @@ This spec covers **only ①**. ② and ③ are explicitly out of scope.
 
 ## Verified facts (read from the code on 2026-05-30)
 
-- **`sessions.project_id uuid NOT NULL REFERENCES projects(id) ON DELETE CASCADE`** exists (`apps/server/src/db/migrations/0001_init.ts:30`). So sessions can be filtered by `project_id` directly — no name-based fallback or extra join needed.
-- **`pg-storage.listSessions`** already `innerJoin('projects', 'projects.id', 'sessions.project_id')` (`apps/server/src/modules/storage/pg-storage.ts:71`), so it has `projects` in scope. Adding a `.where('sessions.project_id', '=', projectId)` is a one-line conditional.
-- **`ListSessionsParams = { orgId, limit }`** (`apps/server/src/modules/storage/types.ts:30`). Gains an optional `projectId?: string`.
-- **`projects` table:** `id`, `org_id`, `name`, `created_at`; unique `(org_id, name)`; RLS + FORCE RLS with `tenant_isolation` policy on `argus.current_org_id`; `argus_app` has SELECT (`migrations/0001_init.ts`, `0003_grants.ts`).
-- **Route pattern:** `GET /api/sessions` (`apps/server/src/modules/api/routes.ts:10`) → 401 if `!request.auth`; `orgId = request.auth.user.orgId`; query via `request.server.withTenantTx(orgId, trx => storage.listSessions(trx, ...))`; maps rows to ISO-string DTOs. Routes registered in `apps/server/src/server.ts:105` inside the auth-gated scope.
+- **Session→project link goes through `services`, not a direct FK.** `sessions` has `service_id` (`migrations/0001_init.ts:40`); `services` has `project_id` (`:29`). There is **no** `sessions.project_id` column. So filtering sessions by project means filtering on `services.project_id`.
+- **`storage.listSessions` already joins the chain.** In `apps/server/src/modules/storage/pg.ts:63`, the query is `selectFrom('sessions as s').innerJoin('services as svc', 'svc.id', 's.service_id').innerJoin('projects as p', 'p.id', 'svc.project_id')`, selects `p.name as projectName`, and filters `.where('s.org_id', '=', opts.orgId)`. So `svc` is already in scope — adding `.where('svc.project_id', '=', projectId)` is a one-line conditional. It does **not** currently select `p.id`.
+- **`listSessions` signature is inline, not a named type.** It is `{ orgId: string; limit?: number }` in both the implementation (`pg.ts:65`) and the `StorageBackend` interface (`apps/server/src/modules/storage/types.ts:86`). There is no `ListSessionsParams` interface. The change adds an optional `projectId?: string` to both occurrences.
+- **`projects` table:** `id`, `org_id`, `name`, `created_at`; unique `(org_id, name)`; RLS + FORCE RLS with `tenant_isolation` policy on `argus.current_org_id`; `argus_app` has SELECT (`migrations/0001_init.ts`, `migrations/0003_audit_and_rls.ts`).
+- **Route pattern:** `GET /api/sessions` (`apps/server/src/modules/api/routes.ts:10`) → 401 if `!request.auth`; `orgId = request.auth.user.orgId`; query via `request.server.withTenantTx(orgId, trx => deps.storage.listSessions(trx, ...))`; maps rows to ISO-string DTOs. Routes are registered in the auth-gated scope in `apps/server/src/server.ts` (`scope.register(apiRoutes, { storage })`).
 - **shared-types** (`packages/shared-types/src/api.ts`): `SessionSummarySchema`, `ListSessionsResponseSchema`, etc. No Project schema yet. Pattern: `const XSchema = z.object(...)` + `export type X = z.infer<typeof XSchema>`.
 - **Frontend:** `lib/api.ts` `fetchSessions()` parses `ListSessionsResponseSchema`. `ProjectSwitcher.tsx:18` derives projects via `distinctProjects(data.sessions)`. `use-project-filter.ts` stores the active project **name** in `?project=` + localStorage.
 - **Tests:** backend integration tests use `createTestDb()` (super-user pool) to seed, a mock app injecting `req.auth` in a `preHandler`, and `withTenantTx` / RLS isolation assertions (`test/tokens/routes.test.ts`, `test/db-tenant/tenant-isolation.integration.test.ts`).
@@ -34,27 +34,27 @@ This spec covers **only ①**. ② and ③ are explicitly out of scope.
 ```
 if (!request.auth) → 401 { error: 'unauthenticated' }
 orgId = request.auth.user.orgId
-rows = await server.withTenantTx(orgId, trx =>
+rows = await request.server.withTenantTx(orgId, trx =>
   trx.selectFrom('projects')
      .select(['id', 'name', 'created_at'])
      .where('org_id', '=', orgId)
      .orderBy('name')
      .execute())
-return { projects: rows.map(r => ({ id, name, createdAt: created_at.toISOString() })) }
+return { projects: rows.map(r => ({ id: r.id, name: r.name, createdAt: r.created_at.toISOString() })) }
 ```
 
-RLS enforces tenant isolation at the DB layer; the `where org_id` clause is retained for index efficiency + defense in depth (per CLAUDE.md). This query is a plain SELECT, so it could run on `deps.db` like tokens — but it uses `withTenantTx` to stay consistent with the sessions route and to keep the RLS GUC set. Either is correct; the plan uses `withTenantTx` for consistency.
+RLS enforces tenant isolation at the DB layer; the `where org_id` clause is retained for index efficiency + defense in depth (per CLAUDE.md). This is a plain SELECT, so it could run on `deps.db` like tokens — but it uses `withTenantTx` to stay consistent with the sessions route and to keep the RLS GUC set. The query targets the `projects` table directly (no join), so the project-list endpoint lives most naturally as a small DAO function plus a thin route handler, following the storage/route split already used elsewhere.
 
 **Modify `GET /api/sessions`** — accept an optional `?projectId=` query param:
 
 - Parse `projectId` (optional string) from `request.query`.
-- Pass it through to `storage.listSessions(trx, { orgId, projectId, limit })`.
+- Pass it through to `deps.storage.listSessions(trx, { orgId, projectId, limit })`.
 - Backward compatible: omitting `projectId` leaves behavior identical.
 
-**Modify the storage layer:**
+**Modify the storage layer (`pg.ts` + `types.ts`):**
 
-- `ListSessionsParams` gains `projectId?: string`.
-- `pg-storage.listSessions` adds `if (projectId) qb = qb.where('sessions.project_id', '=', projectId)` before execution. Filter by **id**, not name.
+- `listSessions`' inline options type gains `projectId?: string` in both the `StorageBackend` interface (`types.ts:86`) and the implementation (`pg.ts:65`).
+- In `pg.ts`, build the query conditionally: `if (opts.projectId) qb = qb.where('svc.project_id', '=', opts.projectId)` before `.execute()`. Filter on the **project id** via the already-joined `services` alias — no new join, no name-based filtering.
 
 ### Shared types (`packages/shared-types/src/api.ts`)
 
@@ -71,16 +71,16 @@ export type ProjectSummary = z.infer<typeof ProjectSummarySchema>
 export type ListProjectsResponse = z.infer<typeof ListProjectsResponseSchema>
 ```
 
-`ListSessionsResponseSchema` is unchanged (the request gains an optional query param; the response shape does not change).
+`ListSessionsResponseSchema` and `SessionSummarySchema` are unchanged (the request gains an optional query param; the response shape does not change — `SessionSummary` keeps `projectName`, no `projectId` added).
 
 ### Frontend
 
 - **`lib/api.ts`:**
   - Add `fetchProjects(): Promise<ListProjectsResponse>` → parses `ListProjectsResponseSchema` from `/api/projects`.
   - `fetchSessions(projectId?: string)` → appends `?projectId=<id>` when provided.
-- **`use-project-filter.ts`:** unchanged contract — `?project=` continues to store the project **name** this round (URL契约不变；id 化留给 ②). Consumers that need to filter sessions by id resolve name→id from the `fetchProjects()` result.
+- **`use-project-filter.ts`:** unchanged contract — `?project=` continues to store the project **name** this round (URL contract stays; id-keying is deferred to ②). Consumers that need to filter sessions by id resolve name→id from the `fetchProjects()` result.
 - **`ProjectSwitcher.tsx`:** data source changes from `distinctProjects(useQuery(sessions))` to `useQuery({ queryKey: ['projects'], queryFn: fetchProjects })`. The dropdown lists `project.name` (selection still keyed on name, matching the unchanged `?project=` contract).
-- **Sessions list (`routes/sessions/index.tsx`):** when a project name is active, resolve it to an id via the `projects` query and pass `projectId` to `fetchSessions`, so filtering happens server-side. If the projects query hasn't resolved yet, fall back to the existing client-side `filterSessionsByProject` so there's no flempty flash. (Both paths converge on the same result.)
+- **Sessions list (`routes/sessions/index.tsx`):** when a project name is active, resolve it to an id via the `projects` query and pass `projectId` to `fetchSessions`, so filtering happens server-side. If the projects query hasn't resolved yet, fall back to the existing client-side `filterSessionsByProject` so there's no empty flash. (Both paths converge on the same result.)
 - **`sessions-select.ts`:** `distinctProjects` becomes orphaned once `ProjectSwitcher` stops using it — **delete it and its test** (it was added in the shell work; removing a self-created orphan). `filterSessionsByProject` is still used (SessionRail, the fallback above) — keep it. `adjacentSessions`, `listDurationLabel` — keep.
 
 ### Tests
@@ -105,6 +105,6 @@ export type ListProjectsResponse = z.infer<typeof ListProjectsResponseSchema>
 
 ## Risks / notes
 
-- The only prior unknown (sessions↔project linkage) is resolved: `sessions.project_id` FK exists, so id-based filtering is clean.
+- The prior unknown (sessions↔project linkage) is resolved: the link is `session → service → project` via `services.project_id`, and `storage.listSessions` already joins it, so id-based filtering adds one `where` clause with no new join.
 - Name→id resolution on the frontend is a deliberate bridge so ① doesn't change the `?project=` URL contract. It becomes unnecessary once ② keys the scope on id.
 - i18n: no new user-facing strings are required (the switcher already uses `shell.project.all`; project names are data, not translated copy). If any string is added, it goes into all three locales per the parity test.
