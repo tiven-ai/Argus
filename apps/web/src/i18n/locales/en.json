@@ -73,9 +73,11 @@
       "title": "Sessions",
       "empty": {
         "title": "No sessions yet.",
-        "hintPrefix": "Try ",
-        "hintMiddle": " or send an OTLP payload to ",
-        "hintSuffix": "."
+        "intro": "To start ingesting traces:",
+        "step1": "Create an ingest token in <link>Settings → Tokens</link>",
+        "step2": "Point your OpenTelemetry exporter at:",
+        "step3": "Include header:",
+        "cta": "Create your first token →"
       },
       "columns": {
         "project": "Project",

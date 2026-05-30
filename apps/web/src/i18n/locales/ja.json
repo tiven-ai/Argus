@@ -73,9 +73,11 @@
       "title": "セッション",
       "empty": {
         "title": "セッションがありません。",
-        "hintPrefix": "",
-        "hintMiddle": " を試すか、",
-        "hintSuffix": " に OTLP ペイロードを送信してください。"
+        "intro": "トレースの取り込みを開始するには：",
+        "step1": "<link>Settings → Tokens</link> でインジェストトークンを作成",
+        "step2": "OpenTelemetry エクスポーターを以下へ設定：",
+        "step3": "リクエストヘッダーに追加：",
+        "cta": "最初のトークンを作成 →"
       },
       "columns": {
         "project": "プロジェクト",

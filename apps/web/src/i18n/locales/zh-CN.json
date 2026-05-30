@@ -73,9 +73,11 @@
       "title": "会话",
       "empty": {
         "title": "暂无会话。",
-        "hintPrefix": "试试 ",
-        "hintMiddle": " 或向 ",
-        "hintSuffix": " 发送 OTLP 数据。"
+        "intro": "要开始接收 trace 数据：",
+        "step1": "在 <link>Settings → Tokens</link> 创建一个 ingest token",
+        "step2": "把 OpenTelemetry exporter 指向：",
+        "step3": "请求头加上：",
+        "cta": "创建第一个 token →"
       },
       "columns": {
         "project": "项目",
