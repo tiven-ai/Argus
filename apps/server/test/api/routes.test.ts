@@ -133,4 +133,34 @@ describe('Query API routes', () => {
     })
     expect(res.statusCode).toBe(404)
   })
+
+  it('GET /api/sessions?projectId filters to one project', async () => {
+    const base = {
+      orgId: ORG,
+      serviceName: 's1',
+      sessionStartedAt: new Date('2026-05-28T12:00:00Z'),
+      sessionEndedAt: new Date('2026-05-28T12:00:01Z'),
+      steps: [],
+    }
+    await app.withTenantTx(ORG, (trx) =>
+      storage.writeTrace(trx, { ...base, projectName: 'proj-one', traceId: '1'.repeat(32) }),
+    )
+    await app.withTenantTx(ORG, (trx) =>
+      storage.writeTrace(trx, { ...base, projectName: 'proj-two', traceId: '2'.repeat(32) }),
+    )
+
+    const projects = await app.withTenantTx(ORG, (trx) =>
+      trx.selectFrom('projects').select(['id', 'name']).execute(),
+    )
+    const oneId = projects.find((p) => p.name === 'proj-one')!.id
+
+    const filtered = await app.inject({ method: 'GET', url: `/api/sessions?projectId=${oneId}` })
+    expect(filtered.statusCode).toBe(200)
+    const fb = ListSessionsResponseSchema.parse(filtered.json())
+    expect(fb.sessions).toHaveLength(1)
+    expect(fb.sessions[0]?.projectName).toBe('proj-one')
+
+    const all = await app.inject({ method: 'GET', url: '/api/sessions' })
+    expect(ListSessionsResponseSchema.parse(all.json()).sessions).toHaveLength(2)
+  })
 })

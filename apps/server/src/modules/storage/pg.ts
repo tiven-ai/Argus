@@ -64,14 +64,18 @@ export class PgStorage implements StorageBackend {
 
   async listSessions(
     trx: Tx,
-    opts: { orgId: string; limit?: number },
+    opts: { orgId: string; projectId?: string; limit?: number },
   ): Promise<StoredSessionSummary[]> {
     const limit = opts.limit ?? 50
-    const rows = await trx
+    let qb = trx
       .selectFrom('sessions as ses')
       .innerJoin('services as svc', 'svc.id', 'ses.service_id')
       .innerJoin('projects as prj', 'prj.id', 'svc.project_id')
       .where('ses.org_id', '=', opts.orgId)
+    if (opts.projectId) {
+      qb = qb.where('svc.project_id', '=', opts.projectId)
+    }
+    const rows = await qb
       .select([
         'ses.id as id',
         'ses.trace_id as traceId',
