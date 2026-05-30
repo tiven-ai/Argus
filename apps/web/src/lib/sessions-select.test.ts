@@ -1,10 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import {
-  distinctProjects,
-  filterSessionsByProject,
-  adjacentSessions,
-  listDurationLabel,
-} from './sessions-select'
+import { filterSessionsByProject, adjacentSessions, listDurationLabel } from './sessions-select'
 import type { SessionSummary } from '@argus/shared-types'
 
 function s(partial: Partial<SessionSummary>): SessionSummary {
@@ -19,20 +14,6 @@ function s(partial: Partial<SessionSummary>): SessionSummary {
     ...partial,
   }
 }
-
-describe('distinctProjects', () => {
-  it('returns sorted unique project names', () => {
-    const list = [
-      s({ projectName: 'beta' }),
-      s({ projectName: 'alpha' }),
-      s({ projectName: 'beta' }),
-    ]
-    expect(distinctProjects(list)).toEqual(['alpha', 'beta'])
-  })
-  it('handles empty input', () => {
-    expect(distinctProjects([])).toEqual([])
-  })
-})
 
 describe('filterSessionsByProject', () => {
   const list = [s({ id: 'a', projectName: 'alpha' }), s({ id: 'b', projectName: 'beta' })]

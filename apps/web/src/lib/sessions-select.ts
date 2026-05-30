@@ -1,9 +1,5 @@
 import type { SessionSummary } from '@argus/shared-types'
 
-export function distinctProjects(sessions: SessionSummary[]): string[] {
-  return [...new Set(sessions.map((s) => s.projectName))].sort((a, b) => a.localeCompare(b))
-}
-
 export function filterSessionsByProject(
   sessions: SessionSummary[],
   project: string | null,

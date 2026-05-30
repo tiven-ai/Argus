@@ -1,8 +1,7 @@
 import { ChevronsUpDown, Check } from 'lucide-react'
 import { useQuery } from '@tanstack/react-query'
 import { useTranslation } from 'react-i18next'
-import { fetchSessions } from '@/lib/api'
-import { distinctProjects } from '@/lib/sessions-select'
+import { fetchProjects } from '@/lib/api'
 import { useProjectFilter } from '@/lib/use-project-filter'
 import {
   DropdownMenu,
@@ -15,8 +14,8 @@ import {
 export function ProjectSwitcher() {
   const { t } = useTranslation()
   const { project, setProject } = useProjectFilter()
-  const { data } = useQuery({ queryKey: ['sessions'], queryFn: fetchSessions, retry: false })
-  const projects = data ? distinctProjects(data.sessions) : []
+  const { data } = useQuery({ queryKey: ['projects'], queryFn: fetchProjects, retry: false })
+  const projects = data ? data.projects.map((p) => p.name) : []
   const current = project ?? t('shell.project.all')
 
   return (
