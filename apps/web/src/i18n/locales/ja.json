@@ -182,6 +182,13 @@
     "noArguments": "（引数なし）",
     "required": "必須"
   },
+  "rail": {
+    "expand": "セッションを表示",
+    "collapse": "セッションを非表示",
+    "title": "セッション",
+    "prev": "前のセッション",
+    "next": "次のセッション"
+  },
   "tokens": {
     "title": "インジェストトークン",
     "introPrefix": "",

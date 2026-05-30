@@ -173,6 +173,13 @@
     "noArguments": "（无参数）",
     "required": "必需"
   },
+  "rail": {
+    "expand": "显示会话",
+    "collapse": "隐藏会话",
+    "title": "会话",
+    "prev": "上一个会话",
+    "next": "下一个会话"
+  },
   "tokens": {
     "title": "Ingest 令牌",
     "introPrefix": "向 ",

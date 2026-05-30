@@ -182,6 +182,13 @@
     "noArguments": "(no arguments)",
     "required": "required"
   },
+  "rail": {
+    "expand": "Show sessions",
+    "collapse": "Hide sessions",
+    "title": "Sessions",
+    "prev": "Previous session",
+    "next": "Next session"
+  },
   "tokens": {
     "title": "Ingest tokens",
     "introPrefix": "Use a token in the ",
