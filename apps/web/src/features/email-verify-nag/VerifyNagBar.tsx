@@ -32,7 +32,8 @@ export function VerifyNagBar() {
   }
 
   return (
-    <div className="bg-tint-warning border-b border-hairline px-6 py-2 flex items-center gap-3 u-body text-text-1">
+    <div className="flex items-center gap-2.5 border-b border-hairline bg-inset px-4 py-1.5 u-caption text-text-2">
+      <span className="size-1.5 shrink-0 rounded-pill bg-warning" aria-hidden />
       <span className="flex-1">
         {resent ? t('shell.verifyNag.resent') : t('shell.verifyNag.message')}
       </span>
@@ -40,11 +41,11 @@ export function VerifyNagBar() {
         type="button"
         onClick={onResend}
         disabled={resending || resent}
-        className="u-caption text-brand hover:text-brand-hover disabled:opacity-50"
+        className="text-brand hover:text-brand-hover disabled:opacity-50"
       >
         {t('shell.verifyNag.resend')}
       </button>
-      <button type="button" onClick={onDismiss} className="u-caption text-text-3 hover:text-text-1">
+      <button type="button" onClick={onDismiss} className="text-text-3 hover:text-text-1">
         {t('shell.verifyNag.dismiss')}
       </button>
     </div>
