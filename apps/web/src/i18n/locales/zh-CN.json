@@ -99,6 +99,7 @@
         "service": "服务",
         "trace": "Trace",
         "steps": "步骤",
+        "duration": "时长",
         "started": "开始时间"
       }
     },

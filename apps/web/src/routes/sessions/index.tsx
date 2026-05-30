@@ -4,8 +4,13 @@ import { useEffect } from 'react'
 import { Trans, useTranslation } from 'react-i18next'
 import { fetchSessions } from '../../lib/api'
 import { useLocaleFormat } from '../../lib/use-locale-format'
+import { useProjectFilter } from '../../lib/use-project-filter'
+import { filterSessionsByProject, listDurationLabel } from '../../lib/sessions-select'
 
 export const Route = createFileRoute('/sessions/')({
+  validateSearch: (search: Record<string, unknown>): { project?: string } => ({
+    project: typeof search.project === 'string' ? search.project : undefined,
+  }),
   component: SessionsList,
 })
 
@@ -18,6 +23,8 @@ function SessionsList() {
     queryFn: fetchSessions,
     retry: false,
   })
+  const { project } = useProjectFilter()
+  const rows = data ? filterSessionsByProject(data.sessions, project) : []
 
   useEffect(() => {
     if (error instanceof Error && error.message === 'UNAUTHENTICATED') {
@@ -84,20 +91,23 @@ function SessionsList() {
         <table className="w-full u-body">
           <thead>
             <tr className="text-left u-caption text-text-3 border-b border-hairline">
-              <th className="font-normal px-3 py-2">{t('sessions.list.columns.project')}</th>
+              {!project && (
+                <th className="font-normal px-3 py-2">{t('sessions.list.columns.project')}</th>
+              )}
               <th className="font-normal px-3 py-2">{t('sessions.list.columns.service')}</th>
               <th className="font-normal px-3 py-2">{t('sessions.list.columns.trace')}</th>
               <th className="font-normal px-3 py-2">{t('sessions.list.columns.steps')}</th>
+              <th className="font-normal px-3 py-2">{t('sessions.list.columns.duration')}</th>
               <th className="font-normal px-3 py-2">{t('sessions.list.columns.started')}</th>
             </tr>
           </thead>
           <tbody>
-            {data.sessions.map((s) => (
+            {rows.map((s) => (
               <tr
                 key={s.id}
                 className="border-b border-hairline last:border-0 hover:bg-tile transition-colors"
               >
-                <td className="px-3 py-2 text-text-1">{s.projectName}</td>
+                {!project && <td className="px-3 py-2 text-text-1">{s.projectName}</td>}
                 <td className="px-3 py-2 text-text-2">{s.serviceName}</td>
                 <td className="px-3 py-2">
                   <Link
@@ -109,6 +119,7 @@ function SessionsList() {
                   </Link>
                 </td>
                 <td className="px-3 py-2 text-text-2 tabular">{s.stepCount}</td>
+                <td className="px-3 py-2 text-text-3 tabular">{listDurationLabel(s)}</td>
                 <td className="px-3 py-2 text-text-3 tabular">
                   {f.dateTime(new Date(s.startedAt))}
                 </td>

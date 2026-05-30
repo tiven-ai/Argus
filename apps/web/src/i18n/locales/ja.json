@@ -108,6 +108,7 @@
         "service": "サービス",
         "trace": "トレース",
         "steps": "ステップ",
+        "duration": "実行時間",
         "started": "開始時刻"
       }
     },

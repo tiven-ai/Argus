@@ -108,6 +108,7 @@
         "service": "Service",
         "trace": "Trace",
         "steps": "Steps",
+        "duration": "Duration",
         "started": "Started"
       }
     },
