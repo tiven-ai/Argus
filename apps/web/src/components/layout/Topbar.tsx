@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next'
 import { Moon, Sun } from 'lucide-react'
 import { MODULE_NAV, SETTINGS_NAV } from './nav-config'
 import { CommandPlaceholder } from './CommandPlaceholder'
+import { TopbarSlotTarget } from './topbar-slot'
 import { useTheme } from '@/lib/use-theme'
 
 function useBreadcrumb(): string {
@@ -22,6 +23,7 @@ export function Topbar() {
     <header className="flex h-11 shrink-0 items-center gap-3 border-b border-hairline px-4">
       <div className="u-h-md text-text-1">{crumb}</div>
       <div className="ml-auto flex items-center gap-2">
+        <TopbarSlotTarget />
         <CommandPlaceholder />
         <button
           type="button"
