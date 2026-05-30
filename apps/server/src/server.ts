@@ -11,6 +11,7 @@ import { apiRoutes } from './modules/api/index.js'
 import { pusherRoutes } from './modules/pusher/index.js'
 import { authRoutes, resolveAuthContext, type AuthMiddlewareDeps } from './modules/auth/index.js'
 import { resolveIngestContext, tokenManagementRoutes } from './modules/tokens/index.js'
+import { projectRoutes } from './modules/projects/index.js'
 import { dbTenantPlugin } from './modules/db-tenant/index.js'
 import { MockEmailSender, makeEmailSender, type EmailSender } from './modules/email/index.js'
 import { cleanupExpiredTokens } from './modules/auth-tokens/index.js'
@@ -108,6 +109,7 @@ export async function createServer(opts: ServerOptions): Promise<ArgusServer> {
       await scope.register(apiRoutes, { storage })
       await scope.register(pusherRoutes, { storage, bus })
       await scope.register(tokenManagementRoutes, { db })
+      await scope.register(projectRoutes)
     },
     { prefix: '' },
   )
