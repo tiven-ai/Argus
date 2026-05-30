@@ -37,7 +37,11 @@ function SessionDetail() {
     queryKey: ['session', sessionId],
     queryFn: () => fetchSession(sessionId),
   })
-  const { data: list } = useQuery({ queryKey: ['sessions'], queryFn: fetchSessions, retry: false })
+  const { data: list } = useQuery({
+    queryKey: ['sessions'],
+    queryFn: () => fetchSessions(),
+    retry: false,
+  })
   const stream = useSessionStream(sessionId)
 
   const siblings = list ? filterSessionsByProject(list.sessions, project) : []

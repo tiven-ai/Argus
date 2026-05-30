@@ -2,7 +2,7 @@ import { createFileRoute, Link, useNavigate } from '@tanstack/react-router'
 import { useQuery } from '@tanstack/react-query'
 import { useEffect } from 'react'
 import { Trans, useTranslation } from 'react-i18next'
-import { fetchSessions } from '../../lib/api'
+import { fetchProjects, fetchSessions } from '../../lib/api'
 import { useLocaleFormat } from '../../lib/use-locale-format'
 import { useProjectFilter } from '../../lib/use-project-filter'
 import { filterSessionsByProject, listDurationLabel } from '../../lib/sessions-select'
@@ -18,12 +18,19 @@ function SessionsList() {
   const { t } = useTranslation()
   const f = useLocaleFormat()
   const navigate = useNavigate()
-  const { data, isLoading, error } = useQuery({
-    queryKey: ['sessions'],
-    queryFn: fetchSessions,
+  const { project } = useProjectFilter()
+  const { data: projectsData } = useQuery({
+    queryKey: ['projects'],
+    queryFn: fetchProjects,
     retry: false,
   })
-  const { project } = useProjectFilter()
+  const projectId =
+    project && projectsData ? projectsData.projects.find((p) => p.name === project)?.id : undefined
+  const { data, isLoading, error } = useQuery({
+    queryKey: ['sessions', projectId ?? null],
+    queryFn: () => fetchSessions(projectId),
+    retry: false,
+  })
   const rows = data ? filterSessionsByProject(data.sessions, project) : []
 
   useEffect(() => {

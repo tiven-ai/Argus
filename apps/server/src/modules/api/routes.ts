@@ -12,11 +12,11 @@ export const apiRoutes: FastifyPluginAsync<ApiRoutesDeps> = async (app: FastifyI
       reply.code(401)
       return { error: 'unauthenticated' }
     }
-    const query = request.query as { limit?: string }
+    const query = request.query as { limit?: string; projectId?: string }
     const limit = query.limit ? Math.min(200, Math.max(1, parseInt(query.limit, 10))) : 50
     const orgId = request.auth.user.orgId
     const sessions = await request.server.withTenantTx(orgId, (trx) =>
-      deps.storage.listSessions(trx, { orgId, limit }),
+      deps.storage.listSessions(trx, { orgId, projectId: query.projectId, limit }),
     )
     return {
       sessions: sessions.map((s) => ({

@@ -12,7 +12,11 @@ export function SessionRail({ activeSessionId }: { activeSessionId: string }) {
   const { t } = useTranslation()
   const [open, setOpen] = useState(false)
   const { project } = useProjectFilter()
-  const { data } = useQuery({ queryKey: ['sessions'], queryFn: fetchSessions, retry: false })
+  const { data } = useQuery({
+    queryKey: ['sessions'],
+    queryFn: () => fetchSessions(),
+    retry: false,
+  })
   const rows = data ? filterSessionsByProject(data.sessions, project) : []
 
   if (!open) {

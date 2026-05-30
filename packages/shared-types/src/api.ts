@@ -46,9 +46,20 @@ export const GetSessionResponseSchema = z.object({
   steps: z.array(StepSchema),
 })
 
+export const ProjectSummarySchema = z.object({
+  id: z.string(),
+  name: z.string(),
+})
+
+export const ListProjectsResponseSchema = z.object({
+  projects: z.array(ProjectSummarySchema),
+})
+
 export type StepEvent = z.infer<typeof StepEventSchema>
 export type Step = z.infer<typeof StepSchema>
 export type SessionSummary = z.infer<typeof SessionSummarySchema>
 export type SessionDetail = z.infer<typeof SessionDetailSchema>
 export type ListSessionsResponse = z.infer<typeof ListSessionsResponseSchema>
 export type GetSessionResponse = z.infer<typeof GetSessionResponseSchema>
+export type ProjectSummary = z.infer<typeof ProjectSummarySchema>
+export type ListProjectsResponse = z.infer<typeof ListProjectsResponseSchema>

@@ -83,7 +83,10 @@ export interface StorageBackend {
   writeTrace(trx: Tx, input: WriteTraceInput): Promise<WriteTraceResult>
 
   /** Returns sessions for an org, most recently started first. */
-  listSessions(trx: Tx, opts: { orgId: string; limit?: number }): Promise<StoredSessionSummary[]>
+  listSessions(
+    trx: Tx,
+    opts: { orgId: string; projectId?: string; limit?: number },
+  ): Promise<StoredSessionSummary[]>
 
   /** Returns one session with all its steps + step events, or null. */
   getSession(
