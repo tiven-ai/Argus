@@ -5,12 +5,7 @@
     "notFound": "未找到"
   },
   "shell": {
-    "nav": {
-      "sessions": "会话",
-      "tokens": "令牌"
-    },
     "auth": {
-      "signIn": "登录",
       "signOut": "退出登录"
     },
     "language": "语言",
@@ -19,6 +14,37 @@
       "resend": "重新发送",
       "resent": "已发送，请查收。",
       "dismiss": "关闭"
+    },
+    "org": {
+      "workspace": "工作区",
+      "manageTeams": "管理团队"
+    },
+    "project": {
+      "all": "全部项目"
+    },
+    "sectionObserve": "观测",
+    "settingsHeading": "设置",
+    "soon": "即将",
+    "soonHint": "即将上线",
+    "theme": {
+      "toggle": "切换主题"
+    },
+    "search": {
+      "open": "搜索",
+      "placeholder": "搜索…",
+      "comingSoon": "全局搜索即将上线。"
+    },
+    "modules": {
+      "sessions": "会话",
+      "monitoring": "监控",
+      "analytics": "分析",
+      "evals": "评估"
+    },
+    "settingsNav": {
+      "tokens": "令牌",
+      "members": "成员",
+      "general": "通用",
+      "integrations": "集成"
     }
   },
   "auth": {
@@ -84,6 +110,7 @@
         "service": "服务",
         "trace": "Trace",
         "steps": "步骤",
+        "duration": "时长",
         "started": "开始时间"
       }
     },
@@ -156,6 +183,13 @@
     "arguments": "调用参数",
     "noArguments": "（无参数）",
     "required": "必需"
+  },
+  "rail": {
+    "expand": "显示会话",
+    "collapse": "隐藏会话",
+    "title": "会话",
+    "prev": "上一个会话",
+    "next": "下一个会话"
   },
   "tokens": {
     "title": "Ingest 令牌",

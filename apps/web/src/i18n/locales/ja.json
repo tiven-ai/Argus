@@ -5,12 +5,7 @@
     "notFound": "見つかりません"
   },
   "shell": {
-    "nav": {
-      "sessions": "セッション",
-      "tokens": "トークン"
-    },
     "auth": {
-      "signIn": "サインイン",
       "signOut": "サインアウト"
     },
     "language": "言語",
@@ -19,6 +14,37 @@
       "resend": "再送信",
       "resent": "送信しました。受信トレイをご確認ください。",
       "dismiss": "閉じる"
+    },
+    "org": {
+      "workspace": "ワークスペース",
+      "manageTeams": "チームを管理"
+    },
+    "project": {
+      "all": "すべてのプロジェクト"
+    },
+    "sectionObserve": "観測",
+    "settingsHeading": "設定",
+    "soon": "近日",
+    "soonHint": "近日公開",
+    "theme": {
+      "toggle": "テーマを切り替え"
+    },
+    "search": {
+      "open": "検索",
+      "placeholder": "検索…",
+      "comingSoon": "グローバル検索は近日公開予定です。"
+    },
+    "modules": {
+      "sessions": "セッション",
+      "monitoring": "モニタリング",
+      "analytics": "分析",
+      "evals": "評価"
+    },
+    "settingsNav": {
+      "tokens": "トークン",
+      "members": "メンバー",
+      "general": "一般",
+      "integrations": "連携"
     }
   },
   "auth": {
@@ -84,6 +110,7 @@
         "service": "サービス",
         "trace": "トレース",
         "steps": "ステップ",
+        "duration": "実行時間",
         "started": "開始時刻"
       }
     },
@@ -156,6 +183,13 @@
     "arguments": "引数",
     "noArguments": "（引数なし）",
     "required": "必須"
+  },
+  "rail": {
+    "expand": "セッションを表示",
+    "collapse": "セッションを非表示",
+    "title": "セッション",
+    "prev": "前のセッション",
+    "next": "次のセッション"
   },
   "tokens": {
     "title": "インジェストトークン",

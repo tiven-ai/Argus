@@ -5,12 +5,7 @@
     "notFound": "Not found"
   },
   "shell": {
-    "nav": {
-      "sessions": "Sessions",
-      "tokens": "Tokens"
-    },
     "auth": {
-      "signIn": "Sign in",
       "signOut": "Sign out"
     },
     "language": "Language",
@@ -19,6 +14,37 @@
       "resend": "Resend",
       "resent": "Sent. Check your inbox.",
       "dismiss": "Dismiss"
+    },
+    "org": {
+      "workspace": "Workspace",
+      "manageTeams": "Manage teams"
+    },
+    "project": {
+      "all": "All projects"
+    },
+    "sectionObserve": "Observe",
+    "settingsHeading": "Settings",
+    "soon": "soon",
+    "soonHint": "Coming soon",
+    "theme": {
+      "toggle": "Toggle theme"
+    },
+    "search": {
+      "open": "Search",
+      "placeholder": "Search…",
+      "comingSoon": "Global search is coming soon."
+    },
+    "modules": {
+      "sessions": "Sessions",
+      "monitoring": "Monitoring",
+      "analytics": "Analytics",
+      "evals": "Evals"
+    },
+    "settingsNav": {
+      "tokens": "Tokens",
+      "members": "Members",
+      "general": "General",
+      "integrations": "Integrations"
     }
   },
   "auth": {
@@ -84,6 +110,7 @@
         "service": "Service",
         "trace": "Trace",
         "steps": "Steps",
+        "duration": "Duration",
         "started": "Started"
       }
     },
@@ -156,6 +183,13 @@
     "arguments": "Arguments",
     "noArguments": "(no arguments)",
     "required": "required"
+  },
+  "rail": {
+    "expand": "Show sessions",
+    "collapse": "Hide sessions",
+    "title": "Sessions",
+    "prev": "Previous session",
+    "next": "Next session"
   },
   "tokens": {
     "title": "Ingest tokens",
