@@ -19,6 +19,30 @@
       "resend": "Resend",
       "resent": "Sent. Check your inbox.",
       "dismiss": "Dismiss"
+    },
+    "org": { "workspace": "Workspace", "manageTeams": "Manage teams" },
+    "project": { "all": "All projects" },
+    "sectionObserve": "Observe",
+    "settingsHeading": "Settings",
+    "soon": "soon",
+    "soonHint": "Coming soon",
+    "theme": { "toggle": "Toggle theme" },
+    "search": {
+      "open": "Search",
+      "placeholder": "Search…",
+      "comingSoon": "Global search is coming soon."
+    },
+    "modules": {
+      "sessions": "Sessions",
+      "monitoring": "Monitoring",
+      "analytics": "Analytics",
+      "evals": "Evals"
+    },
+    "settingsNav": {
+      "tokens": "Tokens",
+      "members": "Members",
+      "general": "General",
+      "integrations": "Integrations"
     }
   },
   "auth": {
