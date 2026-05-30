@@ -4,6 +4,19 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Argus</title>
+    <script>
+      // Apply the persisted/system theme before first paint to avoid a flash of
+      // the wrong theme. Mirrors resolveInitialTheme() in src/lib/theme.ts.
+      ;(function () {
+        try {
+          var stored = localStorage.getItem('argus.theme')
+          var dark =
+            stored === 'dark' ||
+            (stored !== 'light' && matchMedia('(prefers-color-scheme: dark)').matches)
+          document.documentElement.classList.toggle('dark', dark)
+        } catch (_) {}
+      })()
+    </script>
   </head>
   <body>
     <div id="root"></div>

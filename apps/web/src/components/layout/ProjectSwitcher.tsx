@@ -33,7 +33,9 @@ export function ProjectSwitcher() {
         {projects.length > 0 && <DropdownMenuSeparator />}
         {projects.map((p) => (
           <DropdownMenuItem key={p} onSelect={() => setProject(p)}>
-            <span className="truncate">{p}</span>
+            <span className="truncate" title={p}>
+              {p}
+            </span>
             {project === p && <Check className="size-3.5 text-brand" />}
           </DropdownMenuItem>
         ))}
