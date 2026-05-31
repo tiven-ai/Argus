@@ -16,6 +16,7 @@ import { Route as SettingsRouteRouteImport } from './routes/settings/route'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as SessionsIndexRouteImport } from './routes/sessions/index'
 import { Route as SettingsTokensRouteImport } from './routes/settings/tokens'
+import { Route as SettingsProjectsRouteImport } from './routes/settings/projects'
 import { Route as SessionsSessionIdRouteImport } from './routes/sessions/$sessionId'
 import { Route as AuthVerifyEmailRouteImport } from './routes/auth.verify-email'
 import { Route as AuthResetPasswordRouteImport } from './routes/auth.reset-password'
@@ -56,6 +57,11 @@ const SettingsTokensRoute = SettingsTokensRouteImport.update({
   path: '/tokens',
   getParentRoute: () => SettingsRouteRoute,
 } as any)
+const SettingsProjectsRoute = SettingsProjectsRouteImport.update({
+  id: '/projects',
+  path: '/projects',
+  getParentRoute: () => SettingsRouteRoute,
+} as any)
 const SessionsSessionIdRoute = SessionsSessionIdRouteImport.update({
   id: '/$sessionId',
   path: '/$sessionId',
@@ -87,6 +93,7 @@ export interface FileRoutesByFullPath {
   '/auth/reset-password': typeof AuthResetPasswordRoute
   '/auth/verify-email': typeof AuthVerifyEmailRoute
   '/sessions/$sessionId': typeof SessionsSessionIdRoute
+  '/settings/projects': typeof SettingsProjectsRoute
   '/settings/tokens': typeof SettingsTokensRoute
   '/sessions/': typeof SessionsIndexRoute
 }
@@ -99,6 +106,7 @@ export interface FileRoutesByTo {
   '/auth/reset-password': typeof AuthResetPasswordRoute
   '/auth/verify-email': typeof AuthVerifyEmailRoute
   '/sessions/$sessionId': typeof SessionsSessionIdRoute
+  '/settings/projects': typeof SettingsProjectsRoute
   '/settings/tokens': typeof SettingsTokensRoute
   '/sessions': typeof SessionsIndexRoute
 }
@@ -113,6 +121,7 @@ export interface FileRoutesById {
   '/auth/reset-password': typeof AuthResetPasswordRoute
   '/auth/verify-email': typeof AuthVerifyEmailRoute
   '/sessions/$sessionId': typeof SessionsSessionIdRoute
+  '/settings/projects': typeof SettingsProjectsRoute
   '/settings/tokens': typeof SettingsTokensRoute
   '/sessions/': typeof SessionsIndexRoute
 }
@@ -128,6 +137,7 @@ export interface FileRouteTypes {
     | '/auth/reset-password'
     | '/auth/verify-email'
     | '/sessions/$sessionId'
+    | '/settings/projects'
     | '/settings/tokens'
     | '/sessions/'
   fileRoutesByTo: FileRoutesByTo
@@ -140,6 +150,7 @@ export interface FileRouteTypes {
     | '/auth/reset-password'
     | '/auth/verify-email'
     | '/sessions/$sessionId'
+    | '/settings/projects'
     | '/settings/tokens'
     | '/sessions'
   id:
@@ -153,6 +164,7 @@ export interface FileRouteTypes {
     | '/auth/reset-password'
     | '/auth/verify-email'
     | '/sessions/$sessionId'
+    | '/settings/projects'
     | '/settings/tokens'
     | '/sessions/'
   fileRoutesById: FileRoutesById
@@ -219,6 +231,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof SettingsTokensRouteImport
       parentRoute: typeof SettingsRouteRoute
     }
+    '/settings/projects': {
+      id: '/settings/projects'
+      path: '/projects'
+      fullPath: '/settings/projects'
+      preLoaderRoute: typeof SettingsProjectsRouteImport
+      parentRoute: typeof SettingsRouteRoute
+    }
     '/sessions/$sessionId': {
       id: '/sessions/$sessionId'
       path: '/$sessionId'
@@ -251,10 +270,12 @@ declare module '@tanstack/react-router' {
 }
 
 interface SettingsRouteRouteChildren {
+  SettingsProjectsRoute: typeof SettingsProjectsRoute
   SettingsTokensRoute: typeof SettingsTokensRoute
 }
 
 const SettingsRouteRouteChildren: SettingsRouteRouteChildren = {
+  SettingsProjectsRoute: SettingsProjectsRoute,
   SettingsTokensRoute: SettingsTokensRoute,
 }
 

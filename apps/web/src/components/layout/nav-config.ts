@@ -2,6 +2,7 @@ import {
   Activity,
   BarChart3,
   FlaskConical,
+  FolderOpen,
   KeyRound,
   ListTree,
   Plug,
@@ -29,6 +30,12 @@ export const MODULE_NAV: NavEntry[] = [
 
 export const SETTINGS_NAV: NavEntry[] = [
   { key: 'tokens', labelKey: 'shell.settingsNav.tokens', icon: KeyRound, to: '/settings/tokens' },
+  {
+    key: 'projects',
+    labelKey: 'shell.settingsNav.projects',
+    icon: FolderOpen,
+    to: '/settings/projects',
+  },
   { key: 'members', labelKey: 'shell.settingsNav.members', icon: Users, soon: true },
   { key: 'general', labelKey: 'shell.settingsNav.general', icon: Settings, soon: true },
   { key: 'integrations', labelKey: 'shell.settingsNav.integrations', icon: Plug, soon: true },
