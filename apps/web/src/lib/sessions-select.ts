@@ -1,13 +1,5 @@
 import type { SessionSummary } from '@argus/shared-types'
 
-export function filterSessionsByProject(
-  sessions: SessionSummary[],
-  project: string | null,
-): SessionSummary[] {
-  if (!project) return sessions
-  return sessions.filter((s) => s.projectName === project)
-}
-
 export function adjacentSessions(
   sessions: SessionSummary[],
   currentId: string,

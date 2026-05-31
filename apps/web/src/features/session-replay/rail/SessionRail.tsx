@@ -4,7 +4,6 @@ import { useQuery } from '@tanstack/react-query'
 import { useTranslation } from 'react-i18next'
 import { PanelLeftOpen, PanelLeftClose } from 'lucide-react'
 import { fetchSessions } from '@/lib/api'
-import { filterSessionsByProject } from '@/lib/sessions-select'
 import { useProjectFilter } from '@/lib/use-project-filter'
 import { cn } from '@/lib/utils'
 
@@ -13,11 +12,11 @@ export function SessionRail({ activeSessionId }: { activeSessionId: string }) {
   const [open, setOpen] = useState(false)
   const { project } = useProjectFilter()
   const { data } = useQuery({
-    queryKey: ['sessions'],
-    queryFn: () => fetchSessions(),
+    queryKey: ['sessions', project ?? null],
+    queryFn: () => fetchSessions(project ?? undefined),
     retry: false,
   })
-  const rows = data ? filterSessionsByProject(data.sessions, project) : []
+  const rows = data?.sessions ?? []
 
   if (!open) {
     return (

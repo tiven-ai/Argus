@@ -5,7 +5,7 @@ import { useTranslation } from 'react-i18next'
 import { ChevronLeft, ChevronRight } from 'lucide-react'
 import { fetchSession, fetchSessions } from '../../lib/api'
 import { useSessionStream } from '../../lib/use-session-stream'
-import { adjacentSessions, filterSessionsByProject } from '../../lib/sessions-select'
+import { adjacentSessions } from '../../lib/sessions-select'
 import { useProjectFilter } from '../../lib/use-project-filter'
 import { SessionReplay } from '../../features/session-replay'
 import { SessionRail } from '../../features/session-replay/rail/SessionRail'
@@ -38,13 +38,13 @@ function SessionDetail() {
     queryFn: () => fetchSession(sessionId),
   })
   const { data: list } = useQuery({
-    queryKey: ['sessions'],
-    queryFn: () => fetchSessions(),
+    queryKey: ['sessions', project ?? null],
+    queryFn: () => fetchSessions(project ?? undefined),
     retry: false,
   })
   const stream = useSessionStream(sessionId)
 
-  const siblings = list ? filterSessionsByProject(list.sessions, project) : []
+  const siblings = list?.sessions ?? []
   const { prev, next } = adjacentSessions(siblings, sessionId)
 
   if (isLoading) return <div className="p-6 u-body text-text-3">{t('common.loading')}</div>

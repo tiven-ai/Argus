@@ -2,14 +2,14 @@ import { createFileRoute, Link, useNavigate } from '@tanstack/react-router'
 import { useQuery } from '@tanstack/react-query'
 import { useEffect } from 'react'
 import { Trans, useTranslation } from 'react-i18next'
-import { fetchProjects, fetchSessions } from '../../lib/api'
+import { fetchSessions } from '../../lib/api'
 import { useLocaleFormat } from '../../lib/use-locale-format'
 import { useProjectFilter } from '../../lib/use-project-filter'
-import { filterSessionsByProject, listDurationLabel } from '../../lib/sessions-select'
+import { listDurationLabel } from '../../lib/sessions-select'
 
 export const Route = createFileRoute('/sessions/')({
-  validateSearch: (search: Record<string, unknown>): { project?: string } => ({
-    project: typeof search.project === 'string' ? search.project : undefined,
+  validateSearch: (search: Record<string, unknown>): { projectId?: string } => ({
+    projectId: typeof search.projectId === 'string' ? search.projectId : undefined,
   }),
   component: SessionsList,
 })
@@ -19,19 +19,12 @@ function SessionsList() {
   const f = useLocaleFormat()
   const navigate = useNavigate()
   const { project } = useProjectFilter()
-  const { data: projectsData } = useQuery({
-    queryKey: ['projects'],
-    queryFn: fetchProjects,
-    retry: false,
-  })
-  const projectId =
-    project && projectsData ? projectsData.projects.find((p) => p.name === project)?.id : undefined
   const { data, isLoading, error } = useQuery({
-    queryKey: ['sessions', projectId ?? null],
-    queryFn: () => fetchSessions(projectId),
+    queryKey: ['sessions', project ?? null],
+    queryFn: () => fetchSessions(project ?? undefined),
     retry: false,
   })
-  const rows = data ? filterSessionsByProject(data.sessions, project) : []
+  const rows = data?.sessions ?? []
 
   useEffect(() => {
     if (error instanceof Error && error.message === 'UNAUTHENTICATED') {

@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { filterSessionsByProject, adjacentSessions, listDurationLabel } from './sessions-select'
+import { adjacentSessions, listDurationLabel } from './sessions-select'
 import type { SessionSummary } from '@argus/shared-types'
 
 function s(partial: Partial<SessionSummary>): SessionSummary {
@@ -14,16 +14,6 @@ function s(partial: Partial<SessionSummary>): SessionSummary {
     ...partial,
   }
 }
-
-describe('filterSessionsByProject', () => {
-  const list = [s({ id: 'a', projectName: 'alpha' }), s({ id: 'b', projectName: 'beta' })]
-  it('returns all when project is null', () => {
-    expect(filterSessionsByProject(list, null).map((x) => x.id)).toEqual(['a', 'b'])
-  })
-  it('filters by project name', () => {
-    expect(filterSessionsByProject(list, 'beta').map((x) => x.id)).toEqual(['b'])
-  })
-})
 
 describe('adjacentSessions', () => {
   const list = [s({ id: 'a' }), s({ id: 'b' }), s({ id: 'c' })]

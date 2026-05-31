@@ -15,8 +15,8 @@ export function ProjectSwitcher() {
   const { t } = useTranslation()
   const { project, setProject } = useProjectFilter()
   const { data } = useQuery({ queryKey: ['projects'], queryFn: fetchProjects, retry: false })
-  const projects = data ? data.projects.map((p) => p.name) : []
-  const current = project ?? t('shell.project.all')
+  const projects = data?.projects ?? []
+  const current = projects.find((p) => p.id === project)?.name ?? t('shell.project.all')
 
   return (
     <DropdownMenu>
@@ -31,11 +31,11 @@ export function ProjectSwitcher() {
         </DropdownMenuItem>
         {projects.length > 0 && <DropdownMenuSeparator />}
         {projects.map((p) => (
-          <DropdownMenuItem key={p} onSelect={() => setProject(p)}>
-            <span className="truncate" title={p}>
-              {p}
+          <DropdownMenuItem key={p.id} onSelect={() => setProject(p.id)}>
+            <span className="truncate" title={p.name}>
+              {p.name}
             </span>
-            {project === p && <Check className="size-3.5 text-brand" />}
+            {project === p.id && <Check className="size-3.5 text-brand" />}
           </DropdownMenuItem>
         ))}
       </DropdownMenuContent>
