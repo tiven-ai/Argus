@@ -42,6 +42,7 @@
     },
     "settingsNav": {
       "tokens": "トークン",
+      "projects": "プロジェクト",
       "members": "メンバー",
       "general": "一般",
       "integrations": "連携"
@@ -224,6 +225,42 @@
         "revoked": "失効"
       },
       "revoke": "失効させる"
+    }
+  },
+  "projects": {
+    "title": "プロジェクト",
+    "intro": "プロジェクトの作成・名前変更・削除ができます。削除するとそのセッションとトークンがすべて完全に削除されます。",
+    "create": {
+      "title": "プロジェクトを作成",
+      "name": "プロジェクト名",
+      "placeholder": "my-project",
+      "submit": "作成",
+      "submitting": "作成中…",
+      "conflict": "同じ名前のプロジェクトが既に存在します。"
+    },
+    "existing": {
+      "title": "あなたのプロジェクト",
+      "empty": "プロジェクトはまだありません。",
+      "columns": {
+        "name": "名前",
+        "created": "作成日時",
+        "actions": "操作"
+      }
+    },
+    "rename": {
+      "action": "名前を変更",
+      "save": "保存",
+      "cancel": "キャンセル",
+      "conflict": "同じ名前のプロジェクトが既に存在します。"
+    },
+    "delete": {
+      "action": "削除",
+      "title": "プロジェクトを削除",
+      "warning": "{{name}} とそのすべてのサービス・セッション・ステップ・トークンを完全に削除します。この操作は取り消せません。",
+      "confirmLabel": "{{name}} と入力して確認",
+      "submit": "プロジェクトを削除",
+      "submitting": "削除中…",
+      "cancel": "キャンセル"
     }
   }
 }

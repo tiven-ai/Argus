@@ -42,6 +42,7 @@
     },
     "settingsNav": {
       "tokens": "Tokens",
+      "projects": "Projects",
       "members": "Members",
       "general": "General",
       "integrations": "Integrations"
@@ -224,6 +225,42 @@
         "revoked": "revoked"
       },
       "revoke": "Revoke"
+    }
+  },
+  "projects": {
+    "title": "Projects",
+    "intro": "Create, rename, and delete projects. Deleting a project permanently removes all of its sessions and tokens.",
+    "create": {
+      "title": "Create project",
+      "name": "Project name",
+      "placeholder": "my-project",
+      "submit": "Create",
+      "submitting": "Creating…",
+      "conflict": "A project with that name already exists."
+    },
+    "existing": {
+      "title": "Your projects",
+      "empty": "No projects yet.",
+      "columns": {
+        "name": "Name",
+        "created": "Created",
+        "actions": "Actions"
+      }
+    },
+    "rename": {
+      "action": "Rename",
+      "save": "Save",
+      "cancel": "Cancel",
+      "conflict": "A project with that name already exists."
+    },
+    "delete": {
+      "action": "Delete",
+      "title": "Delete project",
+      "warning": "This permanently deletes {{name}} and all of its services, sessions, steps, and tokens. This cannot be undone.",
+      "confirmLabel": "Type {{name}} to confirm",
+      "submit": "Delete project",
+      "submitting": "Deleting…",
+      "cancel": "Cancel"
     }
   }
 }

@@ -42,6 +42,7 @@
     },
     "settingsNav": {
       "tokens": "令牌",
+      "projects": "项目",
       "members": "成员",
       "general": "通用",
       "integrations": "集成"
@@ -224,6 +225,42 @@
         "revoked": "已撤销"
       },
       "revoke": "撤销"
+    }
+  },
+  "projects": {
+    "title": "项目",
+    "intro": "创建、重命名和删除项目。删除项目会永久移除其全部会话和令牌。",
+    "create": {
+      "title": "创建项目",
+      "name": "项目名称",
+      "placeholder": "my-project",
+      "submit": "创建",
+      "submitting": "创建中…",
+      "conflict": "已存在同名项目。"
+    },
+    "existing": {
+      "title": "你的项目",
+      "empty": "暂无项目。",
+      "columns": {
+        "name": "名称",
+        "created": "创建时间",
+        "actions": "操作"
+      }
+    },
+    "rename": {
+      "action": "重命名",
+      "save": "保存",
+      "cancel": "取消",
+      "conflict": "已存在同名项目。"
+    },
+    "delete": {
+      "action": "删除",
+      "title": "删除项目",
+      "warning": "这将永久删除 {{name}} 及其全部服务、会话、步骤和令牌。此操作无法撤销。",
+      "confirmLabel": "输入 {{name}} 以确认",
+      "submit": "删除项目",
+      "submitting": "删除中…",
+      "cancel": "取消"
     }
   }
 }
