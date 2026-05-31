@@ -12,7 +12,7 @@ describe('nav config', () => {
       'evals',
     ])
   })
-  it('only Tokens is enabled among settings children', () => {
-    expect(SETTINGS_NAV.filter((n) => !n.soon).map((n) => n.key)).toEqual(['tokens'])
+  it('only Tokens and Projects are enabled among settings children', () => {
+    expect(SETTINGS_NAV.filter((n) => !n.soon).map((n) => n.key)).toEqual(['tokens', 'projects'])
   })
 })
