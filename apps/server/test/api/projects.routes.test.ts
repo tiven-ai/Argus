@@ -9,6 +9,7 @@ import { createAppRoleTestDb, createTestDb, truncateAll } from '../helpers/db.js
 
 const ORG_A = '00000000-0000-0000-0000-0000000000aa'
 const ORG_B = '00000000-0000-0000-0000-0000000000bb'
+const USER = '00000000-0000-0000-0000-0000000000c1'
 
 describe('project routes', () => {
   let appDb: Kysely<DB>
@@ -24,7 +25,7 @@ describe('project routes', () => {
     await app.register(dbTenantPlugin, { db: appDb })
     app.addHook('preHandler', async (req) => {
       if (authedOrgId) {
-        req.auth = { user: { id: 'u', email: 'e', orgId: authedOrgId, emailVerifiedAt: null } }
+        req.auth = { user: { id: USER, email: 'e', orgId: authedOrgId, emailVerifiedAt: null } }
       }
     })
     await app.register(projectRoutes)
