@@ -155,6 +155,20 @@
       "toolExecution": "工具执行",
       "raw": "原始 JSON"
     },
+    "tabs": {
+      "request": "请求信息",
+      "execution": "执行过程",
+      "result": "结果信息",
+      "raw": "Raw"
+    },
+    "execution": {
+      "internal": "程序内部逻辑",
+      "knowledge": "知识库",
+      "memory": "记忆",
+      "database": "数据库",
+      "http": "HTTP",
+      "other": "其他外部资源"
+    },
     "context": {
       "systemPrompt": "系统提示词",
       "toolsAvailable": "可用工具",

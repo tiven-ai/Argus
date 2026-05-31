@@ -155,6 +155,20 @@
       "toolExecution": "ツール実行",
       "raw": "Raw"
     },
+    "tabs": {
+      "request": "リクエスト",
+      "execution": "実行",
+      "result": "結果",
+      "raw": "Raw"
+    },
+    "execution": {
+      "internal": "内部ロジック",
+      "knowledge": "ナレッジベース",
+      "memory": "メモリ",
+      "database": "データベース",
+      "http": "HTTP",
+      "other": "その他のリソース"
+    },
     "context": {
       "systemPrompt": "システムプロンプト",
       "toolsAvailable": "利用可能なツール",

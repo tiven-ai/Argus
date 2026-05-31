@@ -155,6 +155,20 @@
       "toolExecution": "Tool execution",
       "raw": "Raw"
     },
+    "tabs": {
+      "request": "Request",
+      "execution": "Execution",
+      "result": "Result",
+      "raw": "Raw"
+    },
+    "execution": {
+      "internal": "Internal logic",
+      "knowledge": "Knowledge base",
+      "memory": "Memory",
+      "database": "Database",
+      "http": "HTTP",
+      "other": "Other resources"
+    },
     "context": {
       "systemPrompt": "System prompt",
       "toolsAvailable": "Tools available",
