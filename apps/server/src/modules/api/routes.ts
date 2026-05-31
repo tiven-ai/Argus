@@ -1,4 +1,5 @@
 import type { FastifyInstance, FastifyPluginAsync } from 'fastify'
+import { z } from 'zod'
 import type { StorageBackend } from '../storage/types.js'
 import { storedStepToApi } from './mappers.js'
 
@@ -14,9 +15,12 @@ export const apiRoutes: FastifyPluginAsync<ApiRoutesDeps> = async (app: FastifyI
     }
     const query = request.query as { limit?: string; projectId?: string }
     const limit = query.limit ? Math.min(200, Math.max(1, parseInt(query.limit, 10))) : 50
+    const projectId = z.string().uuid().safeParse(query.projectId).success
+      ? query.projectId
+      : undefined
     const orgId = request.auth.user.orgId
     const sessions = await request.server.withTenantTx(orgId, (trx) =>
-      deps.storage.listSessions(trx, { orgId, projectId: query.projectId, limit }),
+      deps.storage.listSessions(trx, { orgId, projectId, limit }),
     )
     return {
       sessions: sessions.map((s) => ({

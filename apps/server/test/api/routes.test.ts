@@ -163,4 +163,21 @@ describe('Query API routes', () => {
     const all = await app.inject({ method: 'GET', url: '/api/sessions' })
     expect(ListSessionsResponseSchema.parse(all.json()).sessions).toHaveLength(2)
   })
+
+  it('GET /api/sessions ignores a non-uuid projectId and returns all', async () => {
+    await app.withTenantTx(ORG, (trx) =>
+      storage.writeTrace(trx, {
+        orgId: ORG,
+        projectName: 'proj-one',
+        serviceName: 's1',
+        traceId: '3'.repeat(32),
+        sessionStartedAt: new Date('2026-05-28T12:00:00Z'),
+        sessionEndedAt: new Date('2026-05-28T12:00:01Z'),
+        steps: [],
+      }),
+    )
+    const res = await app.inject({ method: 'GET', url: '/api/sessions?projectId=not-a-uuid' })
+    expect(res.statusCode).toBe(200)
+    expect(ListSessionsResponseSchema.parse(res.json()).sessions).toHaveLength(1)
+  })
 })
