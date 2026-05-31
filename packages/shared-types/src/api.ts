@@ -49,10 +49,23 @@ export const GetSessionResponseSchema = z.object({
 export const ProjectSummarySchema = z.object({
   id: z.string(),
   name: z.string(),
+  createdAt: z.string(),
 })
 
 export const ListProjectsResponseSchema = z.object({
   projects: z.array(ProjectSummarySchema),
+})
+
+export const ProjectBodySchema = z.object({
+  name: z.string().min(1).max(255),
+})
+
+export const ProjectResponseSchema = z.object({
+  project: ProjectSummarySchema,
+})
+
+export const DeleteProjectResponseSchema = z.object({
+  ok: z.boolean(),
 })
 
 export type StepEvent = z.infer<typeof StepEventSchema>
@@ -63,3 +76,6 @@ export type ListSessionsResponse = z.infer<typeof ListSessionsResponseSchema>
 export type GetSessionResponse = z.infer<typeof GetSessionResponseSchema>
 export type ProjectSummary = z.infer<typeof ProjectSummarySchema>
 export type ListProjectsResponse = z.infer<typeof ListProjectsResponseSchema>
+export type ProjectBody = z.infer<typeof ProjectBodySchema>
+export type ProjectResponse = z.infer<typeof ProjectResponseSchema>
+export type DeleteProjectResponse = z.infer<typeof DeleteProjectResponseSchema>
