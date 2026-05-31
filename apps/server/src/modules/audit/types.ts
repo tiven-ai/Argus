@@ -1,4 +1,11 @@
-export type AuditEventType = 'login_success' | 'register' | 'token_create' | 'token_revoke'
+export type AuditEventType =
+  | 'login_success'
+  | 'register'
+  | 'token_create'
+  | 'token_revoke'
+  | 'project_create'
+  | 'project_rename'
+  | 'project_delete'
 
 export interface RecordArgs {
   eventType: AuditEventType
