@@ -176,4 +176,97 @@ describe('project routes', () => {
     })
     expect(res.statusCode).toBe(404)
   })
+
+  it('DELETE /api/projects/:id deletes, audits, and cascades children', async () => {
+    authedOrgId = ORG_A
+    await app.withTenantTx(ORG_A, (trx) =>
+      storage.writeTrace(trx, {
+        orgId: ORG_A,
+        projectName: 'doomed',
+        serviceName: 'svc',
+        traceId: '4'.repeat(32),
+        sessionStartedAt: new Date('2026-05-28T12:00:00Z'),
+        sessionEndedAt: new Date('2026-05-28T12:00:01Z'),
+        steps: [
+          {
+            spanId: 'a'.repeat(16),
+            parentSpanId: null,
+            name: 'x',
+            kind: null,
+            componentType: null,
+            componentName: null,
+            startedAt: new Date('2026-05-28T12:00:00Z'),
+            endedAt: new Date('2026-05-28T12:00:01Z'),
+            attributes: {},
+            statusCode: 'OK',
+            statusMessage: null,
+            events: [
+              {
+                name: 'argus.input',
+                ts: new Date('2026-05-28T12:00:00.5Z'),
+                attributes: { text: 'hi' },
+              },
+            ],
+          },
+        ],
+      }),
+    )
+    const proj = await admin
+      .selectFrom('projects')
+      .select(['id'])
+      .where('name', '=', 'doomed')
+      .executeTakeFirstOrThrow()
+    await admin
+      .insertInto('ingest_tokens')
+      .values({
+        project_id: proj.id,
+        name: 'tok',
+        token_prefix: 'argus_abcd12',
+        token_hash: 'h'.repeat(64),
+      })
+      .execute()
+
+    const res = await app.inject({ method: 'DELETE', url: `/api/projects/${proj.id}` })
+    expect(res.statusCode).toBe(200)
+    expect(res.json()).toEqual({ ok: true })
+
+    expect(await admin.selectFrom('projects').selectAll().execute()).toHaveLength(0)
+    expect(await admin.selectFrom('services').selectAll().execute()).toHaveLength(0)
+    expect(await admin.selectFrom('sessions').selectAll().execute()).toHaveLength(0)
+    expect(await admin.selectFrom('steps').selectAll().execute()).toHaveLength(0)
+    expect(await admin.selectFrom('step_events').selectAll().execute()).toHaveLength(0)
+    expect(await admin.selectFrom('ingest_tokens').selectAll().execute()).toHaveLength(0)
+
+    const audit = await admin
+      .selectFrom('audit_log')
+      .selectAll()
+      .where('org_id', '=', ORG_A)
+      .where('event_type', '=', 'project_delete')
+      .execute()
+    expect(audit).toHaveLength(1)
+    expect(audit[0]?.target_id).toBe(proj.id)
+    expect(audit[0]?.metadata).toEqual({ name: 'doomed' })
+  })
+
+  it('DELETE /api/projects/:id returns 404 for an unknown id', async () => {
+    authedOrgId = ORG_A
+    const res = await app.inject({
+      method: 'DELETE',
+      url: '/api/projects/00000000-0000-0000-0000-0000000000ff',
+    })
+    expect(res.statusCode).toBe(404)
+  })
+
+  it('DELETE /api/projects/:id cannot delete another org project (404)', async () => {
+    authedOrgId = ORG_B
+    await seedProjects(ORG_A, ['org-a-only'])
+    const proj = await admin
+      .selectFrom('projects')
+      .select(['id'])
+      .where('name', '=', 'org-a-only')
+      .executeTakeFirstOrThrow()
+    const res = await app.inject({ method: 'DELETE', url: `/api/projects/${proj.id}` })
+    expect(res.statusCode).toBe(404)
+    expect(await admin.selectFrom('projects').selectAll().execute()).toHaveLength(1)
+  })
 })
