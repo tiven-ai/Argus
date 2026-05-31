@@ -4,16 +4,18 @@ import type { Kysely } from 'kysely'
 import type { DB } from '../../src/db/schema.js'
 import { dbTenantPlugin } from '../../src/modules/db-tenant/index.js'
 import { projectRoutes } from '../../src/modules/projects/index.js'
+import { PgStorage } from '../../src/modules/storage/pg.js'
 import { createAppRoleTestDb, createTestDb, truncateAll } from '../helpers/db.js'
 
 const ORG_A = '00000000-0000-0000-0000-0000000000aa'
 const ORG_B = '00000000-0000-0000-0000-0000000000bb'
 
-describe('GET /api/projects', () => {
+describe('project routes', () => {
   let appDb: Kysely<DB>
   let admin: Kysely<DB>
   let app: FastifyInstance
   let authedOrgId: string
+  const storage = new PgStorage()
 
   beforeAll(async () => {
     appDb = createAppRoleTestDb()
@@ -75,5 +77,103 @@ describe('GET /api/projects', () => {
     const res = await app.inject({ method: 'GET', url: '/api/projects' })
     expect(res.statusCode).toBe(200)
     expect((res.json() as { projects: unknown[] }).projects).toHaveLength(0)
+  })
+
+  it('POST /api/projects creates a project and audits', async () => {
+    authedOrgId = ORG_A
+    const res = await app.inject({
+      method: 'POST',
+      url: '/api/projects',
+      payload: { name: 'alpha' },
+    })
+    expect(res.statusCode).toBe(200)
+    const body = res.json() as { project: { id: string; name: string; createdAt: string } }
+    expect(body.project.name).toBe('alpha')
+    expect(typeof body.project.id).toBe('string')
+
+    const audit = await admin
+      .selectFrom('audit_log')
+      .selectAll()
+      .where('org_id', '=', ORG_A)
+      .where('event_type', '=', 'project_create')
+      .execute()
+    expect(audit).toHaveLength(1)
+    expect(audit[0]?.target_kind).toBe('project')
+    expect(audit[0]?.target_id).toBe(body.project.id)
+    expect(audit[0]?.metadata).toEqual({ name: 'alpha' })
+  })
+
+  it('POST /api/projects rejects an empty name with 400', async () => {
+    authedOrgId = ORG_A
+    const res = await app.inject({ method: 'POST', url: '/api/projects', payload: { name: '' } })
+    expect(res.statusCode).toBe(400)
+  })
+
+  it('POST /api/projects returns 409 on a duplicate name', async () => {
+    authedOrgId = ORG_A
+    await seedProjects(ORG_A, ['dup'])
+    const res = await app.inject({ method: 'POST', url: '/api/projects', payload: { name: 'dup' } })
+    expect(res.statusCode).toBe(409)
+  })
+
+  it('POST /api/projects returns 401 without auth', async () => {
+    authedOrgId = ''
+    const res = await app.inject({ method: 'POST', url: '/api/projects', payload: { name: 'x' } })
+    expect(res.statusCode).toBe(401)
+  })
+
+  it('PATCH /api/projects/:id renames and audits', async () => {
+    authedOrgId = ORG_A
+    const created = await app.inject({
+      method: 'POST',
+      url: '/api/projects',
+      payload: { name: 'old' },
+    })
+    const id = (created.json() as { project: { id: string } }).project.id
+
+    const res = await app.inject({
+      method: 'PATCH',
+      url: `/api/projects/${id}`,
+      payload: { name: 'new' },
+    })
+    expect(res.statusCode).toBe(200)
+    expect((res.json() as { project: { name: string } }).project.name).toBe('new')
+
+    const audit = await admin
+      .selectFrom('audit_log')
+      .selectAll()
+      .where('org_id', '=', ORG_A)
+      .where('event_type', '=', 'project_rename')
+      .execute()
+    expect(audit).toHaveLength(1)
+    expect(audit[0]?.target_id).toBe(id)
+    expect(audit[0]?.metadata).toEqual({ name: 'new' })
+  })
+
+  it('PATCH /api/projects/:id returns 409 when renaming to an existing name', async () => {
+    authedOrgId = ORG_A
+    await seedProjects(ORG_A, ['taken'])
+    const created = await app.inject({
+      method: 'POST',
+      url: '/api/projects',
+      payload: { name: 'mine' },
+    })
+    const id = (created.json() as { project: { id: string } }).project.id
+    const res = await app.inject({
+      method: 'PATCH',
+      url: `/api/projects/${id}`,
+      payload: { name: 'taken' },
+    })
+    expect(res.statusCode).toBe(409)
+  })
+
+  it('PATCH /api/projects/:id returns 404 for an unknown id', async () => {
+    authedOrgId = ORG_A
+    const res = await app.inject({
+      method: 'PATCH',
+      url: '/api/projects/00000000-0000-0000-0000-0000000000ff',
+      payload: { name: 'whatever' },
+    })
+    expect(res.statusCode).toBe(404)
   })
 })

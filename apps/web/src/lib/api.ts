@@ -2,9 +2,11 @@ import {
   GetSessionResponseSchema,
   ListSessionsResponseSchema,
   ListProjectsResponseSchema,
+  ProjectResponseSchema,
   type GetSessionResponse,
   type ListSessionsResponse,
   type ListProjectsResponse,
+  type ProjectResponse,
 } from '@argus/shared-types'
 
 async function fetchJson(url: string, init?: RequestInit): Promise<unknown> {
@@ -21,6 +23,30 @@ export async function fetchSessions(projectId?: string): Promise<ListSessionsRes
 
 export async function fetchProjects(): Promise<ListProjectsResponse> {
   return ListProjectsResponseSchema.parse(await fetchJson('/api/projects'))
+}
+
+export async function createProject(input: { name: string }): Promise<ProjectResponse> {
+  return ProjectResponseSchema.parse(
+    await fetchJson('/api/projects', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(input),
+    }),
+  )
+}
+
+export async function renameProject(id: string, input: { name: string }): Promise<ProjectResponse> {
+  return ProjectResponseSchema.parse(
+    await fetchJson(`/api/projects/${id}`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(input),
+    }),
+  )
+}
+
+export async function deleteProject(id: string): Promise<void> {
+  await fetchJson(`/api/projects/${id}`, { method: 'DELETE' })
 }
 
 export async function fetchSession(id: string): Promise<GetSessionResponse> {
