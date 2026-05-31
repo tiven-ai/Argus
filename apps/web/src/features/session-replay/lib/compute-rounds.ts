@@ -32,7 +32,7 @@ export function computeRounds(steps: Step[]): Round[] {
       i + 1 < llmCalls.length ? llmCalls[i + 1]!.startedAt : '9999-12-31T23:59:59.999Z'
     const toolExecutions = sorted.filter(
       (s) =>
-        s.kind === 'tool_call' &&
+        (s.kind === 'tool_call' || s.kind === 'external_resource') &&
         s.startedAt >= llm.endedAt &&
         s.startedAt < nextStart &&
         !llmIndices.has(s.id),

@@ -182,4 +182,29 @@ describe('computeRounds', () => {
     const rounds = computeRounds(steps)
     expect(rounds.map((r) => r.id)).toEqual(['l1', 'l2'])
   })
+
+  it('includes external_resource steps in toolExecutions', () => {
+    const steps = [
+      makeStep({
+        id: 'l1',
+        kind: 'llm_call',
+        startedAt: '2026-01-01T00:00:00Z',
+        endedAt: '2026-01-01T00:00:01Z',
+      }),
+      makeStep({
+        id: 'ext',
+        kind: 'external_resource',
+        startedAt: '2026-01-01T00:00:02Z',
+        endedAt: '2026-01-01T00:00:03Z',
+      }),
+      makeStep({
+        id: 't1',
+        kind: 'tool_call',
+        startedAt: '2026-01-01T00:00:03.5Z',
+        endedAt: '2026-01-01T00:00:04Z',
+      }),
+    ]
+    const rounds = computeRounds(steps)
+    expect(rounds[0]?.toolExecutions.map((s) => s.id)).toEqual(['ext', 't1'])
+  })
 })
