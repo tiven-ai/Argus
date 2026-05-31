@@ -1,12 +1,12 @@
-import { ChevronDown, ChevronRight } from 'lucide-react'
+import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import type { Round } from '../types/round'
-import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible'
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { RoundHeader } from './RoundHeader'
 import { ContextSection } from './sections/ContextSection'
 import { TriggerSection } from './sections/TriggerSection'
 import { LlmResponseSection } from './sections/LlmResponseSection'
-import { ToolExecutionsSection } from './sections/ToolExecutionsSection'
+import { ExecutionSection } from './sections/ExecutionSection'
 import { RawSection } from './sections/RawSection'
 
 interface Props {
@@ -15,70 +15,49 @@ interface Props {
   total: number
 }
 
-function SectionHeader({ icon, title }: { icon: string; title: string }) {
-  return (
-    <h4 className="u-h-md text-text-1 flex items-center gap-2 mb-2">
-      <span aria-hidden="true">{icon}</span>
-      <span>{title}</span>
-    </h4>
-  )
-}
-
-function CollapsibleSectionHeader({ icon, title }: { icon: string; title: string }) {
-  return (
-    <h4 className="u-h-md flex items-center gap-2 cursor-pointer select-none text-text-3 hover:text-text-1 transition-colors group">
-      <ChevronRight className="h-4 w-4 group-data-[state=open]:hidden" />
-      <ChevronDown className="h-4 w-4 hidden group-data-[state=open]:block" />
-      <span aria-hidden="true">{icon}</span>
-      <span>{title}</span>
-    </h4>
-  )
+function SectionHeading({ title }: { title: string }) {
+  return <h4 className="u-h-md text-text-1 mb-2">{title}</h4>
 }
 
 export function RoundDetail({ round, index, total }: Props) {
   const { t } = useTranslation()
+  const [tab, setTab] = useState('request')
+
   return (
-    <div className="h-full overflow-auto p-4 space-y-5">
+    <div className="h-full overflow-auto p-4 space-y-4">
       <RoundHeader round={round} index={index} total={total} />
 
-      <Collapsible defaultOpen={false} className="group">
-        <CollapsibleTrigger asChild>
-          <button type="button" className="w-full text-left">
-            <CollapsibleSectionHeader icon="📋" title={t('round.sections.context')} />
-          </button>
-        </CollapsibleTrigger>
-        <CollapsibleContent className="mt-2">
-          <ContextSection round={round} />
-        </CollapsibleContent>
-      </Collapsible>
+      <Tabs value={tab} onValueChange={setTab} className="space-y-4">
+        <TabsList>
+          <TabsTrigger value="request">{t('round.tabs.request')}</TabsTrigger>
+          <TabsTrigger value="execution">{t('round.tabs.execution')}</TabsTrigger>
+          <TabsTrigger value="result">{t('round.tabs.result')}</TabsTrigger>
+          <TabsTrigger value="raw">{t('round.tabs.raw')}</TabsTrigger>
+        </TabsList>
 
-      <section>
-        <SectionHeader icon="⚡" title={t('round.sections.trigger')} />
-        <TriggerSection round={round} />
-      </section>
+        <TabsContent value="request" className="space-y-5">
+          <section>
+            <SectionHeading title={t('round.sections.trigger')} />
+            <TriggerSection round={round} />
+          </section>
+          <section>
+            <SectionHeading title={t('round.sections.context')} />
+            <ContextSection round={round} />
+          </section>
+        </TabsContent>
 
-      <section>
-        <SectionHeader icon="🧠" title={t('round.sections.llmResponse')} />
-        <LlmResponseSection round={round} />
-      </section>
+        <TabsContent value="execution">
+          <ExecutionSection round={round} />
+        </TabsContent>
 
-      {round.toolExecutions.length > 0 && (
-        <section>
-          <SectionHeader icon="🔧" title={t('round.sections.toolExecution')} />
-          <ToolExecutionsSection round={round} />
-        </section>
-      )}
+        <TabsContent value="result">
+          <LlmResponseSection round={round} />
+        </TabsContent>
 
-      <Collapsible defaultOpen={false} className="group">
-        <CollapsibleTrigger asChild>
-          <button type="button" className="w-full text-left">
-            <CollapsibleSectionHeader icon="🗂️" title={t('round.sections.raw')} />
-          </button>
-        </CollapsibleTrigger>
-        <CollapsibleContent className="mt-2">
+        <TabsContent value="raw">
           <RawSection round={round} />
-        </CollapsibleContent>
-      </Collapsible>
+        </TabsContent>
+      </Tabs>
     </div>
   )
 }
