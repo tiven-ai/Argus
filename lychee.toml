@@ -1,0 +1,7 @@
+# Anti-rot internal-link check. See docs/superpowers/specs/2026-06-01-docs-anti-rot-ci-design.md
+#
+# Offline: only verify that links resolve to real local files. We do NOT check
+# whether external URLs are reachable — that causes flaky failures on third-party
+# downtime, and is not what this gate is for.
+offline = true
+no_progress = true

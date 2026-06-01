@@ -58,3 +58,15 @@ jobs:
 
       - name: Build
         run: pnpm build
+
+  docs-links:
+    name: docs · dead-link check
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Check internal doc links
+        uses: lycheeverse/lychee-action@v2
+        with:
+          args: --config lychee.toml './docs/**/*.md' './README.md'
+          fail: true
