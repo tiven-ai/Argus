@@ -1321,7 +1321,7 @@ Modules talk to each other through their `index.ts` only. No reaching into a nei
 
 - [ ] **Step 10: Create `docs/conventions/git-workflow.md`**
 
-```markdown
+````markdown
 # Git Workflow
 
 ## Branches
@@ -1332,6 +1332,7 @@ Modules talk to each other through their `index.ts` only. No reaching into a nei
 ## Commit messages
 
 [Conventional Commits](https://www.conventionalcommits.org/):
+
 ```
 
 <type>(<scope>): <subject>
@@ -1364,7 +1365,6 @@ pnpm changeset
 ```
 
 PRs without user-visible changes can be labeled `no-changeset`.
-
 ````
 
 - [ ] **Step 11: Create `docs/conventions/semantic-conventions.md`**
@@ -1378,34 +1378,34 @@ Clients send OpenTelemetry spans to Argus following the standard OTel GenAI Sema
 
 ## Resource attributes (required)
 
-| Attribute            | Type   | Required | Example            |
-|----------------------|--------|----------|--------------------|
-| `argus.project`      | string | yes      | `customer-bot`     |
-| `argus.service`      | string | yes      | `intent-classifier`|
-| `service.name`       | string | yes      | (OTel standard)    |
+| Attribute       | Type   | Required | Example             |
+| --------------- | ------ | -------- | ------------------- |
+| `argus.project` | string | yes      | `customer-bot`      |
+| `argus.service` | string | yes      | `intent-classifier` |
+| `service.name`  | string | yes      | (OTel standard)     |
 
 ## Span attributes — Argus extensions
 
-| Attribute              | Type   | Allowed values | Notes |
-|------------------------|--------|----------------|-------|
+| Attribute              | Type   | Allowed values                                                                                     | Notes                            |
+| ---------------------- | ------ | -------------------------------------------------------------------------------------------------- | -------------------------------- |
 | `argus.step.kind`      | string | `user_message`, `assistant_message`, `system_prompt`, `llm_call`, `tool_call`, `external_resource` | drives left-side step list icons |
-| `argus.component.type` | string | `llm`, `skill`, `mcp`, `middleware`, `custom_tool`, `external_resource` | drives right-side renderer |
-| `argus.component.name` | string | freeform       | concrete tool/skill name |
+| `argus.component.type` | string | `llm`, `skill`, `mcp`, `middleware`, `custom_tool`, `external_resource`                            | drives right-side renderer       |
+| `argus.component.name` | string | freeform                                                                                           | concrete tool/skill name         |
 
 ## Structured payloads — Span Events
 
 Argus reads three event names. Attribute payloads on these events carry the data the UI renders:
 
-| Event name      | Purpose                                           |
-|-----------------|---------------------------------------------------|
-| `argus.input`   | `messages[]`, `tools[]`, `system_prompt`, params  |
-| `argus.output`  | `text`, `tool_calls[]`, `stop_reason`             |
-| `argus.error`   | error details for failed steps                    |
+| Event name     | Purpose                                          |
+| -------------- | ------------------------------------------------ |
+| `argus.input`  | `messages[]`, `tools[]`, `system_prompt`, params |
+| `argus.output` | `text`, `tool_calls[]`, `stop_reason`            |
+| `argus.error`  | error details for failed steps                   |
 
 Span events are preferred over attributes for these payloads because they can carry large structured objects without bumping into per-attribute size limits.
 
 > Full attribute schemas, examples, and per-language SDK guides will be added in M1.
-````
+```
 
 - [ ] **Step 12: Create `docs/design/README.md`**
 
