@@ -150,10 +150,7 @@
     },
     "sections": {
       "context": "上下文",
-      "trigger": "触发源",
-      "llmResponse": "LLM 响应",
-      "toolExecution": "工具执行",
-      "raw": "原始 JSON"
+      "trigger": "触发源"
     },
     "tabs": {
       "request": "请求信息",

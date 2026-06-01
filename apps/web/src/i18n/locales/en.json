@@ -150,10 +150,7 @@
     },
     "sections": {
       "context": "Context",
-      "trigger": "Trigger",
-      "llmResponse": "LLM Response",
-      "toolExecution": "Tool execution",
-      "raw": "Raw"
+      "trigger": "Trigger"
     },
     "tabs": {
       "request": "Request",
