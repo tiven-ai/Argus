@@ -38,7 +38,8 @@ export default defineConfig({
   ],
 
   themeConfig: {
-    siteTitle: 'Argus',
+    // Nav and sidebar are manually curated. Publishing a page is opt-out
+    // (srcExclude above), but it won't appear here until added to these lists.
     nav: [
       { text: 'Integration', link: '/content/integration/sending-traces' },
       { text: 'Conventions', link: '/content/conventions/semantic-conventions' },
