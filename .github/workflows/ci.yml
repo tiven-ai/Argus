@@ -104,6 +104,12 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
+      # gen:openapi imports @argus/shared-types, which resolves to its built
+      # dist/. Build the server's workspace deps first (a fresh checkout has no
+      # dist/). Unlike the test/build tasks, gen:openapi bypasses turbo's ^build.
+      - name: Build workspace dependencies
+        run: pnpm --filter "@argus/server^..." build
+
       - name: Regenerate OpenAPI spec
         run: pnpm --filter @argus/server gen:openapi
 
