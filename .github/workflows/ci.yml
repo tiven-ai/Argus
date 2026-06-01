@@ -91,3 +91,27 @@ jobs:
 
       - name: Build docs portal
         run: pnpm --filter @argus/docs build
+
+  openapi-drift:
+    name: openapi · drift check
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 10
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Regenerate OpenAPI spec
+        run: pnpm --filter @argus/server gen:openapi
+
+      - name: Fail if the committed spec is stale
+        run: git diff --exit-code docs/api/openapi.yaml
