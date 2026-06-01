@@ -12,6 +12,7 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
+    "@argus/design-tokens": "workspace:*",
     "@argus/shared-types": "workspace:*",
     "@fontsource-variable/inter": "^5.1.0",
     "@radix-ui/react-collapsible": "^1.1.0",

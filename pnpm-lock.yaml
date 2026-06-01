@@ -142,6 +142,9 @@ importers:
 
   apps/web:
     dependencies:
+      '@argus/design-tokens':
+        specifier: workspace:*
+        version: link:../../packages/design-tokens
       '@argus/shared-types':
         specifier: workspace:*
         version: link:../../packages/shared-types
