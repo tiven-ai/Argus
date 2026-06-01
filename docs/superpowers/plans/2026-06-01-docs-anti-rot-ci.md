@@ -153,23 +153,23 @@ Expected: 退出码 0，输出末尾类似 `0 errors`（所有相对链接解析
 
 - [ ] **Step 3: 在 ci.yml 末尾追加并行 job**
 
-打开 `.github/workflows/ci.yml`。当前它只有一个 `jobs.ci`。在文件**最末尾**（`ci` job 的最后一行 `run: pnpm build` 之后，保持同样的两空格缩进层级，即 `docs-links` 与 `ci` 同为 `jobs:` 的子键）追加：
+打开 `.github/workflows/ci.yml`。当前它只有一个 `jobs.ci`。在文件**最末尾**（`ci` job 的最后一行 `run: pnpm build` 之后）追加下面的内容。下方代码块**已经带好正确缩进**（`docs-links:` 行首两个空格，与现有 `ci:` 同级），原样复制、保持前导空格即可。先空一行再粘贴：
 
-```yaml
-docs-links:
-  name: docs · dead-link check
-  runs-on: ubuntu-latest
-  steps:
-    - uses: actions/checkout@v4
+```text
+  docs-links:
+    name: docs · dead-link check
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
 
-    - name: Check internal doc links
-      uses: lycheeverse/lychee-action@v2
-      with:
-        args: --config lychee.toml './docs/**/*.md' './README.md'
-        fail: true
+      - name: Check internal doc links
+        uses: lycheeverse/lychee-action@v2
+        with:
+          args: --config lychee.toml './docs/**/*.md' './README.md'
+          fail: true
 ```
 
-注意：这是 `jobs:` 下的第二个 job，缩进与 `ci:` 对齐（两个空格）。不要改动 `ci` job 的任何内容，也不要动顶部的 `on:` / `concurrency:`。
+注意：这是 `jobs:` 下的第二个 job，`docs-links:` 与 `ci:` 行首都是两个空格。不要改动 `ci` job 的任何内容，也不要动顶部的 `on:` / `concurrency:`。粘贴后用 Step 4 校验缩进正确。
 
 - [ ] **Step 4: 校验 workflow YAML 合法**
 
