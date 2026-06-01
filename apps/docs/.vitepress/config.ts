@@ -4,9 +4,12 @@ export default defineConfig({
   title: 'Argus',
   description: 'Observability for AI agents',
 
-  // GitHub Pages serves this project site under /Argus/. Use that base only in
-  // CI (GITHUB_ACTIONS is set by the runner); local dev/build stay at '/'.
-  base: process.env.GITHUB_ACTIONS ? '/Argus/' : '/',
+  // Served from the custom domain https://argus.tiven.ai/ (configured in repo
+  // Settings → Pages), which maps the project site to the domain ROOT — so the
+  // base is '/', not the repo-subpath '/Argus/'. If the custom domain is ever
+  // removed and the site reverts to https://tiven-ai.github.io/Argus/, this
+  // must change back to '/Argus/' (in CI only) or assets will 404.
+  base: '/',
 
   // Source files live under content/ (a symlink to the repo's docs/), so the
   // real markdown sits inside the VitePress root. preserveSymlinks keeps Vite
