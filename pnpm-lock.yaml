@@ -60,9 +60,6 @@ importers:
       '@argus/shared-types':
         specifier: workspace:*
         version: link:../../packages/shared-types
-      '@asteasolutions/zod-to-openapi':
-        specifier: ^7.3.4
-        version: 7.3.4(zod@3.25.76)
       '@fastify/cookie':
         specifier: ^11.0.0
         version: 11.0.2
@@ -103,6 +100,9 @@ importers:
       '@argus/tsconfig':
         specifier: workspace:*
         version: link:../../packages/tsconfig
+      '@asteasolutions/zod-to-openapi':
+        specifier: ^7.3.4
+        version: 7.3.4(zod@3.25.76)
       '@testcontainers/postgresql':
         specifier: ^10.0.0
         version: 10.28.0
