@@ -30,6 +30,8 @@ curl -X POST http://localhost:4000/v1/traces \
 
 The browser will pick it up after refresh.
 
+To wire up your own application (get a token, configure an OpenTelemetry exporter, annotate spans), see the integration guide: [`docs/integration/sending-traces.md`](docs/integration/sending-traces.md).
+
 ## Repository layout
 
 ```
