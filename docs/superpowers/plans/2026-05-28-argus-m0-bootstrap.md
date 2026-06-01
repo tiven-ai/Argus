@@ -99,6 +99,7 @@ argus/
 ## Task 1: Initialize root monorepo scaffolding
 
 **Files:**
+
 - Create: `package.json`
 - Create: `pnpm-workspace.yaml`
 - Create: `.npmrc`
@@ -195,6 +196,7 @@ git commit -m "chore: init pnpm monorepo scaffold"
 ## Task 2: TypeScript shared config package
 
 **Files:**
+
 - Create: `packages/tsconfig/package.json`
 - Create: `packages/tsconfig/base.json`
 - Create: `packages/tsconfig/node.json`
@@ -207,11 +209,7 @@ git commit -m "chore: init pnpm monorepo scaffold"
   "name": "@argus/tsconfig",
   "version": "0.0.0",
   "private": true,
-  "files": [
-    "base.json",
-    "node.json",
-    "react.json"
-  ]
+  "files": ["base.json", "node.json", "react.json"]
 }
 ```
 
@@ -285,6 +283,7 @@ git commit -m "chore(tsconfig): add shared TypeScript configs"
 ## Task 3: ESLint shared config + Prettier
 
 **Files:**
+
 - Create: `packages/eslint-config/package.json`
 - Create: `packages/eslint-config/index.js`
 - Create: `.prettierrc.json`
@@ -382,6 +381,7 @@ git commit -m "chore(lint): add shared ESLint flat config and Prettier"
 ## Task 4: Turborepo configuration
 
 **Files:**
+
 - Create: `turbo.json`
 
 - [ ] **Step 1: Create `turbo.json`**
@@ -423,6 +423,7 @@ git commit -m "chore(turbo): add pipeline configuration"
 ## Task 5: Shared types package (placeholder)
 
 **Files:**
+
 - Create: `packages/shared-types/package.json`
 - Create: `packages/shared-types/tsconfig.json`
 - Create: `packages/shared-types/src/index.ts`
@@ -491,6 +492,7 @@ git commit -m "chore(shared-types): add placeholder package"
 ## Task 6: Server skeleton (no business logic, no /healthz yet)
 
 **Files:**
+
 - Create: `apps/server/package.json`
 - Create: `apps/server/tsconfig.json`
 - Create: `apps/server/tsconfig.build.json`
@@ -583,6 +585,7 @@ git commit -m "chore(server): scaffold empty Fastify app package"
 ## Task 7: Server `/healthz` endpoint (TDD)
 
 **Files:**
+
 - Test: `apps/server/test/healthz.test.ts`
 - Create: `apps/server/src/server.ts`
 - Create: `apps/server/src/main.ts`
@@ -678,6 +681,7 @@ git commit -m "feat(server): add /healthz endpoint"
 ## Task 8: Web app skeleton with Vite, React 19, Tailwind v4
 
 **Files:**
+
 - Create: `apps/web/package.json`
 - Create: `apps/web/tsconfig.json`
 - Create: `apps/web/vite.config.ts`
@@ -907,6 +911,7 @@ git commit -m "feat(web): scaffold Vite + React 19 + Tailwind v4 app with health
 ## Task 9: Docker Compose for Postgres
 
 **Files:**
+
 - Create: `infra/docker/docker-compose.yml`
 - Create: `infra/docker/.env.example`
 
@@ -954,6 +959,7 @@ pnpm db:down
 ```
 
 Expected:
+
 - First command: `Container argus-postgres  Started`
 - Second: `localhost:5432 - accepting connections`
 - Third: container stopped cleanly.
@@ -970,6 +976,7 @@ git commit -m "chore(infra): add docker-compose for Postgres"
 ## Task 10: husky + lint-staged + commitlint
 
 **Files:**
+
 - Create: `commitlint.config.cjs`
 - Create: `lint-staged.config.cjs`
 - Create: `.husky/pre-commit`
@@ -1038,6 +1045,7 @@ git commit -m "chore(hooks): wire husky + lint-staged + commitlint"
 ## Task 11: changesets initialization
 
 **Files:**
+
 - Create: `.changeset/config.json`
 - Create: `.changeset/README.md`
 
@@ -1077,6 +1085,7 @@ git commit -m "chore(changesets): initialize"
 ## Task 12: docs/ directory scaffolding
 
 **Files:**
+
 - Create: `docs/architecture/README.md`
 - Create: `docs/adr/0000-template.md`
 - Create: `docs/adr/0001-postgres-not-clickhouse.md`
@@ -1287,6 +1296,7 @@ For the high-level shape of the API, see the design spec:
 ## Module layout (server)
 
 Each module under `apps/server/src/modules/<name>/` owns:
+
 - `index.ts` — public exports
 - `routes.ts` — Fastify route declarations (if it has HTTP surface)
 - `service.ts` — business logic
@@ -1322,8 +1332,8 @@ Modules talk to each other through their `index.ts` only. No reaching into a nei
 ## Commit messages
 
 [Conventional Commits](https://www.conventionalcommits.org/):
-
 ```
+
 <type>(<scope>): <subject>
 
 <body>
@@ -1337,6 +1347,7 @@ Scopes (current): `server`, `web`, `shared-types`, `infra`, `hooks`, `lint`, `ts
 ## Pull requests
 
 PR description must include:
+
 - Link to the spec or plan it implements
 - Summary of what changed
 - Test plan (what you ran, what you verified)
@@ -1353,7 +1364,8 @@ pnpm changeset
 ```
 
 PRs without user-visible changes can be labeled `no-changeset`.
-```
+
+````
 
 - [ ] **Step 11: Create `docs/conventions/semantic-conventions.md`**
 
@@ -1393,7 +1405,7 @@ Argus reads three event names. Attribute payloads on these events carry the data
 Span events are preferred over attributes for these payloads because they can carry large structured objects without bumping into per-attribute size limits.
 
 > Full attribute schemas, examples, and per-language SDK guides will be added in M1.
-```
+````
 
 - [ ] **Step 12: Create `docs/design/README.md`**
 
@@ -1417,13 +1429,14 @@ git commit -m "docs: add architecture/conventions/adr scaffolding and first 4 AD
 ## Task 13: Root README, CLAUDE.md, CONTRIBUTING.md
 
 **Files:**
+
 - Create: `README.md`
 - Create: `CLAUDE.md`
 - Create: `CONTRIBUTING.md`
 
 - [ ] **Step 1: Create `README.md`**
 
-```markdown
+````markdown
 # Argus
 
 > Observability for AI agents — see every step of a session: prompts, model calls, tool calls (Skill / MCP / Middleware / custom), and external resources (DB / HTTP / Redis).
@@ -1441,6 +1454,7 @@ pnpm install
 pnpm db:up           # start Postgres on :5432
 pnpm dev             # start server (:4000) and web (:5173)
 ```
+````
 
 Open http://localhost:5173 — you should see the **Argus** headline with `Server status: ok`.
 
@@ -1480,10 +1494,11 @@ pnpm db:down      # docker compose down
 
 ## More
 
-- Design spec: [`docs/superpowers/specs/2026-05-28-argus-design.md`](./docs/superpowers/specs/2026-05-28-argus-design.md)
-- Architecture decisions: [`docs/adr/`](./docs/adr/)
-- Contributing: [`CONTRIBUTING.md`](./CONTRIBUTING.md)
-```
+- Design spec: [`docs/superpowers/specs/2026-05-28-argus-design.md`](../specs/2026-05-28-argus-design.md)
+- Architecture decisions: [`docs/adr/`](../../adr/)
+- Contributing: [`CONTRIBUTING.md`](../../../CONTRIBUTING.md)
+
+````
 
 - [ ] **Step 2: Create `CLAUDE.md`**
 
@@ -1529,11 +1544,11 @@ The high-level design lives in `docs/superpowers/specs/2026-05-28-argus-design.m
 - **Don't add to `attributes` what belongs in a Span Event** — see `docs/conventions/semantic-conventions.md`.
 - **Don't add a Postgres query that doesn't filter by `org_id`** — multi-tenant boundary. Use the `withTenant` DAO helper once it exists.
 - **Don't add UI strings without translating** to en/zh-CN/ja once i18n lands in M6.
-```
+````
 
 - [ ] **Step 3: Create `CONTRIBUTING.md`**
 
-```markdown
+````markdown
 # Contributing
 
 ## Requirements
@@ -1549,6 +1564,7 @@ pnpm install
 pnpm db:up
 pnpm dev
 ```
+````
 
 Server: http://localhost:4000 · Web: http://localhost:5173
 
@@ -1582,20 +1598,22 @@ Pick the affected packages and a bump type. Commit the generated changeset file.
 ## When in doubt
 
 Read `docs/conventions/`. If it's not answered there, ask in the PR.
-```
+
+````
 
 - [ ] **Step 4: Commit**
 
 ```bash
 git add README.md CLAUDE.md CONTRIBUTING.md
 git commit -m "docs: add README, CLAUDE.md, CONTRIBUTING.md"
-```
+````
 
 ---
 
 ## Task 14: GitHub Actions CI workflow
 
 **Files:**
+
 - Create: `.github/workflows/ci.yml`
 
 - [ ] **Step 1: Create `.github/workflows/ci.yml`**
@@ -1716,6 +1734,7 @@ pnpm build
 ```
 
 Expected:
+
 - `apps/server/dist/main.js` exists
 - `apps/web/dist/index.html` exists
 - `packages/shared-types/dist/index.js` exists
@@ -1729,6 +1748,7 @@ pnpm dev
 ```
 
 Wait until both processes log "ready". Then:
+
 - Browser → `http://localhost:5173` shows "Argus" headline and `Server status: ok`
 - `curl -s http://localhost:4000/healthz` returns `{"status":"ok"}`
 
