@@ -4,6 +4,10 @@ export default defineConfig({
   title: 'Argus',
   description: 'Observability for AI agents',
 
+  // GitHub Pages serves this project site under /Argus/. Use that base only in
+  // CI (GITHUB_ACTIONS is set by the runner); local dev/build stay at '/'.
+  base: process.env.GITHUB_ACTIONS ? '/Argus/' : '/',
+
   // Source files live under content/ (a symlink to the repo's docs/), so the
   // real markdown sits inside the VitePress root. preserveSymlinks keeps Vite
   // resolving them as if they live here (else vue/server-renderer can't resolve
