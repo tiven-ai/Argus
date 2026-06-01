@@ -36,4 +36,25 @@ export default defineConfig({
     /\/api\/README$/,
     /^https?:\/\/localhost(?::\d+)?(?:\/|$)/,
   ],
+
+  themeConfig: {
+    siteTitle: 'Argus',
+    nav: [
+      { text: 'Integration', link: '/content/integration/sending-traces' },
+      { text: 'Conventions', link: '/content/conventions/semantic-conventions' },
+    ],
+    sidebar: [
+      {
+        text: 'Get started',
+        items: [{ text: 'Sending traces', link: '/content/integration/sending-traces' }],
+      },
+      {
+        text: 'Reference',
+        items: [
+          { text: 'Semantic conventions', link: '/content/conventions/semantic-conventions' },
+        ],
+      },
+    ],
+    search: { provider: 'local' },
+  },
 })
