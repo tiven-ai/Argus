@@ -35,8 +35,9 @@
   border-radius: 4px;
 }
 
+/* Sidebar/nav dividers already track --vp-c-divider (remapped to --hairline
+ * above). Just drop the default elevation for the flat UniFi look. */
 .VPSidebar,
 .VPNav {
   box-shadow: none;
-  border-color: var(--hairline);
 }

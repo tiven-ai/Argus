@@ -1,5 +1,7 @@
 /* UniFi-authentic design tokens. Source of truth: apps/web/src/index.css.
- * Keep in sync if those values change. See docs/design/DESIGN.md. */
+ * Keep in sync if those values change. See docs/design/DESIGN.md.
+ * Subset only: popover/sidebar/shadow/tint-success|warning|danger tokens are
+ * not mirrored here — they have no VitePress --vp-c-* counterpart. */
 :root {
   --page: #ffffff;
   --surface: #ffffff;
