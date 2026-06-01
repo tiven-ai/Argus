@@ -3,6 +3,7 @@ import { buildOpenApiDocument } from '../../src/openapi/registry.js'
 
 describe('buildOpenApiDocument', () => {
   const doc = buildOpenApiDocument()
+  // reason: openapi3-ts PathsObject types are too narrow to traverse ergonomically in assertions
 
   it('is a valid OpenAPI 3 document', () => {
     expect(doc.openapi).toMatch(/^3\./)

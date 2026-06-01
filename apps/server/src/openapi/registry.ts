@@ -56,6 +56,7 @@ export function buildOpenApiDocument(): ReturnType<OpenApiGeneratorV3['generateD
         description: 'Session summaries',
         content: { 'application/json': { schema: ListSessionsResponseSchema } },
       },
+      401: { description: 'Unauthenticated' },
     },
   })
 
@@ -69,6 +70,7 @@ export function buildOpenApiDocument(): ReturnType<OpenApiGeneratorV3['generateD
         description: 'Session detail',
         content: { 'application/json': { schema: GetSessionResponseSchema } },
       },
+      401: { description: 'Unauthenticated' },
       404: { description: 'Not found' },
     },
   })
