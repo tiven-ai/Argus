@@ -13,6 +13,7 @@
     "vue": "^3.5.0"
   },
   "dependencies": {
+    "@argus/design-tokens": "workspace:*",
     "@fontsource-variable/inter": "^5.1.0"
   }
 }
