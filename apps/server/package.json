@@ -14,7 +14,8 @@
     "typecheck": "tsc --noEmit",
     "db:migrate": "tsx --env-file=.env src/db/migrate.ts",
     "db:codegen": "kysely-codegen --out-file src/db/schema.ts --dialect postgres",
-    "db:seed": "tsx --env-file=.env src/cli/seed.ts"
+    "db:seed": "tsx --env-file=.env src/cli/seed.ts",
+    "gen:openapi": "tsx src/cli/gen-openapi.ts"
   },
   "dependencies": {
     "@argus/shared-types": "workspace:*",
