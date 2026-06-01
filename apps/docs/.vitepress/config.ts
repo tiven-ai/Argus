@@ -38,24 +38,74 @@ export default defineConfig({
   ],
 
   themeConfig: {
-    // Nav and sidebar are manually curated. Publishing a page is opt-out
-    // (srcExclude above), but it won't appear here until added to these lists.
-    nav: [
-      { text: 'Integration', link: '/content/integration/sending-traces' },
-      { text: 'Conventions', link: '/content/conventions/semantic-conventions' },
-    ],
-    sidebar: [
-      {
-        text: 'Get started',
-        items: [{ text: 'Sending traces', link: '/content/integration/sending-traces' }],
-      },
-      {
-        text: 'Reference',
-        items: [
-          { text: 'Semantic conventions', link: '/content/conventions/semantic-conventions' },
+    // Shared across locales. Per-locale nav/sidebar live under `locales`.
+    search: { provider: 'local' },
+  },
+
+  locales: {
+    root: {
+      label: 'English',
+      lang: 'en',
+      themeConfig: {
+        nav: [
+          { text: 'Integration', link: '/content/integration/sending-traces' },
+          { text: 'Conventions', link: '/content/conventions/semantic-conventions' },
+        ],
+        sidebar: [
+          {
+            text: 'Get started',
+            items: [{ text: 'Sending traces', link: '/content/integration/sending-traces' }],
+          },
+          {
+            text: 'Reference',
+            items: [
+              { text: 'Semantic conventions', link: '/content/conventions/semantic-conventions' },
+            ],
+          },
         ],
       },
-    ],
-    search: { provider: 'local' },
+    },
+    zh: {
+      label: '简体中文',
+      lang: 'zh-CN',
+      link: '/zh/',
+      themeConfig: {
+        nav: [
+          { text: '接入', link: '/zh/integration/sending-traces' },
+          { text: '约定', link: '/zh/conventions/semantic-conventions' },
+        ],
+        sidebar: [
+          {
+            text: '快速开始',
+            items: [{ text: '发送 trace', link: '/zh/integration/sending-traces' }],
+          },
+          {
+            text: '参考',
+            items: [{ text: '语义约定', link: '/zh/conventions/semantic-conventions' }],
+          },
+        ],
+      },
+    },
+    ja: {
+      label: '日本語',
+      lang: 'ja',
+      link: '/ja/',
+      themeConfig: {
+        nav: [
+          { text: '導入', link: '/ja/integration/sending-traces' },
+          { text: '規約', link: '/ja/conventions/semantic-conventions' },
+        ],
+        sidebar: [
+          {
+            text: 'はじめに',
+            items: [{ text: 'トレースの送信', link: '/ja/integration/sending-traces' }],
+          },
+          {
+            text: 'リファレンス',
+            items: [{ text: 'セマンティック規約', link: '/ja/conventions/semantic-conventions' }],
+          },
+        ],
+      },
+    },
   },
 })
