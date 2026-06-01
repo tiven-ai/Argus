@@ -32,6 +32,18 @@ The browser will pick it up after refresh.
 
 To wire up your own application (get a token, configure an OpenTelemetry exporter, annotate spans), see the integration guide: [`docs/integration/sending-traces.md`](docs/integration/sending-traces.md).
 
+## Deploying the docs portal
+
+The docs portal (`apps/docs`, VitePress) auto-deploys to GitHub Pages via
+[`.github/workflows/deploy.yml`](.github/workflows/deploy.yml) on every push to
+`main` (or manually from the Actions tab).
+
+**One-time setup:** in the repo's **Settings → Pages → Build and deployment →
+Source**, choose **GitHub Actions**. After that, the site publishes to
+<https://tiven-ai.github.io/Argus/>.
+
+Locally: `pnpm --filter @argus/docs dev`.
+
 ## Repository layout
 
 ```
