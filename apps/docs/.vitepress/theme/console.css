@@ -1,0 +1,42 @@
+/* Map VitePress default-theme variables onto the UniFi tokens so the whole
+ * site re-skins to the Console look. Variable names per VitePress theme. */
+:root {
+  --vp-c-bg: var(--page);
+  --vp-c-bg-alt: var(--inset);
+  --vp-c-bg-soft: var(--tile);
+  --vp-c-divider: var(--hairline);
+  --vp-c-border: var(--hairline);
+  --vp-c-gutter: var(--hairline);
+
+  --vp-c-text-1: var(--text-1);
+  --vp-c-text-2: var(--text-2);
+  --vp-c-text-3: var(--text-3);
+
+  --vp-c-brand-1: var(--brand);
+  --vp-c-brand-2: var(--brand-hover);
+  --vp-c-brand-3: var(--brand-active);
+  --vp-c-brand-soft: var(--tint-brand);
+
+  --vp-sidebar-bg-color: var(--page);
+  --vp-nav-bg-color: var(--page);
+
+  --vp-font-family-base: 'Inter Variable', Inter, ui-sans-serif, system-ui, sans-serif;
+}
+
+/* UniFi feel: tight radii, hairline borders, no shadows, 13px base. */
+.vp-doc {
+  font-size: 13px;
+  line-height: 20px;
+}
+
+.VPButton,
+.VPSidebarItem,
+.vp-doc div[class*='language-'] {
+  border-radius: 4px;
+}
+
+.VPSidebar,
+.VPNav {
+  box-shadow: none;
+  border-color: var(--hairline);
+}
